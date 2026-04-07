@@ -126,48 +126,62 @@ def check_stir():
 
     try:
         # Search on orginfo.uz
-        url = f"https://orginfo.uz/ru/search/all/?q={stir}"
+        base_url = "https://orginfo.uz"
+        search_url = f"{base_url}/ru/search/all/?q={stir}"
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-        response = requests.get(url, headers=headers, timeout=10)
+        
+        session_req = requests.Session()
+        response = session_req.get(search_url, headers=headers, timeout=10)
         
         if response.status_code != 200:
             return jsonify({'status': 'error', 'message': 'STIR ma\'lumotlarini olishda xatolik yuz berdi'}), 500
 
+        # If not redirected to an organization page, find the first result
+        final_url = response.url
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Check if "Ничего не найдено"
-        if "Ничего не найдено" in response.text:
-            return jsonify({'status': 'error', 'message': 'Bunday STIR raqamli tashkilot topilmadi'}), 404
+        if "/organization/" not in final_url:
+            # Look for the first organization link in search results
+            org_link = soup.find('a', href=re.compile(r'/organization/'))
+            if not org_link:
+                if "Ничего не найдено" in response.text or "0 организаций" in response.text:
+                    return jsonify({'status': 'error', 'message': 'Bunday STIR raqamli tashkilot topilmadi'}), 404
+                return jsonify({'status': 'error', 'message': 'Qidiruv natijalarini o\'qib bo\'lmadi'}), 500
+            
+            # Fetch the actual organization page
+            org_url = base_url + org_link['href']
+            response = session_req.get(org_url, headers=headers, timeout=10)
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-        # If redirected to org page, or find first org in list
+        # Extract Info from Organization Page
         org_name = ""
         director = ""
         ifut = ""
         
-        # Look for the main title as org name
+        # Name is usually in h1
         h1 = soup.find('h1')
         if h1:
-            org_name = h1.text.strip().replace('Общество с ограниченной ответственностью ', '').replace('\"', '')
+            org_name = h1.text.strip()
+            # Clean common prefixes
+            org_name = re.sub(r'^(Общество с ограниченной ответственностью|OOO|ЧП|OK)\s+', '', org_name, flags=re.IGNORECASE)
+            org_name = org_name.replace('\"', '').strip()
 
-        # Look for tables/lists with key info
-        # This is a bit brittle but orginfo.uz uses predictable labels
-        labels = soup.find_all('dt')
-        for label in labels:
-            text = label.text.strip().lower()
-            value = label.find_next_sibling('dd')
-            if value:
-                if 'руководитель' in text:
-                    director = value.text.strip()
-                elif 'окед' in text:
-                    ifut = value.text.strip().split('-')[0].strip()
+        # Detailed info in dt/dd pairs
+        info_map = {}
+        for dt in soup.find_all('dt'):
+            dd = dt.find_next_sibling('dd')
+            if dd:
+                label = dt.get_text(strip=True).lower()
+                val = dd.get_text(strip=True)
+                info_map[label] = val
+
+        director = info_map.get('руководитель', '')
+        ifut_raw = info_map.get('окэд', '')
+        if ifut_raw:
+            ifut = ifut_raw.split('-')[0].strip()
 
         if not org_name:
-            # Maybe it's a search result list page?
-            first_org = soup.find('a', string=re.compile(r'Об организации'))
-            if first_org:
-                # Need to go deeper or search differently. 
-                # For brevity, let's assume we got redirected (typical for unique STIR)
-                pass
+            return jsonify({'status': 'error', 'message': 'Tashkilot nomi topilmadi'}), 404
 
         return jsonify({
             'status': 'success',
