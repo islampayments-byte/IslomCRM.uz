@@ -8,6 +8,8 @@ class User(db.Model, UserMixin):
     phone = db.Column(db.String(20), unique=True, nullable=False)
     pin_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), default='user') # admin or user
+    failed_attempts = db.Column(db.Integer, default=0)
+    is_blocked = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def check_pin(self, pin, bcrypt):

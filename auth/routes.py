@@ -42,12 +42,29 @@ def verify_pin():
     if not user:
         return jsonify({'status': 'error', 'message': 'Foydalanuvchi topilmadi'}), 404
 
+    # Bloklanganligini tekshirish
+    if user.is_blocked:
+        return jsonify({'status': 'error', 'message': 'Hisobingiz bloklangan. Admin bilan bog\'laning'}), 403
+
     if user.check_pin(pin, bcrypt):
+        # Muvaffaqiyatli bo'lsa urinishlarni nolga tushirish
+        user.failed_attempts = 0
+        db.session.commit()
+        
         login_user(user)
         redirect_url = url_for('admin.dashboard') if user.role == 'admin' else url_for('user.dashboard')
         return jsonify({'status': 'success', 'redirect': redirect_url})
     else:
-        return jsonify({'status': 'error', 'message': 'Noto\'g\'ri PIN kod'})
+        # Xato bo'lsa urinishlarni oshirish
+        user.failed_attempts += 1
+        message = 'Noto\'g\'ri PIN kod'
+        
+        if user.failed_attempts >= 3:
+            user.is_blocked = True
+            message = 'Hisobingiz 3 marta xato terilgani uchun bloklandi'
+        
+        db.session.commit()
+        return jsonify({'status': 'error', 'message': message})
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
