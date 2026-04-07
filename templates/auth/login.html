@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <style>
         body {
             display: flex;
@@ -124,7 +125,7 @@
 <body class="dark-theme">
     <div class="auth-container">
         <div class="auth-logo">
-            <i class='bx bxs-shield-plus'></i>
+            <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo">
         </div>
         <h2 class="auth-title">Xush kelibsiz</h2>
         <p class="auth-subtitle" id="subtitleText">Tizimga kirish uchun telefon raqamingizni kiriting</p>

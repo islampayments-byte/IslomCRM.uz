@@ -9,6 +9,7 @@
     <!-- Boxicons for icons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     {% block head %}{% endblock %}
 </head>
 <body class="dark-theme">
@@ -17,7 +18,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class='bx bxs-shield-plus'></i>
+                    <img src="{{ url_for('static', filename='favicon.png') }}" class="logo-img" alt="Logo">
                     <span>IslomCRM</span>
                 </div>
             </div>
