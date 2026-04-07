@@ -4,129 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IslomCRM | Ro'yxatdan o'tish</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background: var(--bg-color);
+            background: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .auth-container {
+
+        .mesh-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 100% 0%, #1e293b 0%, transparent 50%),
+                        radial-gradient(circle at 0% 100%, #172554 0%, transparent 50%);
+            background-color: #020617;
+            filter: blur(80px);
+            opacity: 0.8;
+            animation: meshMove 20s infinite alternate;
+        }
+
+        @keyframes meshMove {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
             padding: 40px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
+            border-radius: 24px;
             text-align: center;
+            position: relative;
+            z-index: 10;
         }
-        .auth-logo {
-            font-size: 40px;
-            color: var(--primary-color);
-            margin-bottom: 20px;
+
+        .auth-logo-container {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 204, 0, 0.1);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 1px solid rgba(255, 204, 0, 0.2);
         }
+
+        .auth-logo-container img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
         .auth-title {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 10px;
+            color: #ffffff;
+            margin-bottom: 8px;
         }
+
         .auth-subtitle {
-            color: var(--text-muted);
+            color: #94a3b8;
             font-size: 14px;
             margin-bottom: 30px;
         }
-        .input-group {
+
+        .input-wrapper {
+            position: relative;
             margin-bottom: 20px;
             text-align: left;
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-        .input-group input {
+
+        .input-wrapper input {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: var(--text-color);
-            font-size: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
             transition: var(--transition);
         }
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
+
+        .input-wrapper label {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 14px;
+            pointer-events: none;
+            transition: var(--transition);
         }
-        .btn-submit {
+
+        .input-wrapper input:focus + label,
+        .input-wrapper input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: #1e293b;
+            padding: 0 6px;
+            transform: translateY(-50%) translateX(-4px);
+        }
+
+        .btn-premium {
             width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
             background: var(--primary-color);
             color: #000;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
             cursor: pointer;
             transition: var(--transition);
+            box-shadow: 0 8px 16px rgba(255, 204, 0, 0.2);
         }
-        .btn-submit:hover {
-            background: #e6b800;
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            background: #ffdb4d;
         }
+
         .auth-footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: var(--text-muted);
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 13px;
         }
+
         .auth-footer a {
             color: var(--primary-color);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
-        .alert {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .alert-danger { background: rgba(231,76,60,0.1); color: var(--danger); }
-        .alert-warning { background: rgba(243,156,18,0.1); color: var(--warning); }
     </style>
 </head>
-<body class="dark-theme">
-    <div class="auth-container">
-        <div class="auth-logo">
+<body>
+    <div class="mesh-bg"></div>
+
+    <div class="login-card glass-card animate-fade">
+        <div class="auth-logo-container">
             <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo">
         </div>
-        <h2 class="auth-title">Ro'yxatdan o'tish</h2>
-        <p class="auth-subtitle">Tizimga yangi hisob qo'shish</p>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <h1 class="auth-title">Ro'yxatdan o'tish</h1>
+        <p class="auth-subtitle">Yangi hisob yarating va platformadan foydalaning</p>
 
         <form method="POST" action="{{ url_for('auth.register') }}">
-            <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" name="phone" id="phone" value="+998" maxlength="13" required placeholder=" ">
                 <label>Telefon raqam</label>
-                <input type="text" name="phone" id="phoneInput" value="+998" placeholder="+998901234567" maxlength="13" required>
             </div>
-            <div class="input-group">
-                <label>6 xonali xavfsizlik PIN kodi yozing</label>
-                <input type="password" name="pin" maxlength="6" pattern="[0-9]{6}" title="Faqat 6 ta raqam" placeholder="******" required>
+
+            <div class="input-wrapper">
+                <input type="password" name="pin" id="pin" maxlength="6" required placeholder=" ">
+                <label>6 xonali PIN kod</label>
             </div>
-            <button type="submit" class="btn-submit">Ro'yxatdan o'tish</button>
+
+            <button type="submit" class="btn-premium">Ro'yxatdan o'tish</button>
         </form>
 
         <div class="auth-footer">
@@ -135,8 +185,8 @@
     </div>
 
     <script>
-        const phoneInput = document.getElementById('phoneInput');
-        phoneInput.addEventListener('input', function(e) {
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function() {
             if (!this.value.startsWith('+998')) {
                 this.value = '+998';
             }

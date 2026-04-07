@@ -4,142 +4,270 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IslomCRM | Kirish</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background: var(--bg-color);
+            background: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .auth-container {
+
+        /* Animated Mesh Background */
+        .mesh-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
-            padding: 40px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 0% 0%, #1e293b 0%, transparent 50%),
+                        radial-gradient(circle at 100% 0%, #334155 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, #0f172a 0%, transparent 50%),
+                        radial-gradient(circle at 0% 100%, #172554 0%, transparent 50%);
+            background-color: #020617;
+            filter: blur(80px);
+            opacity: 0.8;
+            animation: meshMove 20s infinite alternate;
+        }
+
+        @keyframes meshMove {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            padding: 48px;
+            border-radius: 24px;
             text-align: center;
+            position: relative;
+            z-index: 10;
+            transition: var(--transition);
         }
-        .auth-logo {
-            font-size: 40px;
-            color: var(--primary-color);
-            margin-bottom: 20px;
+
+        .auth-logo-container {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 204, 0, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            border: 1px solid rgba(255, 204, 0, 0.2);
         }
+
+        .auth-logo-container img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
         .auth-title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 10px;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
+
         .auth-subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 30px;
+            color: #94a3b8;
+            font-size: 15px;
+            margin-bottom: 40px;
+            line-height: 1.5;
         }
-        .input-group {
-            margin-bottom: 20px;
+
+        /* Floating Input Styles */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 24px;
             text-align: left;
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-        .input-group input {
+
+        .input-wrapper input {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: var(--text-color);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px 20px;
+            color: #ffffff;
             font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .input-wrapper label {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 15px;
+            pointer-events: none;
             transition: var(--transition);
         }
-        .input-group input:focus {
-            outline: none;
+
+        .input-wrapper input:focus, 
+        .input-wrapper input:not(:placeholder-shown) {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+            background: rgba(255, 255, 255, 0.06);
         }
-        .pin-inputs {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            display: none; /* Hidden strictly until phone check */
+
+        .input-wrapper input:focus + label,
+        .input-wrapper input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: #1e293b;
+            padding: 0 8px;
+            border-radius: 4px;
+            transform: translateY(-50%) translateX(-4px);
         }
-        .pin-inputs input {
-            width: 45px;
-            height: 55px;
-            text-align: center;
-            font-size: 24px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: var(--text-color);
-        }
-        .pin-inputs input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        .btn-submit {
+
+        .btn-premium {
             width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
             background: var(--primary-color);
             color: #000;
+            padding: 16px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
+            border: none;
             cursor: pointer;
             transition: var(--transition);
+            box-shadow: 0 10px 20px -5px rgba(255, 204, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        .btn-submit:hover {
-            background: #e6b800;
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(255, 204, 0, 0.4);
+            background: #ffdb4d;
         }
+
+        .btn-premium:active {
+            transform: translateY(0);
+        }
+
+        /* PIN Grid */
+        .pin-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .pin-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .pin-box:focus {
+            border-color: var(--primary-color);
+            background: rgba(255, 204, 0, 0.05);
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.1);
+        }
+
         .auth-footer {
-            margin-top: 20px;
+            margin-top: 32px;
+            color: #64748b;
             font-size: 14px;
-            color: var(--text-muted);
         }
+
         .auth-footer a {
             color: var(--primary-color);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            margin-left: 4px;
         }
-        /* Error message */
-        .error-msg {
-            color: var(--danger);
+
+        .error-overlay {
+            color: #f43f5e;
             font-size: 13px;
-            margin-top: 5px;
+            font-weight: 500;
+            margin-top: 8px;
             display: none;
+        }
+
+        /* Transitions */
+        .fade-out { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(1.05); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
-<body class="dark-theme">
-    <div class="auth-container">
-        <div class="auth-logo">
-            <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo">
-        </div>
-        <h2 class="auth-title">Xush kelibsiz</h2>
-        <p class="auth-subtitle" id="subtitleText">Tizimga kirish uchun telefon raqamingizni kiriting</p>
+<body>
+    <div class="mesh-bg"></div>
 
-        <div id="phoneStep">
-            <div class="input-group">
-                <label>Telefon raqam</label>
-                <input type="text" id="phoneInput" value="+998" placeholder="+998901234567" maxlength="13">
-                <div class="error-msg" id="phoneError"></div>
+    <div class="login-card glass-card animate-fade">
+        <div id="step-wrapper">
+            <!-- Step 1: Phone -->
+            <div id="phoneStep">
+                <div class="auth-logo-container">
+                    <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo">
+                </div>
+                <h1 class="auth-title">Xush kelibsiz</h1>
+                <p class="auth-subtitle">IslomCRM & IslomPayments platformasiga kirish uchun raqamingizni kiriting</p>
+
+                <div class="input-wrapper">
+                    <input type="text" id="phoneInput" value="+998" maxlength="13" placeholder=" ">
+                    <label>Telefon raqamingiz</label>
+                    <div class="error-overlay" id="phoneError"></div>
+                </div>
+
+                <button class="btn-premium" onclick="checkPhone()">
+                    Davom etish
+                    <i class='bx bx-right-arrow-alt'></i>
+                </button>
             </div>
-            <button class="btn-submit" id="btnContinue" onclick="checkPhone()">Davom etish</button>
-        </div>
 
-        <div id="pinStep" class="pin-inputs" style="display: none;"></div>
+            <!-- Step 2: PIN (Hidden Initially) -->
+            <div id="pinStepWrapper" style="display: none;">
+                <div class="auth-logo-container">
+                    <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo">
+                </div>
+                <h1 class="auth-title">PIN Kod</h1>
+                <p class="auth-subtitle" id="pinSubtitle">Tizimga kirish uchun 6 xonali maxfiy kodingizni kiriting</p>
+
+                <div class="pin-grid" id="pinInputs">
+                    <!-- JS will inject boxes -->
+                </div>
+
+                <button class="btn-premium" id="btnBack" onclick="resetFlow()" style="background: rgba(255,255,255,0.05); color: #fff; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: none;">
+                    Raqamni o'zgartirish
+                </button>
+            </div>
+        </div>
 
         <div class="auth-footer" id="authFooter">
             Hisobingiz yo'qmi? <a href="{{ url_for('auth.register') }}">Ro'yxatdan o'ting</a>
@@ -150,13 +278,14 @@
         const phoneInput = document.getElementById('phoneInput');
         const phoneError = document.getElementById('phoneError');
         const phoneStep = document.getElementById('phoneStep');
-        const pinStep = document.getElementById('pinStep');
-        const subtitleText = document.getElementById('subtitleText');
+        const pinStepWrapper = document.getElementById('pinStepWrapper');
+        const pinInputsContainer = document.getElementById('pinInputs');
+        const pinSubtitle = document.getElementById('pinSubtitle');
         const authFooter = document.getElementById('authFooter');
         
         let savedPhone = "";
 
-        // Enforce +998
+        // Enforce +998 formatting
         phoneInput.addEventListener('input', function(e) {
             if (!this.value.startsWith('+998')) {
                 this.value = '+998';
@@ -166,12 +295,10 @@
         async function checkPhone() {
             const phone = phoneInput.value.trim();
             if(phone.length !== 13) {
-                phoneError.innerText = "To'liq telefon raqamini kiriting";
-                phoneError.style.display = "block";
+                showError("Iltimos, to'liq telefon raqamini kiriting");
                 return;
             }
-            phoneError.style.display = "none";
-
+            
             const res = await fetch("{{ url_for('auth.check_phone') }}", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -181,85 +308,114 @@
             
             if(data.status === 'exists') {
                 savedPhone = phone;
-                showPinStep();
+                transitionToPin();
             } else {
-                phoneError.innerText = data.message;
-                phoneError.style.display = "block";
-                setTimeout(() => {
-                    window.location.href = "{{ url_for('auth.register') }}";
-                }, 1500);
+                showError(data.message);
+                if(data.status === 'not_found') {
+                    setTimeout(() => window.location.href = "{{ url_for('auth.register') }}", 1500);
+                }
             }
         }
 
-        function showPinStep() {
-            phoneStep.style.display = 'none';
-            authFooter.style.display = 'none';
-            subtitleText.innerHTML = "Xavfsizlik PIN kodini kiriting";
-            
-            pinStep.style.display = 'flex';
-            pinStep.innerHTML = '';
+        function showError(msg) {
+            phoneError.innerText = msg;
+            phoneError.style.display = "block";
+            phoneInput.style.borderColor = "#f43f5e";
+            setTimeout(() => {
+                phoneError.style.display = "none";
+                phoneInput.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            }, 3000);
+        }
+
+        function transitionToPin() {
+            phoneStep.classList.add('fade-out');
+            setTimeout(() => {
+                phoneStep.style.display = 'none';
+                authFooter.style.display = 'none';
+                pinStepWrapper.style.display = 'block';
+                pinStepWrapper.classList.add('fade-in');
+                
+                generatePinInputs();
+            }, 300);
+        }
+
+        function generatePinInputs() {
+            pinInputsContainer.style.display = 'grid';
+            pinInputsContainer.innerHTML = '';
             for(let i=0; i<6; i++) {
-                pinStep.innerHTML += `<input type="password" maxlength="1" class="pin-box" data-index="${i}">`;
+                const input = document.createElement('input');
+                input.type = 'password';
+                input.maxLength = 1;
+                input.className = 'pin-box';
+                input.dataset.index = i;
+                pinInputsContainer.appendChild(input);
             }
 
-            const pinBoxes = document.querySelectorAll('.pin-box');
-            pinBoxes[0].focus();
+            const boxes = document.querySelectorAll('.pin-box');
+            boxes[0].focus();
 
-            pinBoxes.forEach((box, index) => {
-                box.addEventListener('input', function(e) {
+            boxes.forEach((box, index) => {
+                box.addEventListener('input', function() {
                     if(this.value.length === 1) {
-                        if(index < 5) pinBoxes[index+1].focus();
-                        else checkPin(pinBoxes);
+                        if(index < 5) boxes[index+1].focus();
+                        else verifyPin(boxes);
                     }
                 });
                 box.addEventListener('keydown', function(e) {
-                    if(e.key === 'Backspace' && this.value === '') {
-                        if(index > 0) pinBoxes[index-1].focus();
+                    if(e.key === 'Backspace' && !this.value) {
+                        if(index > 0) boxes[index-1].focus();
                     }
                 });
             });
         }
 
-        async function checkPin(pinBoxes) {
+        async function verifyPin(boxes) {
             let pin = "";
-            pinBoxes.forEach(b => pin += b.value);
+            boxes.forEach(b => pin += b.value);
             
-            if(pin.length === 6) {
-                const res = await fetch("{{ url_for('auth.verify_pin') }}", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({phone: savedPhone, pin: pin})
-                });
-                const data = await res.json();
+            const res = await fetch("{{ url_for('auth.verify_pin') }}", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({phone: savedPhone, pin: pin})
+            });
+            const data = await res.json();
 
-                if(data.status === 'success') {
-                    window.location.href = data.redirect;
-                } else {
-                    subtitleText.innerHTML = `<span style="color:var(--danger)">${data.message}</span>`;
-                    pinBoxes.forEach(b => b.value = '');
-                    if(pinBoxes.length > 0) pinBoxes[0].focus();
-                }
+            if(data.status === 'success') {
+                window.location.href = data.redirect;
+            } else {
+                pinSubtitle.innerHTML = `<span style="color:#f43f5e">${data.message}</span>`;
+                boxes.forEach(b => {
+                    b.value = '';
+                    b.style.borderColor = "#f43f5e";
+                });
+                boxes[0].focus();
+                setTimeout(() => {
+                    pinSubtitle.innerHTML = "Tizimga kirish uchun 6 xonali maxfiy kodingizni kiriting";
+                    boxes.forEach(b => b.style.borderColor = "rgba(255, 255, 255, 0.1)");
+                }, 3000);
             }
+        }
+
+        function resetFlow() {
+            pinStepWrapper.style.display = 'none';
+            phoneStep.style.display = 'block';
+            authFooter.style.display = 'block';
+            phoneStep.classList.remove('fade-out');
+            pinStepWrapper.classList.remove('fade-in');
+            phoneInput.focus();
         }
 
         // --- MAXFIY KOMBINAATSIYA: Ctrl + Shift + Alt + X ---
         document.addEventListener('keydown', function(event) {
-            // event.code ishlatish ishonchliroq
             const isCtrl = event.ctrlKey || event.metaKey;
             const isShift = event.shiftKey;
             const isAlt = event.altKey;
             const isX = event.code === 'KeyX' || event.key.toLowerCase() === 'x';
 
             if (isCtrl && isShift && isAlt && isX) {
-                event.preventDefault(); // Brauzer amalini to'xtatish
-                event.stopPropagation();
-                
+                event.preventDefault();
                 savedPhone = 'admin_shortcut';
-                phoneInput.value = '';
-                showPinStep();
-                
-                subtitleText.innerHTML = "Admin: Maxfiy PIN kodni kiriting";
-                phoneError.style.display = "none";
+                transitionToPin();
             }
         });
     </script>
