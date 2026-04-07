@@ -1,7 +1,11 @@
 from flask import Flask, redirect, url_for
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'islomcrm-secret-key-123'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-key')
 
 # Import blueprints
 from admin.routes import admin_bp
