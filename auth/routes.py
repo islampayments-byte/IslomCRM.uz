@@ -170,68 +170,70 @@ def check_stir():
             org_name = org_name.replace('\"', '').strip()
 
         # Helper to find value in the new grid structure
-        def find_grid_value(label_text, section_title=None):
-            # If section_title is provided, we could narrow down, but let's try better matching first
-            # We look for an element where the text is EXACTLY or very close to the label
-            label_el = soup.find(['span', 'div', 'dt'], string=re.compile(f'^{label_text}$', re.IGNORECASE))
-            if not label_el:
-                # Try partial match if exact fails
-                label_el = soup.find(['span', 'div', 'dt'], string=re.compile(label_text, re.IGNORECASE))
-            
+        def find_grid_value(label_text):
+            # 1. Exact or Partial Match for Label
+            # Labels: 'Руководитель', 'ОКЭД', 'Электронная почта', 'Номер телефона', 'Адрес'
+            label_el = soup.find(string=re.compile(label_text, re.IGNORECASE))
             if label_el:
-                # The label is usually in a column. The value is in the next column of the same row.
-                parent_col = label_el.find_parent('div', class_=re.compile(r'col-(md|sm)'))
-                if parent_col:
-                    next_col = parent_col.find_next_sibling('div', class_=re.compile(r'col-(md|sm)'))
-                    if next_col:
-                        return next_col.get_text(separator=' ', strip=True)
+                # Value is almost always in the next col sibling in the same row
+                parent_row = label_el.find_parent('div', class_='row')
+                if parent_row:
+                    cols = parent_row.find_all('div', class_=re.compile(r'col-'))
+                    if len(cols) >= 2:
+                        # Extra logic for email to avoid [email protected]
+                        if 'почта' in label_text.lower():
+                            mail_link = parent_row.find('a', href=re.compile(r'mailto:'))
+                            if mail_link: return mail_link['href'].replace('mailto:', '')
+                        return cols[-1].get_text(separator=' ', strip=True)
                 
-                # Fallback for dt/dd
-                if label_el.name == 'dt':
-                    dd = label_el.find_next_sibling('dd')
-                    if dd: return dd.get_text(strip=True)
+                # Fallback: find next sibling
+                val_el = label_el.find_next(['dd', 'div', 'span'])
+                if val_el: return val_el.get_text(separator=' ', strip=True)
             return ""
 
-        # Specific extraction for each field with more precise labels
         director = find_grid_value(r'Руководитель')
+        # If still missing, look for management section header
         if not director:
-             # Try searching for the link in the "Управленческая информация" section
-             management_header = soup.find(string=re.compile(r'Управленческая информация', re.IGNORECASE))
-             if management_header:
-                 section = management_header.find_parent('section') or management_header.find_parent('div')
-                 if section:
-                     d_label = section.find(string=re.compile(r'Руководитель', re.IGNORECASE))
-                     if d_label:
-                         row = d_label.find_parent('div', class_='row')
-                         if row:
-                             val = row.find('div', class_=re.compile(r'col-(md|sm)'))
-                             if val:
-                                 # It's usually the second col
-                                 cols = row.find_all('div', class_=re.compile(r'col-(md|sm)'))
-                                 if len(cols) > 1:
-                                     director = cols[1].get_text(strip=True)
+            m_header = soup.find(string=re.compile(r'(Управленческая информация|\bРуководитель\b)', re.IGNORECASE))
+            if m_header:
+                m_row = m_header.find_parent('div', class_='row')
+                if m_row:
+                    cols = m_row.find_all('div', class_=re.compile(r'col-'))
+                    if len(cols) >= 2: director = cols[-1].get_text(strip=True)
 
         ifut_raw = find_grid_value(r'ОКЭД')
         if ifut_raw:
             ifut = "".join(filter(str.isdigit, ifut_raw.split('-')[0]))
         
         email = find_grid_value(r'Электронная почта')
+        if email == "[email\u00a0protected]": email = "" # Cloudflare obfuscation junk
+        
         org_phone = find_grid_value(r'Номер телефона')
-        address_val = find_grid_value(r'Адрес')
-        # Filter out junk values for address
-        if address_val and len(address_val) > 5 and 'uzs' not in address_val.lower():
-            address = address_val
+        address = find_grid_value(r'Адрес')
 
-        # If data still missing, try a different approach: find icons
-        if not email or not org_phone:
-            for row in soup.find_all('div', class_='row'):
-                text = row.get_text().lower()
-                if 'электронная почта' in text and not email:
-                    cols = row.find_all('div', class_=re.compile(r'col-'))
-                    if len(cols) >= 2: email = cols[-1].get_text(strip=True)
-                if 'номер телефона' in text and not org_phone:
-                    cols = row.find_all('div', class_=re.compile(r'col-'))
-                    if len(cols) >= 2: org_phone = cols[-1].get_text(strip=True)
+        # FINAL FALLBACK: Search entire soup for any text that looks like a value after a label
+        if not address or not director or not email:
+            all_text = soup.get_text('\n', strip=True)
+            if not address:
+                # Look for address-like strings after "Адрес"
+                match = re.search(r'Адрес[:\s]+(.*)', all_text, re.IGNORECASE)
+                if match: address = match.group(1).split('\n')[0].strip()
+            if not director:
+                match = re.search(r'Руководитель[:\s]+(.*)', all_text, re.IGNORECASE)
+                if match: director = match.group(1).split('\n')[0].strip()
+
+        # Clean strings
+        def clean(s):
+            if not s: return ""
+            # Remove junk words like "Понятно", "Пароль", etc. which might be picked up from UI elements
+            junk = ['понятно', 'пароль', 'сумма услуги', '0 uzs', '[email\u00a0protected]']
+            if any(j in s.lower() for j in junk): return ""
+            return s.strip()
+
+        director = clean(director)
+        email = clean(email)
+        org_phone = clean(org_phone)
+        address = clean(address)
 
         if not org_name:
             return jsonify({'status': 'error', 'message': 'Tashkilot nomi topilmadi'}), 404
