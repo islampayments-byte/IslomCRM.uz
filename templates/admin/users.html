@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Foydalanuvchilar | Admin{% endblock %}
+{% block page_title %}Foydalanuvchilar Boshqaruvi{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{{ url_for('admin.dashboard') }}">
+        <i class='bx bx-grid-alt' ></i>
+        <span class="link_name">Statistika</span>
+    </a>
+</li>
+<li>
+    <a href="{{ url_for('admin.users_list') }}" class="active">
+        <i class='bx bx-user' ></i>
+        <span class="link_name">Foydalanuvchilar</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<style>
+    .data-table-wrapper {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        overflow-x: auto;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1200px;
+    }
+    .data-table th {
+        text-align: left;
+        padding: 15px;
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .data-table td {
+        padding: 15px;
+        color: #fff;
+        font-size: 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .org-cell {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-block {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+    .btn-unblock {
+        background: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+        border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+    .btn-action:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+    }
+    .search-box {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    .search-input {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 10px 15px;
+        color: #fff;
+        width: 300px;
+        outline: none;
+    }
+</style>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 10px; background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2);">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="data-table-wrapper">
+    <div class="search-box">
+        <input type="text" id="userSearch" class="search-input" placeholder="Qidirish (STIR, Nomi, Telefon)...">
+    </div>
+
+    <table class="data-table" id="usersTable">
+        <thead>
+            <tr>
+                <th>Telefon</th>
+                <th>STIR</th>
+                <th>Tashkilot</th>
+                <th>Rahbar</th>
+                <th>IFUT</th>
+                <th>Email</th>
+                <th>Manzil</th>
+                <th>Holat</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td><strong>{{ user.phone }}</strong></td>
+                <td><code>{{ user.stir or '-' }}</code></td>
+                <td class="org-cell" title="{{ user.org_name }}">{{ user.org_name or '-' }}</td>
+                <td>{{ user.director or '-' }}</td>
+                <td>{{ user.ifut or '-' }}</td>
+                <td>{{ user.email or '-' }}</td>
+                <td class="org-cell" title="{{ user.address }}">{{ user.address or '-' }}</td>
+                <td>
+                    {% if user.is_blocked %}
+                        <span class="status warning" style="background: rgba(231,76,60,0.1); color: #e74c3c;">Bloklangan</span>
+                    {% else %}
+                        <span class="status success">Aktiv</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.id != current_user.id %}
+                        <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
+                           class="btn-action {{ 'btn-unblock' if user.is_blocked else 'btn-block' }}">
+                            {{ "Blokdan yechish" if user.is_blocked else "Bloklash" }}
+                        </a>
+                    {% else %}
+                        <span style="color: #64748b; font-size: 11px;">Siz</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById('userSearch').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#usersTable tbody tr');
+        
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

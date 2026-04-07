@@ -11,7 +11,7 @@
     </a>
 </li>
 <li>
-    <a href="#">
+    <a href="{{ url_for('admin.users_list') }}">
         <i class='bx bx-user' ></i>
         <span class="link_name">Foydalanuvchilar</span>
     </a>
@@ -23,7 +23,7 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 10px; border-radius: 8px; background: rgba(46, 204, 113, 0.1); color: var(--success);">
+      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 10px; border-radius: 8px; background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2);">
         {{ message }}
       </div>
     {% endfor %}
@@ -31,29 +31,34 @@
 {% endwith %}
 
 <div class="cards-grid">
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number">{{ total_users }}</div>
-            <div class="card-name">Jami Foydalanuvchilar</div>
+    <a href="{{ url_for('admin.users_list') }}" style="text-decoration: none; color: inherit;">
+        <div class="stat-card">
+            <div class="card-content">
+                <div class="number">{{ total_users }}</div>
+                <div class="card-name">Jami Foydalanuvchilar</div>
+            </div>
+            <div class="icon-box">
+                <i class='bx bx-group'></i>
+            </div>
         </div>
-        <div class="icon-box">
-            <i class='bx bx-group'></i>
+    </a>
+    <a href="{{ url_for('admin.users_list') }}" style="text-decoration: none; color: inherit;">
+        <div class="stat-card">
+            <div class="card-content">
+                <div class="number" style="color: var(--danger);">{{ blocked_users }}</div>
+                <div class="card-name">Bloklanganlar</div>
+            </div>
+            <div class="icon-box" style="color: var(--danger); background: rgba(231, 76, 60, 0.1);">
+                <i class='bx bx-lock-alt'></i>
+            </div>
         </div>
-    </div>
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number" style="color: var(--danger);">{{ blocked_users }}</div>
-            <div class="card-name">Bloklanganlar</div>
-        </div>
-        <div class="icon-box" style="color: var(--danger); background: rgba(231, 76, 60, 0.1);">
-            <i class='bx bx-lock-alt'></i>
-        </div>
-    </div>
+    </a>
 </div>
 
 <div class="table-container mt-4">
-    <div class="table-header">
-        <h3>Foydalanuvchilar Ro'yxati</h3>
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Oxirgi foydalanuvchilar</h3>
+        <a href="{{ url_for('admin.users_list') }}" style="color: var(--primary-color); font-size: 13px; font-weight: 600; text-decoration: none;">Hammasini ko'rish</a>
     </div>
     <table class="data-table">
         <thead>
@@ -62,7 +67,6 @@
                 <th>Telefon raqam</th>
                 <th>Rol</th>
                 <th>Xato urinishlar</th>
-                <th>IP Manzil</th>
                 <th>Sana</th>
                 <th>Status</th>
                 <th>Amal</th>
@@ -75,7 +79,6 @@
                 <td>{{ user.phone }}</td>
                 <td><span class="status {{ 'success' if user.role == 'admin' else 'info' }}">{{ user.role }}</span></td>
                 <td>{{ user.failed_attempts }} / 3</td>
-                <td>{{ user.last_ip or '-' }}</td>
                 <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>
                     {% if user.is_blocked %}
@@ -85,8 +88,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if user.is_blocked %}
-                        <a href="{{ url_for('admin.unblock_user', user_id=user.id) }}" class="btn-submit" style="padding: 5px 10px; font-size: 12px; text-decoration: none;">Blokdan yechish</a>
+                    {% if user.id != current_user.id %}
+                        <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
+                           class="btn-submit" style="padding: 5px 10px; font-size: 11px; text-decoration: none; {{ 'background: var(--danger);' if not user.is_blocked else 'background: var(--success);' }}">
+                            {{ "Blokdan yechish" if user.is_blocked else "Bloklash" }}
+                        </a>
                     {% else %}
                         -
                     {% endif %}
