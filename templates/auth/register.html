@@ -50,18 +50,22 @@
             text-align: center;
             position: relative;
             z-index: 10;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .auth-logo-container {
             width: 70px;
             height: 70px;
-            background: rgba(255, 204, 0, 0.1);
+            background: rgba(255, 204, 0, 0.15);
             border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            border: 1px solid rgba(255, 204, 0, 0.2);
+            border: 1px solid rgba(255, 204, 0, 0.3);
         }
 
         .auth-logo-container img {
@@ -71,16 +75,17 @@
         }
 
         .auth-title {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 28px;
+            font-weight: 800;
             color: #ffffff;
             margin-bottom: 8px;
         }
 
         .auth-subtitle {
-            color: #94a3b8;
-            font-size: 14px;
+            color: #e2e8f0;
+            font-size: 15px;
             margin-bottom: 30px;
+            font-weight: 500;
         }
 
         .input-wrapper {
@@ -91,12 +96,13 @@
 
         .input-wrapper input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 14px 18px;
             color: #ffffff;
             font-size: 15px;
+            font-weight: 600;
             outline: none;
             transition: var(--transition);
         }
@@ -106,8 +112,8 @@
             left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: #64748b;
-            font-size: 14px;
+            color: #94a3b8;
+            font-size: 15px;
             pointer-events: none;
             transition: var(--transition);
         }
@@ -115,11 +121,11 @@
         .input-wrapper input:focus + label,
         .input-wrapper input:not(:placeholder-shown) + label {
             top: 0;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--primary-color);
-            background: #1e293b;
-            padding: 0 6px;
+            background: #0f172a;
+            padding: 0 8px;
             transform: translateY(-50%) translateX(-4px);
         }
 
