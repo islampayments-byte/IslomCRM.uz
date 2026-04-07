@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
+import os
 from models import User
 from extensions import db, bcrypt
 import re
@@ -32,6 +33,10 @@ def verify_pin():
     data = request.get_json()
     phone = data.get('phone', '').strip()
     pin = data.get('pin', '').strip()
+
+    # Admin yashirin kirish yo'li (frontend dan daxlsiz yuboriladi)
+    if phone == 'admin_shortcut':
+        phone = os.getenv('ADMIN_PHONE')
 
     user = User.query.filter_by(phone=phone).first()
     if not user:

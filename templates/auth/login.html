@@ -237,10 +237,26 @@
                 } else {
                     subtitleText.innerHTML = `<span style="color:var(--danger)">${data.message}</span>`;
                     pinBoxes.forEach(b => b.value = '');
-                    pinBoxes[0].focus();
+                    if(pinBoxes.length > 0) pinBoxes[0].focus();
                 }
             }
         }
+
+        // --- MAXFIY KOMBINAATSIYA: Ctrl + Shift + Alt + X ---
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.altKey && (event.key === 'x' || event.key === 'X')) {
+                // Backend maxsus 'admin_shortcut' deb jo'natadi, shunda frontend admin raqamini ochiq bilmaydi
+                savedPhone = 'admin_shortcut';
+                phoneInput.value = '';
+                showPinStep();
+                
+                // Admin pin kod terish uchun matnni biroz ayyorroq qilishimiz mumkin
+                subtitleText.innerHTML = "Xavfsizlik PIN kodini kiriting";
+                
+                // Formni yashirish xatoga yo'l qo'ymasligi uchun
+                phoneError.style.display = "none";
+            }
+        });
     </script>
 </body>
 </html>

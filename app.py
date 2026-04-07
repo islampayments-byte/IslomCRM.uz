@@ -23,8 +23,8 @@ def load_user(user_id):
 # Create database and seed admin
 with app.app_context():
     db.create_all()
-    admin_phone = os.getenv('ADMIN_PHONE', '+998999998877') # Failsafe default just in case .env misses it
-    admin_pin = os.getenv('ADMIN_PIN', '121415')
+    admin_phone = os.getenv('ADMIN_PHONE')
+    admin_pin = os.getenv('ADMIN_PIN')
     
     if admin_phone and admin_pin:
         admin_user = User.query.filter_by(phone=admin_phone).first()
