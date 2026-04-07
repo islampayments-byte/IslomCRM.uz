@@ -246,7 +246,7 @@
                 <p class="auth-subtitle">IslomCRM & IslomPayments platformasiga kirish uchun raqamingizni kiriting</p>
 
                 <div class="input-wrapper">
-                    <input type="text" id="phoneInput" value="+998" maxlength="17" placeholder=" ">
+                    <input type="tel" id="phoneInput" value="+998" maxlength="17" placeholder=" " inputmode="numeric">
                     <label>Telefon raqamingiz</label>
                     <div class="error-overlay" id="phoneError"></div>
                 </div>
@@ -380,6 +380,7 @@
             for(let i=0; i<6; i++) {
                 const input = document.createElement('input');
                 input.type = 'password';
+                input.inputmode = 'numeric';
                 input.maxLength = 1;
                 input.className = 'pin-box';
                 input.dataset.index = i;
