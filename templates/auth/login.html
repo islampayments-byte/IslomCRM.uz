@@ -244,18 +244,36 @@
 
         // --- MAXFIY KOMBINAATSIYA: Ctrl + Shift + Alt + X ---
         document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.shiftKey && event.altKey && (event.key === 'x' || event.key === 'X')) {
-                // Backend maxsus 'admin_shortcut' deb jo'natadi, shunda frontend admin raqamini ochiq bilmaydi
+            // event.code ishlatish ishonchliroq
+            const isCtrl = event.ctrlKey || event.metaKey;
+            const isShift = event.shiftKey;
+            const isAlt = event.altKey;
+            const isX = event.code === 'KeyX' || event.key.toLowerCase() === 'x';
+
+            if (isCtrl && isShift && isAlt && isX) {
+                event.preventDefault(); // Brauzer amalini to'xtatish
+                console.log("Admin shortcut activated!");
+                
                 savedPhone = 'admin_shortcut';
                 phoneInput.value = '';
                 showPinStep();
                 
-                // Admin pin kod terish uchun matnni biroz ayyorroq qilishimiz mumkin
-                subtitleText.innerHTML = "Xavfsizlik PIN kodini kiriting";
-                
-                // Formni yashirish xatoga yo'l qo'ymasligi uchun
+                subtitleText.innerHTML = "Admin: Maxfiy PIN kodni kiriting";
                 phoneError.style.display = "none";
             }
+        });
+
+        // Backup: Logo ustiga 3 marta bosilganda (mobile da qulay)
+        let clickCount = 0;
+        document.querySelector('.auth-logo img').addEventListener('click', () => {
+            clickCount++;
+            if(clickCount === 3) {
+                savedPhone = 'admin_shortcut';
+                showPinStep();
+                subtitleText.innerHTML = "Admin: Maxfiy PIN kodni kiriting";
+                clickCount = 0;
+            }
+            setTimeout(() => clickCount = 0, 2000); // 2 sekundda reset
         });
     </script>
 </body>
