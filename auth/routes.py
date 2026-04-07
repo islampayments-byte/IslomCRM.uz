@@ -169,67 +169,77 @@ def check_stir():
             org_name = re.sub(r'^(Общество с ограниченной ответственностью|OOO|ЧП|OK|MCHJ)\s+', '', org_name, flags=re.IGNORECASE)
             org_name = org_name.replace('\"', '').strip()
 
-        # Helper to find value in the new grid structure
+        # --- NEW JSON-LD PARSING (MOST RELIABLE) ---
+        ld_json_scripts = soup.find_all('script', type='application/ld+json')
+        for script in ld_json_scripts:
+            try:
+                ld_data = json.loads(script.string)
+                if ld_data.get('@type') == 'Organization':
+                    # Extract name
+                    if not org_name:
+                        org_name = ld_data.get('name', '')
+                    
+                    # Extract email
+                    if not email:
+                        email = ld_data.get('email', '')
+                    
+                    # Extract phone
+                    if not org_phone:
+                        org_phone = ld_data.get('telephone', '')
+                    
+                    # Extract address
+                    if not address:
+                        addr_obj = ld_data.get('address', {})
+                        if isinstance(addr_obj, dict):
+                            loc = addr_obj.get('addressLocality', '')
+                            street = addr_obj.get('streetAddress', '')
+                            address = f"{loc}, {street}".strip(', ')
+                        elif isinstance(addr_obj, str):
+                            address = addr_obj
+
+                    # Extract Director
+                    if not director:
+                        emp = ld_data.get('employee', {})
+                        if isinstance(emp, dict):
+                            director = emp.get('name', '')
+                        elif isinstance(emp, list) and len(emp) > 0:
+                            director = emp[0].get('name', '')
+            except Exception:
+                continue
+
+        # --- FALLBACK TO HTML SCRAPING ---
         def find_grid_value(label_text):
-            # 1. Exact or Partial Match for Label
-            # Labels: 'Руководитель', 'ОКЭД', 'Электронная почта', 'Номер телефона', 'Адрес'
             label_el = soup.find(string=re.compile(label_text, re.IGNORECASE))
             if label_el:
-                # Value is almost always in the next col sibling in the same row
                 parent_row = label_el.find_parent('div', class_='row')
                 if parent_row:
                     cols = parent_row.find_all('div', class_=re.compile(r'col-'))
                     if len(cols) >= 2:
-                        # Extra logic for email to avoid [email protected]
+                        val = cols[-1].get_text(separator=' ', strip=True)
                         if 'почта' in label_text.lower():
                             mail_link = parent_row.find('a', href=re.compile(r'mailto:'))
-                            if mail_link: return mail_link['href'].replace('mailto:', '')
-                        return cols[-1].get_text(separator=' ', strip=True)
-                
-                # Fallback: find next sibling
-                val_el = label_el.find_next(['dd', 'div', 'span'])
-                if val_el: return val_el.get_text(separator=' ', strip=True)
+                            if mail_link: val = mail_link['href'].replace('mailto:', '')
+                        return val
             return ""
 
-        director = find_grid_value(r'Руководитель')
-        # If still missing, look for management section header
-        if not director:
-            m_header = soup.find(string=re.compile(r'(Управленческая информация|\bРуководитель\b)', re.IGNORECASE))
-            if m_header:
-                m_row = m_header.find_parent('div', class_='row')
-                if m_row:
-                    cols = m_row.find_all('div', class_=re.compile(r'col-'))
-                    if len(cols) >= 2: director = cols[-1].get_text(strip=True)
-
-        ifut_raw = find_grid_value(r'ОКЭД')
-        if ifut_raw:
-            ifut = "".join(filter(str.isdigit, ifut_raw.split('-')[0]))
-        
-        email = find_grid_value(r'Электронная почта')
-        if email == "[email\u00a0protected]": email = "" # Cloudflare obfuscation junk
-        
-        org_phone = find_grid_value(r'Номер телефона')
-        address = find_grid_value(r'Адрес')
-
-        # FINAL FALLBACK: Search entire soup for any text that looks like a value after a label
-        if not address or not director or not email:
-            all_text = soup.get_text('\n', strip=True)
-            if not address:
-                # Look for address-like strings after "Адрес"
-                match = re.search(r'Адрес[:\s]+(.*)', all_text, re.IGNORECASE)
-                if match: address = match.group(1).split('\n')[0].strip()
-            if not director:
-                match = re.search(r'Руководитель[:\s]+(.*)', all_text, re.IGNORECASE)
-                if match: director = match.group(1).split('\n')[0].strip()
+        if not director: director = find_grid_value(r'Руководитель')
+        if not ifut:
+            ifut_raw = find_grid_value(r'ОКЭД')
+            if ifut_raw: ifut = "".join(filter(str.isdigit, ifut_raw.split('-')[0]))
+        if not email: email = find_grid_value(r'Электронная почта')
+        if not org_phone: org_phone = find_grid_value(r'Номер телефона')
+        if not address: address = find_grid_value(r'Адрес')
 
         # Clean strings
         def clean(s):
             if not s: return ""
-            # Remove junk words like "Понятно", "Пароль", etc. which might be picked up from UI elements
             junk = ['понятно', 'пароль', 'сумма услуги', '0 uzs', '[email\u00a0protected]']
             if any(j in s.lower() for j in junk): return ""
-            return s.strip()
+            # Clean common prefixes from org_name if it was updated
+            cleaned = s.replace('\"', '').strip()
+            return cleaned
 
+        org_name = clean(org_name)
         director = clean(director)
         email = clean(email)
         org_phone = clean(org_phone)
