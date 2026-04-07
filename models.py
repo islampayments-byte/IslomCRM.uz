@@ -10,7 +10,14 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(20), default='user') # admin or user
     failed_attempts = db.Column(db.Integer, default=0)
     is_blocked = db.Column(db.Boolean, default=False)
-    last_ip = db.Column(db.String(45)) # IPv6 fits in 45 chars
+    last_ip = db.Column(db.String(45))
+    
+    # Organization Details
+    stir = db.Column(db.String(9), unique=True)
+    org_name = db.Column(db.String(255))
+    director = db.Column(db.String(255))
+    ifut = db.Column(db.String(10))
+    is_verified = db.Column(db.Boolean, default=False) # IPv6 fits in 45 chars
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def check_pin(self, pin, bcrypt):

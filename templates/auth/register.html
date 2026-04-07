@@ -32,54 +32,57 @@
             background: radial-gradient(circle at 100% 0%, #1e293b 0%, transparent 50%),
                         radial-gradient(circle at 0% 100%, #172554 0%, transparent 50%);
             background-color: #020617;
-            filter: blur(20px); /* Performance fix */
+            filter: blur(40px);
             opacity: 0.9;
         }
 
-        /* Animation removed for speed */
-
         .login-card {
             width: 100%;
-            max-width: 440px;
+            max-width: 480px;
             padding: 40px;
             border-radius: 24px;
             text-align: center;
             position: relative;
             z-index: 10;
-            background: rgba(30, 41, 59, 0.82);
-            backdrop-filter: blur(10px);
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .auth-logo-container {
-            width: 70px;
-            height: 70px;
-            background: rgba(255, 204, 0, 0.15);
-            border-radius: 18px;
+        .step-indicators {
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            border: 1px solid rgba(255, 204, 0, 0.3);
+            gap: 12px;
+            margin-bottom: 32px;
         }
 
-        .auth-logo-container img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+            width: 24px;
+            border-radius: 10px;
         }
 
         .auth-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
             color: #ffffff;
             margin-bottom: 8px;
         }
 
         .auth-subtitle {
-            color: #e2e8f0;
-            font-size: 15px;
+            color: #94a3b8;
+            font-size: 14px;
             margin-bottom: 30px;
             font-weight: 500;
         }
@@ -117,10 +120,10 @@
         .input-wrapper input:focus + label,
         .input-wrapper input:not(:placeholder-shown) + label {
             top: 0;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--primary-color);
-            background: #0f172a;
+            background: #1e293b;
             padding: 0 8px;
             transform: translateY(-50%) translateX(-4px);
         }
@@ -137,6 +140,10 @@
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 8px 16px rgba(255, 204, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-premium:hover {
@@ -144,16 +151,66 @@
             background: #ffdb4d;
         }
 
-        .auth-footer {
-            margin-top: 24px;
-            color: #64748b;
-            font-size: 13px;
+        .org-info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
         }
 
-        .auth-footer a {
-            color: var(--primary-color);
-            text-decoration: none;
+        .org-info-item {
+            margin-bottom: 12px;
+        }
+
+        .org-info-label {
+            color: #64748b;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .org-info-value {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .sms-inputs {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .sms-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            outline: none;
+        }
+
+        .error-msg {
+            color: #f43f5e;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .fade-out { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(1.02); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -161,72 +218,289 @@
     <div class="mesh-bg"></div>
 
     <div class="login-card glass-card">
-        <div class="auth-logo-container">
-            <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo">
+        <div class="step-indicators">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
         </div>
-        <h1 class="auth-title">Ro'yxatdan o'tish</h1>
-        <p class="auth-subtitle">Yangi hisob yarating va platformadan foydalaning</p>
 
-        <form method="POST" action="{{ url_for('auth.register') }}">
+        <!-- Step 1: Basic Info -->
+        <div id="step-1" class="registration-step">
+            <h1 class="auth-title">Ro'yxatdan o'tish</h1>
+            <p class="auth-subtitle">Ma'lumotlaringizni kiriting</p>
+
             <div class="input-wrapper">
-                <input type="text" name="phone" id="phone" value="+998" maxlength="17" required placeholder=" ">
+                <input type="text" id="phone" value="+998" maxlength="17" placeholder=" ">
                 <label>Telefon raqam</label>
             </div>
 
             <div class="input-wrapper">
-                <input type="password" name="pin" id="pin" maxlength="6" required placeholder=" ">
+                <input type="password" id="pin" maxlength="6" placeholder=" ">
                 <label>6 xonali PIN kod</label>
             </div>
 
-            <button type="submit" class="btn-premium">Ro'yxatdan o'tish</button>
-        </form>
+            <div class="input-wrapper">
+                <input type="password" id="confirm_pin" maxlength="6" placeholder=" ">
+                <label>PIN kodni tasdiqlang</label>
+            </div>
 
-        <div class="auth-footer">
-            Hisobingiz bormi? <a href="{{ url_for('auth.login') }}">Kirish</a>
+            <div class="error-msg" id="error-1"></div>
+
+            <button class="btn-premium" onclick="goStep2()">
+                Davom etish
+                <i class='bx bx-right-arrow-alt'></i>
+            </button>
+        </div>
+
+        <!-- Step 2: STIR Verification -->
+        <div id="step-2" class="registration-step" style="display: none;">
+            <h1 class="auth-title">Tashkilot ma'lumotlari</h1>
+            <p class="auth-subtitle">Tashkilotingiz STIR (INN) raqamini kiriting</p>
+
+            <div class="input-wrapper">
+                <input type="text" id="stir" maxlength="9" placeholder=" ">
+                <label>STIR (9 ta raqam)</label>
+            </div>
+
+            <div id="loading-stir" style="display: none; color: #94a3b8; font-size: 14px; margin-bottom: 10px;">
+                <i class='bx bx-loader-alt bx-spin'></i> Qidirilmoqda...
+            </div>
+
+            <div class="org-info-card" id="org-info">
+                <div class="org-info-item">
+                    <div class="org-info-label">Tashkilot nomi</div>
+                    <div class="org-info-value" id="display-org-name"></div>
+                </div>
+                <div class="org-info-item">
+                    <div class="org-info-label">STIR</div>
+                    <div class="org-info-value" id="display-stir"></div>
+                </div>
+                <div class="org-info-item">
+                    <div class="org-info-label">Rahbar</div>
+                    <div class="org-info-value" id="display-director"></div>
+                </div>
+                <div class="org-info-item">
+                    <div class="org-info-label">IFUT (OKED)</div>
+                    <div class="org-info-value" id="display-ifut"></div>
+                </div>
+            </div>
+
+            <div class="error-msg" id="error-2"></div>
+
+            <div id="stir-actions">
+                <button class="btn-premium" onclick="searchStir()">
+                    STIR tekshirish
+                </button>
+                <button class="btn-premium" onclick="goStep3()" id="btn-confirm-org" style="display: none; margin-top: 12px;">
+                    Ma'lumotlarni tasdiqlash
+                </button>
+            </div>
+            
+            <a href="#" onclick="backStep1()" style="display: block; margin-top: 15px; color: #94a3b8; font-size: 13px; text-decoration: none;">Orqaga qaytish</a>
+        </div>
+
+        <!-- Step 3: SMS Verification -->
+        <div id="step-3" class="registration-step" style="display: none;">
+            <h1 class="auth-title">SMS Tasdiqlash</h1>
+            <p class="auth-subtitle" id="sms-status">Telefoningizga yuborilgan 6 xonali kodni kiriting</p>
+
+            <div class="sms-inputs" id="sms-inputs">
+                <!-- JS handles -->
+            </div>
+
+            <div class="error-msg" id="error-3"></div>
+
+            <button class="btn-premium" onclick="completeRegistration()" id="btn-final" style="display: none;">
+                Ro'yxatdan o'tishni yakunlash
+            </button>
+            
+            <a href="#" onclick="backStep2()" style="display: block; margin-top: 20px; color: #94a3b8; font-size: 13px; text-decoration: none;">STIRni o'zgartirish</a>
+        </div>
+
+        <div class="auth-footer" id="main-footer" style="margin-top: 24px; color: #64748b; font-size: 13px;">
+            Hisobingiz bormi? <a href="{{ url_for('auth.login') }}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Kirish</a>
         </div>
     </div>
 
     <script>
-        const phoneInput = document.getElementById('phone');
-        const form = document.querySelector('form');
+        // Global Registration State
+        const regData = {
+            phone: '',
+            pin: '',
+            stir: '',
+            org_name: '',
+            director: '',
+            ifut: ''
+        };
 
+        const phoneInput = document.getElementById('phone');
+        const pinInput = document.getElementById('pin');
+        const confirmPinInput = document.getElementById('confirm_pin');
+
+        // Phone Mask
         phoneInput.addEventListener('input', function(e) {
-            let cursorPosition = this.selectionStart;
             let digits = this.value.replace(/\D/g, '');
-            
-            if (!digits.startsWith('998')) {
-                digits = '998' + digits;
-            }
+            if (!digits.startsWith('998')) digits = '998' + digits;
             digits = digits.substring(0, 12);
-            
             let formatted = '+998';
             if (digits.length > 3) formatted += ' ' + digits.substring(3, 5);
             if (digits.length > 5) formatted += ' ' + digits.substring(5, 8);
             if (digits.length > 8) formatted += ' ' + digits.substring(8, 10);
             if (digits.length > 10) formatted += ' ' + digits.substring(10, 12);
-            
             this.value = formatted;
-
-            if (e.inputType === 'deleteContentBackward' && cursorPosition > 4) {
-                this.setSelectionRange(cursorPosition, cursorPosition);
-            }
         });
 
-        phoneInput.addEventListener('keydown', function(e) {
-            if (this.selectionStart < 5 && (e.key === 'Backspace' || e.key === 'Delete')) {
-                e.preventDefault();
-            }
-        });
+        function showError(id, msg) {
+            const err = document.getElementById(id);
+            err.innerText = msg;
+            err.style.display = 'block';
+            setTimeout(() => err.style.display = 'none', 3000);
+        }
 
-        form.addEventListener('submit', function(e) {
-            const purePhone = phoneInput.value.replace(/\s/g, '');
-            if (purePhone.length !== 13) {
-                e.preventDefault();
-                alert("Iltimos, telefon raqamini to'liq kiriting (+998 va 9 ta raqam)");
-                return;
+        function goStep2() {
+            const phone = phoneInput.value.replace(/\s/g, '');
+            const pin = pinInput.value;
+            const confirm = confirmPinInput.value;
+
+            if (phone.length !== 13) return showError('error-1', "Telefon raqamini to'liq kiriting");
+            if (pin.length !== 6) return showError('error-1', "PIN kod 6 ta raqam bo'lishi shart");
+            if (pin !== confirm) return showError('error-1', "PIN kodlar mos emas");
+
+            regData.phone = phone;
+            regData.pin = pin;
+
+            transition('step-1', 'step-2', 2);
+        }
+
+        function transition(fromId, toId, stepNum) {
+            const from = document.getElementById(fromId);
+            const to = document.getElementById(toId);
+            from.classList.add('fade-out');
+            setTimeout(() => {
+                from.style.display = 'none';
+                from.classList.remove('fade-out');
+                to.style.display = 'block';
+                to.classList.add('fade-in');
+                
+                // Update dots
+                document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+                document.getElementById('dot-' + stepNum).classList.add('active');
+            }, 300);
+        }
+
+        async function searchStir() {
+            const stir = document.getElementById('stir').value.trim();
+            if (stir.length !== 9) return showError('error-2', "STIR 9 ta raqam bo'lishi shart");
+
+            const loading = document.getElementById('loading-stir');
+            const orgInfo = document.getElementById('org-info');
+            const btnConfirm = document.getElementById('btn-confirm-org');
+
+            loading.style.display = 'block';
+            orgInfo.style.display = 'none';
+            btnConfirm.style.display = 'none';
+
+            try {
+                const res = await fetch("{{ url_for('auth.check_stir') }}", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({stir: stir})
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('display-org-name').innerText = data.org_name;
+                    document.getElementById('display-stir').innerText = data.stir;
+                    document.getElementById('display-director').innerText = data.director;
+                    document.getElementById('display-ifut').innerText = data.ifut;
+                    
+                    regData.stir = data.stir;
+                    regData.org_name = data.org_name;
+                    regData.director = data.director;
+                    regData.ifut = data.ifut;
+
+                    orgInfo.style.display = 'block';
+                    btnConfirm.style.display = 'flex';
+                } else {
+                    showError('error-2', data.message);
+                }
+            } catch (e) {
+                showError('error-2', "Server ulanishida xatolik");
+            } finally {
+                loading.style.display = 'none';
             }
-            phoneInput.value = purePhone;
-        });
+        }
+
+        async function goStep3() {
+            // First send SMS
+            const res = await fetch("{{ url_for('auth.send_sms') }}", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phone: regData.phone})
+            });
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                transition('step-2', 'step-3', 3);
+                generateSmsInputs();
+                document.getElementById('main-footer').style.display = 'none';
+            } else {
+                showError('error-2', data.message);
+            }
+        }
+
+        function generateSmsInputs() {
+            const container = document.getElementById('sms-inputs');
+            container.innerHTML = '';
+            for(let i=0; i<6; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 1;
+                input.className = 'sms-box';
+                container.appendChild(input);
+            }
+
+            const boxes = document.querySelectorAll('.sms-box');
+            boxes[0].focus();
+            boxes.forEach((box, i) => {
+                box.addEventListener('input', () => {
+                    if (box.value && i < 5) boxes[i+1].focus();
+                    if (Array.from(boxes).every(b => b.value)) {
+                        document.getElementById('btn-final').style.display = 'flex';
+                    }
+                });
+                box.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !box.value && i > 0) boxes[i-1].focus();
+                });
+            });
+        }
+
+        async function completeRegistration() {
+            const boxes = document.querySelectorAll('.sms-box');
+            let code = "";
+            boxes.forEach(b => code += b.value);
+
+            const payload = {
+                ...regData,
+                code: code
+            };
+
+            const res = await fetch("{{ url_for('auth.complete_registration') }}", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                window.location.href = data.redirect;
+            } else {
+                showError('error-3', data.message);
+            }
+        }
+
+        function backStep1() { transition('step-2', 'step-1', 1); }
+        function backStep2() { transition('step-3', 'step-2', 2); document.getElementById('main-footer').style.display = 'block'; }
     </script>
 </body>
 </html>

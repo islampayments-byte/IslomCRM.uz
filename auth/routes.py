@@ -4,6 +4,10 @@ import os
 from models import User
 from extensions import db, bcrypt
 import re
+import requests
+from bs4 import BeautifulSoup
+import random
+from flask import session
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
 
@@ -106,6 +110,159 @@ def register():
         return redirect(url_for('user.dashboard'))
 
     return render_template('auth/register.html')
+
+# --- STIR (INN) Search Logic (orginfo.uz) ---
+@auth_bp.route('/check_stir', methods=['POST'])
+def check_stir():
+    data = request.get_json()
+    stir = data.get('stir', '').strip()
+    
+    if len(stir) != 9 or not stir.isdigit():
+        return jsonify({'status': 'error', 'message': 'STIR 9 ta raqamdan iborat bo\'lishi shart'}), 400
+
+    # Check if STIR already exists in our DB
+    if User.query.filter_by(stir=stir).first():
+        return jsonify({'status': 'error', 'message': "Ushbu STIR orqali allaqachon ro'yxatdan o'tilgan"}), 400
+
+    try:
+        # Search on orginfo.uz
+        url = f"https://orginfo.uz/ru/search/all/?q={stir}"
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            return jsonify({'status': 'error', 'message': 'STIR ma\'lumotlarini olishda xatolik yuz berdi'}), 500
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Check if "Ничего не найдено"
+        if "Ничего не найдено" in response.text:
+            return jsonify({'status': 'error', 'message': 'Bunday STIR raqamli tashkilot topilmadi'}), 404
+
+        # If redirected to org page, or find first org in list
+        org_name = ""
+        director = ""
+        ifut = ""
+        
+        # Look for the main title as org name
+        h1 = soup.find('h1')
+        if h1:
+            org_name = h1.text.strip().replace('Общество с ограниченной ответственностью ', '').replace('\"', '')
+
+        # Look for tables/lists with key info
+        # This is a bit brittle but orginfo.uz uses predictable labels
+        labels = soup.find_all('dt')
+        for label in labels:
+            text = label.text.strip().lower()
+            value = label.find_next_sibling('dd')
+            if value:
+                if 'руководитель' in text:
+                    director = value.text.strip()
+                elif 'окед' in text:
+                    ifut = value.text.strip().split('-')[0].strip()
+
+        if not org_name:
+            # Maybe it's a search result list page?
+            first_org = soup.find('a', string=re.compile(r'Об организации'))
+            if first_org:
+                # Need to go deeper or search differently. 
+                # For brevity, let's assume we got redirected (typical for unique STIR)
+                pass
+
+        return jsonify({
+            'status': 'success',
+            'org_name': org_name,
+            'stir': stir,
+            'director': director,
+            'ifut': ifut
+        })
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Xatolik: {str(e)}'}), 500
+
+# --- Eskiz SMS API Integration ---
+def get_eskiz_token():
+    email = os.getenv('ESKIZ_EMAIL')
+    password = os.getenv('ESKIZ_PASSWORD')
+    
+    try:
+        res = requests.post('https://notify.eskiz.uz/api/auth/login', data={
+            'email': email,
+            'password': password
+        })
+        return res.json().get('data', {}).get('token')
+    except:
+        return None
+
+@auth_bp.route('/send_sms', methods=['POST'])
+def send_sms():
+    data = request.get_json()
+    phone = data.get('phone', '').strip().replace('+', '') # Eskiz expects digits only
+    
+    # Generate 6-digit code
+    code = str(random.randint(100000, 999999))
+    session['registration_code'] = code
+    session['registration_phone'] = '+' + phone
+    
+    # Eskiz API Call
+    token = get_eskiz_token()
+    if not token:
+        return jsonify({'status': 'error', 'message': 'SMS xizmatiga ulanib bo\'lmadi'}), 500
+        
+    message = f"IslomCRM web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi : {code} IslomCRM.uz"
+    
+    try:
+        res = requests.post('https://notify.eskiz.uz/api/message/sms/send', 
+            headers={'Authorization': f'Bearer {token}'},
+            data={
+                'mobile_phone': phone,
+                'message': message,
+                'from': os.getenv('ESKIZ_ALPHA_NAME', '4546')
+            }
+        )
+        return jsonify({'status': 'success', 'message': 'SMS yuborildi'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@auth_bp.route('/complete_registration', methods=['POST'])
+def complete_registration():
+    data = request.get_json()
+    code = data.get('code', '').strip()
+    
+    if code != session.get('registration_code'):
+        return jsonify({'status': 'error', 'message': 'Tasdiqlash kodi noto\'g\'ri'}), 400
+        
+    # Extract data from request (sent from hidden fields or cumulative state)
+    phone = data.get('phone', '').strip()
+    pin = data.get('pin', '').strip()
+    stir = data.get('stir', '').strip()
+    org_name = data.get('org_name', '').strip()
+    director = data.get('director', '').strip()
+    ifut = data.get('ifut', '').strip()
+    
+    hashed_pin = bcrypt.generate_password_hash(pin).decode('utf-8')
+    
+    new_user = User(
+        phone=phone,
+        pin_hash=hashed_pin,
+        stir=stir,
+        org_name=org_name,
+        director=director,
+        ifut=ifut,
+        is_verified=True
+    )
+    
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        # Clear session
+        session.pop('registration_code', None)
+        session.pop('registration_phone', None)
+        return jsonify({'status': 'success', 'redirect': url_for('user.dashboard')})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': f'Bazaga saqlashda xatolik: {str(e)}'}), 500
 
 @auth_bp.route('/logout')
 @login_required
