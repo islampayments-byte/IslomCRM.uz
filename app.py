@@ -27,13 +27,17 @@ with app.app_context():
     admin_pin = os.getenv('ADMIN_PIN')
     
     if admin_phone and admin_pin:
-        admin_user = User.query.filter_by(phone=admin_phone).first()
-        if not admin_user:
-            hashed_pin = bcrypt.generate_password_hash(admin_pin).decode('utf-8')
-            new_admin = User(phone=admin_phone, pin_hash=hashed_pin, role='admin')
-            db.session.add(new_admin)
-            db.session.commit()
-            print(f"Admin user seeded: {admin_phone}")
+        try:
+            admin_user = User.query.filter_by(phone=admin_phone).first()
+            if not admin_user:
+                hashed_pin = bcrypt.generate_password_hash(admin_pin).decode('utf-8')
+                new_admin = User(phone=admin_phone, pin_hash=hashed_pin, role='admin')
+                db.session.add(new_admin)
+                db.session.commit()
+                print(f"Admin user seeded: {admin_phone}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Admin seeding skipped or failed: {e}")
 
 # Import blueprints
 from auth.routes import auth_bp
