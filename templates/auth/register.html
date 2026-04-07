@@ -206,9 +206,15 @@
             this.value = formatted;
         });
 
-        form.addEventListener('submit', function() {
+        form.addEventListener('submit', function(e) {
+            const purePhone = phoneInput.value.replace(/\s/g, '');
+            if (purePhone.length !== 13) {
+                e.preventDefault();
+                alert("Iltimos, telefon raqamini to'liq kiriting (+998 va 9 ta raqam)");
+                return;
+            }
             // Strip spaces before sending to backend
-            phoneInput.value = phoneInput.value.replace(/\s/g, '');
+            phoneInput.value = purePhone;
         });
     </script>
 </body>
