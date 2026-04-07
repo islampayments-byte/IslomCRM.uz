@@ -170,47 +170,68 @@ def check_stir():
             org_name = org_name.replace('\"', '').strip()
 
         # Helper to find value in the new grid structure
-        def find_grid_value(label_text):
-            # Find the element containing the label text
-            # We search for any tag that contains the text
-            label_el = soup.find(string=re.compile(label_text, re.IGNORECASE))
+        def find_grid_value(label_text, section_title=None):
+            # If section_title is provided, we could narrow down, but let's try better matching first
+            # We look for an element where the text is EXACTLY or very close to the label
+            label_el = soup.find(['span', 'div', 'dt'], string=re.compile(f'^{label_text}$', re.IGNORECASE))
+            if not label_el:
+                # Try partial match if exact fails
+                label_el = soup.find(['span', 'div', 'dt'], string=re.compile(label_text, re.IGNORECASE))
+            
             if label_el:
-                # Go up to the column or row
-                # The label is usually in a col-5 or col-sm-3
-                parent_container = label_el.find_parent(['div', 'dt'])
-                if parent_container:
-                    # Look for the sibling that would contain the value
-                    # In a grid, it's often the next column in the same row
-                    parent_row = parent_container.find_parent('div', class_='row')
-                    if parent_row:
-                        # Find all columns in this row
-                        cols = parent_row.find_all('div', class_=re.compile(r'col-(md|sm)'))
-                        if len(cols) >= 2:
-                            # Usually the last column or the one after the label
-                            return cols[-1].get_text(separator=' ', strip=True)
-                    
-                    # Fallback: just look for the next sibling element
-                    next_el = parent_container.find_next_sibling(['div', 'dd', 'span'])
-                    if next_el:
-                        return next_el.get_text(separator=' ', strip=True)
+                # The label is usually in a column. The value is in the next column of the same row.
+                parent_col = label_el.find_parent('div', class_=re.compile(r'col-(md|sm)'))
+                if parent_col:
+                    next_col = parent_col.find_next_sibling('div', class_=re.compile(r'col-(md|sm)'))
+                    if next_col:
+                        return next_col.get_text(separator=' ', strip=True)
+                
+                # Fallback for dt/dd
+                if label_el.name == 'dt':
+                    dd = label_el.find_next_sibling('dd')
+                    if dd: return dd.get_text(strip=True)
             return ""
 
+        # Specific extraction for each field with more precise labels
         director = find_grid_value(r'Руководитель')
+        if not director:
+             # Try searching for the link in the "Управленческая информация" section
+             management_header = soup.find(string=re.compile(r'Управленческая информация', re.IGNORECASE))
+             if management_header:
+                 section = management_header.find_parent('section') or management_header.find_parent('div')
+                 if section:
+                     d_label = section.find(string=re.compile(r'Руководитель', re.IGNORECASE))
+                     if d_label:
+                         row = d_label.find_parent('div', class_='row')
+                         if row:
+                             val = row.find('div', class_=re.compile(r'col-(md|sm)'))
+                             if val:
+                                 # It's usually the second col
+                                 cols = row.find_all('div', class_=re.compile(r'col-(md|sm)'))
+                                 if len(cols) > 1:
+                                     director = cols[1].get_text(strip=True)
+
         ifut_raw = find_grid_value(r'ОКЭД')
         if ifut_raw:
             ifut = "".join(filter(str.isdigit, ifut_raw.split('-')[0]))
         
         email = find_grid_value(r'Электронная почта')
         org_phone = find_grid_value(r'Номер телефона')
-        address = find_grid_value(r'Адрес')
+        address_val = find_grid_value(r'Адрес')
+        # Filter out junk values for address
+        if address_val and len(address_val) > 5 and 'uzs' not in address_val.lower():
+            address = address_val
 
-        # Robust Fallback for Address if not found by label
-        if not address:
-            addr_icon = soup.find('img', src=re.compile(r'location|map', re.IGNORECASE))
-            if addr_icon:
-                addr_container = addr_icon.find_parent('div', class_='row')
-                if addr_container:
-                    address = addr_container.find('div', class_=re.compile(r'col-')).find_next_sibling('div').get_text(strip=True)
+        # If data still missing, try a different approach: find icons
+        if not email or not org_phone:
+            for row in soup.find_all('div', class_='row'):
+                text = row.get_text().lower()
+                if 'электронная почта' in text and not email:
+                    cols = row.find_all('div', class_=re.compile(r'col-'))
+                    if len(cols) >= 2: email = cols[-1].get_text(strip=True)
+                if 'номер телефона' in text and not org_phone:
+                    cols = row.find_all('div', class_=re.compile(r'col-'))
+                    if len(cols) >= 2: org_phone = cols[-1].get_text(strip=True)
 
         if not org_name:
             return jsonify({'status': 'error', 'message': 'Tashkilot nomi topilmadi'}), 404
