@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IslomCRM | {% block title %}{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons for icons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class='bx bxs-shield-plus'></i>
+                    <span>IslomCRM</span>
+                </div>
+            </div>
+            
+            <ul class="nav-links">
+                {% block sidebar_menu %}
+                <!-- Dynamic sidebar menu items -->
+                <li>
+                    <a href="#" class="active">
+                        <i class='bx bx-grid-alt' ></i>
+                        <span class="link_name">Bosh sahifa</span>
+                    </a>
+                </li>
+                {% endblock %}
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top navbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <i class='bx bx-menu' id="btn-menu"></i>
+                    <h2 class="page-title">{% block page_title %}Dashboard{% endblock %}</h2>
+                </div>
+                <div class="topbar-right">
+                    <button id="theme-toggle" class="icon-btn" title="Mavzuni o'zgartirish">
+                        <i class='bx bx-sun' id="theme-icon"></i>
+                    </button>
+                    <div class="profile-dropdown">
+                        <div class="profile-btn">
+                            <div class="avatar">U</div>
+                            <span>Foydalanuvchi</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-wrapper">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.querySelector(".sidebar");
+        const closeBtn = document.querySelector("#btn-menu");
+
+        closeBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("open");
+        });
+
+        // Theme toggle
+        const themeBtn = document.getElementById("theme-toggle");
+        const themeIcon = document.getElementById("theme-icon");
+        const bodyTag = document.body;
+
+        themeBtn.addEventListener("click", () => {
+            bodyTag.classList.toggle("dark-theme");
+            if(bodyTag.classList.contains("dark-theme")){
+                themeIcon.classList.replace("bx-moon", "bx-sun");
+            } else {
+                themeIcon.classList.replace("bx-sun", "bx-moon");
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

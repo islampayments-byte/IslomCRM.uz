@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}User Dashboard{% endblock %}
+{% block page_title %}Foydalanuvchi Kabineti{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{{ url_for('user.dashboard') }}" class="active">
+        <i class='bx bx-grid-alt' ></i>
+        <span class="link_name">Mening profilim</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class='bx bx-wallet' ></i>
+        <span class="link_name">To'lovlar</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class='bx bx-history' ></i>
+        <span class="link_name">Tarix</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">125,000 <span>UZS</span></div>
+            <div class="card-name">Joriy Balans</div>
+        </div>
+        <div class="icon-box">
+            <i class='bx bx-wallet-alt'></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">4</div>
+            <div class="card-name">Faol buyurtmalar</div>
+        </div>
+        <div class="icon-box">
+            <i class='bx bx-package'></i>
+        </div>
+    </div>
+</div>
+
+<div class="info-section mt-4">
+    <div class="table-container">
+        <div class="table-header">
+            <h3>So'nggi to'lovlar</h3>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sana</th>
+                    <th>Miqdor</th>
+                    <th>To'lov turi</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bugun, 14:30</td>
+                    <td>+ 50,000 UZS</td>
+                    <td>Payme orqali</td>
+                    <td><span class="status success">Muvaffaqiyatli</span></td>
+                </tr>
+                <tr>
+                    <td>Kecha, 09:15</td>
+                    <td>- 12,000 UZS</td>
+                    <td>Xizmat uchun</td>
+                    <td><span class="status success">Muvaffaqiyatli</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

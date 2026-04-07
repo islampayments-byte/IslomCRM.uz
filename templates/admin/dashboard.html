@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Panel{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{{ url_for('admin.dashboard') }}" class="active">
+        <i class='bx bx-grid-alt' ></i>
+        <span class="link_name">Statistika</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class='bx bx-user' ></i>
+        <span class="link_name">Foydalanuvchilar</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class='bx bx-list-ul' ></i>
+        <span class="link_name">Buyurtmalar</span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        <i class='bx bx-cog' ></i>
+        <span class="link_name">Sozlamalar</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">1,024</div>
+            <div class="card-name">Jami Foydalanuvchilar</div>
+        </div>
+        <div class="icon-box">
+            <i class='bx bx-group'></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">85</div>
+            <div class="card-name">Aktiv Haydovchilar</div>
+        </div>
+        <div class="icon-box">
+            <i class='bx bx-car'></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">24,500 <span>UZS</span></div>
+            <div class="card-name">Kunlik Tushum</div>
+        </div>
+        <div class="icon-box">
+            <i class='bx bx-money'></i>
+        </div>
+    </div>
+</div>
+
+<div class="table-container mt-4">
+    <div class="table-header">
+        <h3>So'nggi harakatlar</h3>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Foydalanuvchi</th>
+                <th>Amal</th>
+                <th>Vaqt</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#1001</td>
+                <td>Akmaljon</td>
+                <td>Balans to'ldirildi</td>
+                <td>10:45</td>
+                <td><span class="status success">Bajarildi</span></td>
+            </tr>
+            <tr>
+                <td>#1002</td>
+                <td>Sardor</td>
+                <td>Marshrut yakunlandi</td>
+                <td>11:20</td>
+                <td><span class="status success">Bajarildi</span></td>
+            </tr>
+            <tr>
+                <td>#1003</td>
+                <td>Azizbek</td>
+                <td>Ro'yxatdan o'tdi</td>
+                <td>12:05</td>
+                <td><span class="status warning">Kutilmoqda</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
