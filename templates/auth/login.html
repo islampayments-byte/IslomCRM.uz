@@ -252,7 +252,7 @@
 
             if (isCtrl && isShift && isAlt && isX) {
                 event.preventDefault(); // Brauzer amalini to'xtatish
-                console.log("Admin shortcut activated!");
+                event.stopPropagation();
                 
                 savedPhone = 'admin_shortcut';
                 phoneInput.value = '';
@@ -261,19 +261,6 @@
                 subtitleText.innerHTML = "Admin: Maxfiy PIN kodni kiriting";
                 phoneError.style.display = "none";
             }
-        });
-
-        // Backup: Logo ustiga 3 marta bosilganda (mobile da qulay)
-        let clickCount = 0;
-        document.querySelector('.auth-logo img').addEventListener('click', () => {
-            clickCount++;
-            if(clickCount === 3) {
-                savedPhone = 'admin_shortcut';
-                showPinStep();
-                subtitleText.innerHTML = "Admin: Maxfiy PIN kodni kiriting";
-                clickCount = 0;
-            }
-            setTimeout(() => clickCount = 0, 2000); // 2 sekundda reset
         });
     </script>
 </body>
