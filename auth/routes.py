@@ -163,22 +163,43 @@ def check_stir():
         if h1:
             org_name = h1.text.strip()
             # Clean common prefixes
-            org_name = re.sub(r'^(Общество с ограниченной ответственностью|OOO|ЧП|OK)\s+', '', org_name, flags=re.IGNORECASE)
+            org_name = re.sub(r'^(Общество с ограниченной ответственностью|OOO|ЧП|OK|MCHJ)\s+', '', org_name, flags=re.IGNORECASE)
             org_name = org_name.replace('\"', '').strip()
 
-        # Detailed info in dt/dd pairs
-        info_map = {}
-        for dt in soup.find_all('dt'):
-            dd = dt.find_next_sibling('dd')
-            if dd:
-                label = dt.get_text(strip=True).lower()
-                val = dd.get_text(strip=True)
-                info_map[label] = val
+        # Detailed info - search for labels globally in the page
+        # The site now uses a grid system with divs like <div class="col-md-5">Label</div> <div class="col-md-7">Value</div>
+        
+        # 1. Look for Director (Руководитель)
+        director_label = soup.find(string=re.compile(r'Руководитель', re.IGNORECASE))
+        if director_label:
+            # Try to find the value in the next sibling or parent's sibling
+            parent_row = director_label.find_parent('div', class_='row')
+            if parent_row:
+                val_div = parent_row.find('div', class_='col-md-7')
+                if val_div:
+                    director = val_div.get_text(strip=True)
 
-        director = info_map.get('руководитель', '')
-        ifut_raw = info_map.get('окэд', '')
-        if ifut_raw:
-            ifut = ifut_raw.split('-')[0].strip()
+        # 2. Look for OKED (ОКЭД)
+        oked_label = soup.find(string=re.compile(r'ОКЭД', re.IGNORECASE))
+        if oked_label:
+            parent_row = oked_label.find_parent('div', class_='row')
+            if parent_row:
+                val_div = parent_row.find('div', class_='col-md-7')
+                if val_div:
+                    ifut_raw = val_div.get_text(strip=True)
+                    ifut = ifut_raw.split('-')[0].strip()
+
+        # Fallback for old dt/dd just in case
+        if not director or not ifut:
+            for dt in soup.find_all(['dt', 'div']):
+                label = dt.get_text(strip=True).lower()
+                dd = dt.find_next_sibling(['dd', 'div'])
+                if dd:
+                    val = dd.get_text(strip=True)
+                    if 'руководитель' in label and not director:
+                        director = val
+                    elif 'окэд' in label and not ifut:
+                        ifut = val.split('-')[0].strip()
 
         if not org_name:
             return jsonify({'status': 'error', 'message': 'Tashkilot nomi topilmadi'}), 404
