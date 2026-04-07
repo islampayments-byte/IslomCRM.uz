@@ -7,6 +7,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import random
+import json
 from flask import session
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
@@ -173,7 +174,7 @@ def check_stir():
         ld_json_scripts = soup.find_all('script', type='application/ld+json')
         for script in ld_json_scripts:
             try:
-                ld_data = json.loads(script.string)
+                ld_data = json.loads(script.get_text())
                 if ld_data.get('@type') == 'Organization':
                     # Extract name
                     if not org_name:
