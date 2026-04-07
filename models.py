@@ -17,6 +17,9 @@ class User(db.Model, UserMixin):
     org_name = db.Column(db.String(255))
     director = db.Column(db.String(255))
     ifut = db.Column(db.String(10))
+    email = db.Column(db.String(120))
+    org_phone = db.Column(db.String(20))
+    address = db.Column(db.Text)
     is_verified = db.Column(db.Boolean, default=False) # IPv6 fits in 45 chars
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 

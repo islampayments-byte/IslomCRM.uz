@@ -283,6 +283,18 @@
                     <div class="org-info-label">IFUT (OKED)</div>
                     <div class="org-info-value" id="display-ifut"></div>
                 </div>
+                <div class="org-info-item">
+                    <div class="org-info-label">Email</div>
+                    <div class="org-info-value" id="display-email"></div>
+                </div>
+                <div class="org-info-item">
+                    <div class="org-info-label">Tashkilot Telefoni</div>
+                    <div class="org-info-value" id="display-org-phone"></div>
+                </div>
+                <div class="org-info-item">
+                    <div class="org-info-label">Manzil</div>
+                    <div class="org-info-value" id="display-address"></div>
+                </div>
             </div>
 
             <div class="error-msg" id="error-2"></div>
@@ -330,7 +342,10 @@
             stir: '',
             org_name: '',
             director: '',
-            ifut: ''
+            ifut: '',
+            email: '',
+            org_phone: '',
+            address: ''
         };
 
         const phoneInput = document.getElementById('phone');
@@ -409,15 +424,21 @@
                 const data = await res.json();
 
                 if (data.status === 'success') {
-                    document.getElementById('display-org-name').innerText = data.org_name;
+                    document.getElementById('display-org-name').innerText = data.org_name || 'Aniqlanmadi';
                     document.getElementById('display-stir').innerText = data.stir;
-                    document.getElementById('display-director').innerText = data.director;
-                    document.getElementById('display-ifut').innerText = data.ifut;
+                    document.getElementById('display-director').innerText = data.director || 'Ma\'lumot yo\'q';
+                    document.getElementById('display-ifut').innerText = data.ifut || 'Ma\'lumot yo\'q';
+                    document.getElementById('display-email').innerText = data.email || 'Ma\'lumot yo\'q';
+                    document.getElementById('display-org-phone').innerText = data.org_phone || 'Ma\'lumot yo\'q';
+                    document.getElementById('display-address').innerText = data.address || 'Ma\'lumot yo\'q';
                     
                     regData.stir = data.stir;
                     regData.org_name = data.org_name;
                     regData.director = data.director;
                     regData.ifut = data.ifut;
+                    regData.email = data.email;
+                    regData.org_phone = data.org_phone;
+                    regData.address = data.address;
 
                     orgInfo.style.display = 'block';
                     btnConfirm.style.display = 'flex';

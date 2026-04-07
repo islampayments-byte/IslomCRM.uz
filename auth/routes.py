@@ -157,6 +157,9 @@ def check_stir():
         org_name = ""
         director = ""
         ifut = ""
+        email = ""
+        org_phone = ""
+        address = ""
         
         # Name is usually in h1
         h1 = soup.find('h1')
@@ -166,40 +169,38 @@ def check_stir():
             org_name = re.sub(r'^(Общество с ограниченной ответственностью|OOO|ЧП|OK|MCHJ)\s+', '', org_name, flags=re.IGNORECASE)
             org_name = org_name.replace('\"', '').strip()
 
-        # Detailed info - search for labels globally in the page
-        # The site now uses a grid system with divs like <div class="col-md-5">Label</div> <div class="col-md-7">Value</div>
+        # Helper to find value in the new grid structure
+        def find_grid_value(label_text):
+            # Find the text node containing the label
+            label_node = soup.find(string=re.compile(label_text, re.IGNORECASE))
+            if label_node:
+                # The label might be inside a span or directly in a div
+                parent_col = label_node.find_parent('div', class_=re.compile(r'col-'))
+                if parent_col:
+                    # Look for the next column (col-md-7 or similar) in the same row
+                    parent_row = parent_col.find_parent('div', class_='row')
+                    if parent_row:
+                        val_col = parent_row.find('div', class_=re.compile(r'col-(md|sm)-[7-9]'))
+                        if val_col:
+                            return val_col.get_text(strip=True)
+            return ""
+
+        director = find_grid_value(r'Руководитель')
+        ifut_raw = find_grid_value(r'ОКЭД')
+        if ifut_raw:
+            ifut = ifut_raw.split('-')[0].strip()
         
-        # 1. Look for Director (Руководитель)
-        director_label = soup.find(string=re.compile(r'Руководитель', re.IGNORECASE))
-        if director_label:
-            # Try to find the value in the next sibling or parent's sibling
-            parent_row = director_label.find_parent('div', class_='row')
-            if parent_row:
-                val_div = parent_row.find('div', class_='col-md-7')
-                if val_div:
-                    director = val_div.get_text(strip=True)
+        email = find_grid_value(r'Электронная почта')
+        org_phone = find_grid_value(r'Номер телефона')
+        address = find_grid_value(r'Адрес')
 
-        # 2. Look for OKED (ОКЭД)
-        oked_label = soup.find(string=re.compile(r'ОКЭД', re.IGNORECASE))
-        if oked_label:
-            parent_row = oked_label.find_parent('div', class_='row')
-            if parent_row:
-                val_div = parent_row.find('div', class_='col-md-7')
-                if val_div:
-                    ifut_raw = val_div.get_text(strip=True)
-                    ifut = ifut_raw.split('-')[0].strip()
-
-        # Fallback for old dt/dd just in case
-        if not director or not ifut:
-            for dt in soup.find_all(['dt', 'div']):
-                label = dt.get_text(strip=True).lower()
-                dd = dt.find_next_sibling(['dd', 'div'])
-                if dd:
-                    val = dd.get_text(strip=True)
-                    if 'руководитель' in label and not director:
-                        director = val
-                    elif 'окэд' in label and not ifut:
-                        ifut = val.split('-')[0].strip()
+        # Fallback for old dt/dd or case where label is not in a 'row'
+        if not director:
+            d_label = soup.find(['dt', 'div', 'span'], string=re.compile(r'Руководитель', re.IGNORECASE))
+            if d_label:
+                d_val = d_label.find_next(['dd', 'div', 'span', 'a'])
+                if d_val:
+                    director = d_val.get_text(strip=True)
 
         if not org_name:
             return jsonify({'status': 'error', 'message': 'Tashkilot nomi topilmadi'}), 404
@@ -209,7 +210,10 @@ def check_stir():
             'org_name': org_name,
             'stir': stir,
             'director': director,
-            'ifut': ifut
+            'ifut': ifut,
+            'email': email,
+            'org_phone': org_phone,
+            'address': address
         })
 
     except Exception as e:
@@ -274,6 +278,9 @@ def complete_registration():
     org_name = data.get('org_name', '').strip()
     director = data.get('director', '').strip()
     ifut = data.get('ifut', '').strip()
+    email = data.get('email', '').strip()
+    org_phone = data.get('org_phone', '').strip()
+    address = data.get('address', '').strip()
     
     hashed_pin = bcrypt.generate_password_hash(pin).decode('utf-8')
     
@@ -284,6 +291,9 @@ def complete_registration():
         org_name=org_name,
         director=director,
         ifut=ifut,
+        email=email,
+        org_phone=org_phone,
+        address=address,
         is_verified=True
     )
     
