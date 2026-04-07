@@ -16,25 +16,24 @@
         <span class="link_name">Foydalanuvchilar</span>
     </a>
 </li>
-<li>
-    <a href="#">
-        <i class='bx bx-list-ul' ></i>
-        <span class="link_name">Buyurtmalar</span>
-    </a>
-</li>
-<li>
-    <a href="#">
-        <i class='bx bx-cog' ></i>
-        <span class="link_name">Sozlamalar</span>
-    </a>
-</li>
 {% endblock %}
 
 {% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 10px; border-radius: 8px; background: rgba(46, 204, 113, 0.1); color: var(--success);">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <div class="cards-grid">
     <div class="stat-card">
         <div class="card-content">
-            <div class="number">1,024</div>
+            <div class="number">{{ total_users }}</div>
             <div class="card-name">Jami Foydalanuvchilar</div>
         </div>
         <div class="icon-box">
@@ -43,60 +42,55 @@
     </div>
     <div class="stat-card">
         <div class="card-content">
-            <div class="number">85</div>
-            <div class="card-name">Aktiv Haydovchilar</div>
+            <div class="number" style="color: var(--danger);">{{ blocked_users }}</div>
+            <div class="card-name">Bloklanganlar</div>
         </div>
-        <div class="icon-box">
-            <i class='bx bx-car'></i>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number">24,500 <span>UZS</span></div>
-            <div class="card-name">Kunlik Tushum</div>
-        </div>
-        <div class="icon-box">
-            <i class='bx bx-money'></i>
+        <div class="icon-box" style="color: var(--danger); background: rgba(231, 76, 60, 0.1);">
+            <i class='bx bx-lock-alt'></i>
         </div>
     </div>
 </div>
 
 <div class="table-container mt-4">
     <div class="table-header">
-        <h3>So'nggi harakatlar</h3>
+        <h3>Foydalanuvchilar Ro'yxati</h3>
     </div>
     <table class="data-table">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Foydalanuvchi</th>
-                <th>Amal</th>
-                <th>Vaqt</th>
+                <th>Telefon raqam</th>
+                <th>Rol</th>
+                <th>Xato urinishlar</th>
+                <th>Sana</th>
                 <th>Status</th>
+                <th>Amal</th>
             </tr>
         </thead>
         <tbody>
+            {% for user in users %}
             <tr>
-                <td>#1001</td>
-                <td>Akmaljon</td>
-                <td>Balans to'ldirildi</td>
-                <td>10:45</td>
-                <td><span class="status success">Bajarildi</span></td>
+                <td>#{{ user.id }}</td>
+                <td>{{ user.phone }}</td>
+                <td><span class="status {{ 'success' if user.role == 'admin' else 'info' }}">{{ user.role }}</span></td>
+                <td>{{ user.failed_attempts }} / 3</td>
+                <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if user.is_blocked %}
+                        <span class="status warning" style="background: rgba(231,76,60,0.1); color: var(--danger);">Bloklangan</span>
+                    {% else %}
+                        <span class="status success">Aktiv</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_blocked %}
+                        <a href="{{ url_for('admin.unblock_user', user_id=user.id) }}" class="btn-submit" style="padding: 5px 10px; font-size: 12px; text-decoration: none;">Blokdan yechish</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
             </tr>
-            <tr>
-                <td>#1002</td>
-                <td>Sardor</td>
-                <td>Marshrut yakunlandi</td>
-                <td>11:20</td>
-                <td><span class="status success">Bajarildi</span></td>
-            </tr>
-            <tr>
-                <td>#1003</td>
-                <td>Azizbek</td>
-                <td>Ro'yxatdan o'tdi</td>
-                <td>12:05</td>
-                <td><span class="status warning">Kutilmoqda</span></td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
