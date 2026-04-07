@@ -23,16 +23,17 @@ def load_user(user_id):
 # Create database and seed admin
 with app.app_context():
     db.create_all()
-    admin_phone = '+998999998877'
-    admin_pin = '121415'
+    admin_phone = os.getenv('ADMIN_PHONE', '+998999998877') # Failsafe default just in case .env misses it
+    admin_pin = os.getenv('ADMIN_PIN', '121415')
     
-    admin_user = User.query.filter_by(phone=admin_phone).first()
-    if not admin_user:
-        hashed_pin = bcrypt.generate_password_hash(admin_pin).decode('utf-8')
-        new_admin = User(phone=admin_phone, pin_hash=hashed_pin, role='admin')
-        db.session.add(new_admin)
-        db.session.commit()
-        print(f"Admin user seeded: {admin_phone}")
+    if admin_phone and admin_pin:
+        admin_user = User.query.filter_by(phone=admin_phone).first()
+        if not admin_user:
+            hashed_pin = bcrypt.generate_password_hash(admin_pin).decode('utf-8')
+            new_admin = User(phone=admin_phone, pin_hash=hashed_pin, role='admin')
+            db.session.add(new_admin)
+            db.session.commit()
+            print(f"Admin user seeded: {admin_phone}")
 
 # Import blueprints
 from auth.routes import auth_bp
