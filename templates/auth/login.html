@@ -291,32 +291,39 @@
         
         let savedPhone = "";
 
-        // Enforce +998 formatting and mask
+        // Robust Phone Mask logic
         phoneInput.addEventListener('input', function(e) {
-            let val = this.value.replace(/\D/g, ''); // Get only digits
-            if (!val.startsWith('998')) {
-                val = '998' + val;
+            let cursorPosition = this.selectionStart;
+            let originalValue = this.value;
+            let digits = this.value.replace(/\D/g, '');
+            
+            // Always ensure it starts with 998
+            if (!digits.startsWith('998')) {
+                digits = '998' + digits;
             }
             
-            // Limit to 12 digits (998 + 9 user digits)
-            val = val.substring(0, 12);
+            // Limit to 12 digits
+            digits = digits.substring(0, 12);
             
-            // Apply mask: +998 99 999 99 99
             let formatted = '+998';
-            if (val.length > 3) {
-                formatted += ' ' + val.substring(3, 5);
-            }
-            if (val.length > 5) {
-                formatted += ' ' + val.substring(5, 8);
-            }
-            if (val.length > 8) {
-                formatted += ' ' + val.substring(8, 10);
-            }
-            if (val.length > 10) {
-                formatted += ' ' + val.substring(10, 12);
-            }
+            if (digits.length > 3) formatted += ' ' + digits.substring(3, 5);
+            if (digits.length > 5) formatted += ' ' + digits.substring(5, 8);
+            if (digits.length > 8) formatted += ' ' + digits.substring(8, 10);
+            if (digits.length > 10) formatted += ' ' + digits.substring(10, 12);
             
             this.value = formatted;
+
+            // Handle cursor position (prevent jumping to end)
+            if (e.inputType === 'deleteContentBackward' && cursorPosition > 4) {
+                this.setSelectionRange(cursorPosition, cursorPosition);
+            }
+        });
+
+        // Prevent deleting prefix
+        phoneInput.addEventListener('keydown', function(e) {
+            if (this.selectionStart < 5 && (e.key === 'Backspace' || e.key === 'Delete')) {
+                e.preventDefault();
+            }
         });
 
         async function checkPhone() {
