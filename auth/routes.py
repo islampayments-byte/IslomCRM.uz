@@ -38,12 +38,21 @@ def verify_pin():
     if phone == 'admin_shortcut':
         phone = os.getenv('ADMIN_PHONE')
 
+    # Ulanish manzilini aniqlash (Nginx orqali haqiqiy IP ni olish)
+    user_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if user_ip and ',' in user_ip:
+        user_ip = user_ip.split(',')[0].strip()
+
     user = User.query.filter_by(phone=phone).first()
     if not user:
         return jsonify({'status': 'error', 'message': 'Foydalanuvchi topilmadi'}), 404
 
+    # IP manzilni yangilash
+    user.last_ip = user_ip
+
     # Bloklanganligini tekshirish
     if user.is_blocked:
+        db.session.commit()
         return jsonify({'status': 'error', 'message': 'Hisobingiz bloklangan. Admin bilan bog\'laning'}), 403
 
     if user.check_pin(pin, bcrypt):
