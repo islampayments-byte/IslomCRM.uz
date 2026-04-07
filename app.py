@@ -8,7 +8,14 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///islomcrm.db'
+# Database configuration
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# Check if running on VPS (based on path or ENV)
+if os.path.exists('/var/www/db/islomcrm.db'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////var/www/db/islomcrm.db'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "instance", "islomcrm.db")}'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
