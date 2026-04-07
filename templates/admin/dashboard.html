@@ -67,6 +67,7 @@
                 <th>Telefon raqam</th>
                 <th>Rol</th>
                 <th>Xato urinishlar</th>
+                <th>IP Manzil</th>
                 <th>Sana</th>
                 <th>Status</th>
                 <th>Amal</th>
@@ -79,6 +80,7 @@
                 <td>{{ user.phone }}</td>
                 <td><span class="status {{ 'success' if user.role == 'admin' else 'info' }}">{{ user.role }}</span></td>
                 <td>{{ user.failed_attempts }} / 3</td>
+                <td>{{ user.last_ip or '-' }}</td>
                 <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>
                     {% if user.is_blocked %}
