@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IslomCRM | Kirish</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--bg-color);
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .auth-logo {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .auth-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+        }
+        .pin-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            display: none; /* Hidden strictly until phone check */
+        }
+        .pin-inputs input {
+            width: 45px;
+            height: 55px;
+            text-align: center;
+            font-size: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        .pin-inputs input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-submit:hover {
+            background: #e6b800;
+        }
+        .auth-footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        /* Error message */
+        .error-msg {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <i class='bx bxs-shield-plus'></i>
+        </div>
+        <h2 class="auth-title">Xush kelibsiz</h2>
+        <p class="auth-subtitle" id="subtitleText">Tizimga kirish uchun telefon raqamingizni kiriting</p>
+
+        <div id="phoneStep">
+            <div class="input-group">
+                <label>Telefon raqam</label>
+                <input type="text" id="phoneInput" value="+998" placeholder="+998901234567" maxlength="13">
+                <div class="error-msg" id="phoneError"></div>
+            </div>
+            <button class="btn-submit" id="btnContinue" onclick="checkPhone()">Davom etish</button>
+        </div>
+
+        <div id="pinStep" class="pin-inputs" style="display: none;"></div>
+
+        <div class="auth-footer" id="authFooter">
+            Hisobingiz yo'qmi? <a href="{{ url_for('auth.register') }}">Ro'yxatdan o'ting</a>
+        </div>
+    </div>
+
+    <script>
+        const phoneInput = document.getElementById('phoneInput');
+        const phoneError = document.getElementById('phoneError');
+        const phoneStep = document.getElementById('phoneStep');
+        const pinStep = document.getElementById('pinStep');
+        const subtitleText = document.getElementById('subtitleText');
+        const authFooter = document.getElementById('authFooter');
+        
+        let savedPhone = "";
+
+        // Enforce +998
+        phoneInput.addEventListener('input', function(e) {
+            if (!this.value.startsWith('+998')) {
+                this.value = '+998';
+            }
+        });
+
+        async function checkPhone() {
+            const phone = phoneInput.value.trim();
+            if(phone.length !== 13) {
+                phoneError.innerText = "To'liq telefon raqamini kiriting";
+                phoneError.style.display = "block";
+                return;
+            }
+            phoneError.style.display = "none";
+
+            const res = await fetch("{{ url_for('auth.check_phone') }}", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({phone: phone})
+            });
+            const data = await res.json();
+            
+            if(data.status === 'exists') {
+                savedPhone = phone;
+                showPinStep();
+            } else {
+                phoneError.innerText = data.message;
+                phoneError.style.display = "block";
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('auth.register') }}";
+                }, 1500);
+            }
+        }
+
+        function showPinStep() {
+            phoneStep.style.display = 'none';
+            authFooter.style.display = 'none';
+            subtitleText.innerHTML = "Xavfsizlik PIN kodini kiriting";
+            
+            pinStep.style.display = 'flex';
+            pinStep.innerHTML = '';
+            for(let i=0; i<6; i++) {
+                pinStep.innerHTML += `<input type="password" maxlength="1" class="pin-box" data-index="${i}">`;
+            }
+
+            const pinBoxes = document.querySelectorAll('.pin-box');
+            pinBoxes[0].focus();
+
+            pinBoxes.forEach((box, index) => {
+                box.addEventListener('input', function(e) {
+                    if(this.value.length === 1) {
+                        if(index < 5) pinBoxes[index+1].focus();
+                        else checkPin(pinBoxes);
+                    }
+                });
+                box.addEventListener('keydown', function(e) {
+                    if(e.key === 'Backspace' && this.value === '') {
+                        if(index > 0) pinBoxes[index-1].focus();
+                    }
+                });
+            });
+        }
+
+        async function checkPin(pinBoxes) {
+            let pin = "";
+            pinBoxes.forEach(b => pin += b.value);
+            
+            if(pin.length === 6) {
+                const res = await fetch("{{ url_for('auth.verify_pin') }}", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({phone: savedPhone, pin: pin})
+                });
+                const data = await res.json();
+
+                if(data.status === 'success') {
+                    window.location.href = data.redirect;
+                } else {
+                    subtitleText.innerHTML = `<span style="color:var(--danger)">${data.message}</span>`;
+                    pinBoxes.forEach(b => b.value = '');
+                    pinBoxes[0].focus();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

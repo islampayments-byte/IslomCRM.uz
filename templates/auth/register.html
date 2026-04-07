@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IslomCRM | Ro'yxatdan o'tish</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--bg-color);
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .auth-logo {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .auth-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-submit:hover {
+            background: #e6b800;
+        }
+        .auth-footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .alert {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .alert-danger { background: rgba(231,76,60,0.1); color: var(--danger); }
+        .alert-warning { background: rgba(243,156,18,0.1); color: var(--warning); }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <i class='bx bxs-shield-plus'></i>
+        </div>
+        <h2 class="auth-title">Ro'yxatdan o'tish</h2>
+        <p class="auth-subtitle">Tizimga yangi hisob qo'shish</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <div class="input-group">
+                <label>Telefon raqam</label>
+                <input type="text" name="phone" id="phoneInput" value="+998" placeholder="+998901234567" maxlength="13" required>
+            </div>
+            <div class="input-group">
+                <label>6 xonali xavfsizlik PIN kodi yozing</label>
+                <input type="password" name="pin" maxlength="6" pattern="[0-9]{6}" title="Faqat 6 ta raqam" placeholder="******" required>
+            </div>
+            <button type="submit" class="btn-submit">Ro'yxatdan o'tish</button>
+        </form>
+
+        <div class="auth-footer">
+            Hisobingiz bormi? <a href="{{ url_for('auth.login') }}">Kirish</a>
+        </div>
+    </div>
+
+    <script>
+        const phoneInput = document.getElementById('phoneInput');
+        phoneInput.addEventListener('input', function(e) {
+            if (!this.value.startsWith('+998')) {
+                this.value = '+998';
+            }
+        });
+    </script>
+</body>
+</html>

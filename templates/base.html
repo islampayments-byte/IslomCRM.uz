@@ -49,8 +49,23 @@
                     </button>
                     <div class="profile-dropdown">
                         <div class="profile-btn">
-                            <div class="avatar">U</div>
-                            <span>Foydalanuvchi</span>
+                            <div class="avatar">
+                                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                                    A
+                                {% elif current_user.is_authenticated %}
+                                    U
+                                {% else %}
+                                    <i class='bx bx-user'></i>
+                                {% endif %}
+                            </div>
+                            <span>
+                                {% if current_user.is_authenticated %}
+                                    {{ current_user.phone }}
+                                    <a href="{{ url_for('auth.logout') }}" style="color:var(--danger); font-size:12px; margin-left:10px; text-decoration:none;"><i class='bx bx-log-out'></i> Chiqish</a>
+                                {% else %}
+                                    Mehmon
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
