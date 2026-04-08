@@ -111,4 +111,11 @@ def test_payme():
     s5 = f"m={merchant_id};ac.phone={phone};a={amount}"
     variants.append({"name": "no language + semicolon", "url": f"https://test.payme.uz/b/{base64.b64encode(s5.encode()).decode()}"})
 
+    # PROD VARIANTS (just in case the ID is for production)
+    # Variant 6: phone + ; (checkout.payme.uz)
+    variants.append({"name": "PRODUCTION: phone + semicolon", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s1.encode()).decode()}"})
+    
+    # Variant 7: phone_number + ; (checkout.payme.uz)
+    variants.append({"name": "PRODUCTION: phone_number + semicolon", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s3.encode()).decode()}"})
+
     return render_template('user/test_payme.html', variants=variants)
