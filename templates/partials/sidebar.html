@@ -121,12 +121,14 @@
     <div style="margin-top: auto; padding-bottom: 20px;">
         <ul class="nav-links" style="margin-bottom: 0;">
             {# UNIVERSAL BUTTONS - VISIBLE TO BOTH ADMIN AND USER #}
+            {# Temporarily disabled due to 500 error 
             <li>
                 <a href="{{ url_for('user.pricing') }}" class="{{ 'active' if request.endpoint == 'user.pricing' }}">
                     <i class='bx bx-crown'></i>
                     <span class="link_name">Tariflar</span>
                 </a>
             </li>
+            #}
 
             <li>
                 <a href="#">
