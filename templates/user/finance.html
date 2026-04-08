@@ -35,7 +35,7 @@
                     To'ldirish summasi (UZS) — min: <strong>{{ "{:,}".format(min_amount).replace(',', ' ') }}</strong>, 
                     maks: <strong>{{ "{:,}".format(max_amount).replace(',', ' ') }}</strong>
                 </label>
-                <input type="number" name="amount" min="{{ min_amount }}" max="{{ max_amount }}" step="1000" 
+                <input type="number" name="amount" min="{{ min_amount }}" max="{{ max_amount }}" step="1" 
                        value="{{ min_amount }}" required
                        style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff; margin-bottom: 16px; font-size: 18px; font-weight: 700;">
                 
