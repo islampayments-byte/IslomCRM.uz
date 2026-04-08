@@ -84,15 +84,15 @@
                                 <i class='bx bx-user'></i>
                             {% endif %}
                         </div>
-                        <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                            <span style="color: #fff; font-size: 13px;">
+                        <div class="user-info">
+                            <span class="org-name">
                                 {% if current_user.org_name %}
-                                    {{ current_user.org_name[:15] }}...
+                                    {{ current_user.org_name[:20] }}{% if current_user.org_name|length > 20 %}...{% endif %}
                                 {% else %}
-                                    Foydalanuvchi
+                                    Sizning Profilingiz
                                 {% endif %}
                             </span>
-                            <span style="font-size: 11px; color: var(--text-muted);">Toshkent</span>
+                            <span class="location">Toshkent viloyati</span>
                         </div>
                     </div>
                 </div>
