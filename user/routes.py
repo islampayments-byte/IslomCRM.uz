@@ -3,6 +3,13 @@ from flask_login import login_required, current_user
 from models import User, PaymentSettings, Transaction
 from extensions import db
 import base64
+import logging
+import os
+
+# Use the same log file as payme callback
+LOG_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'payme_debug.log')
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, 
+                    format='%(asctime)s %(levelname)s: %(message)s')
 
 user_bp = Blueprint('user', __name__, template_folder='../templates')
 
@@ -47,10 +54,14 @@ def topup_payme():
     # Payme expects amount in tiyin (1 sum = 100 tiyin)
     amount_tiyin = amount * 100
     merchant_id = settings.payme_merchant_id
-    phone_clean = current_user.phone.replace('+', '')
+    phone_clean = current_user.phone.replace('+', '').replace(' ', '')
     # Use the account field name configured by admin (default: phone)
     account_field = getattr(settings, 'payme_account_field', None) or 'phone'
     params = f"m={merchant_id};ac.{account_field}={phone_clean};a={amount_tiyin};l=uz"
+    
+    logging.info(f"Generating Payme URL for user {current_user.phone}")
+    logging.info(f"Raw params: {params}")
+    
     encoded_params = base64.b64encode(params.encode()).decode()
     payme_url = f"https://checkout.payme.uz/b/{encoded_params}"
 
