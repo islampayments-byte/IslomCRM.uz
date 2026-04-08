@@ -85,33 +85,3 @@ def topup_payme():
 
     return redirect(payme_url)
 
-@user_bp.route('/test-payme')
-@login_required
-def test_payme():
-    settings = PaymentSettings.query.first()
-    if not settings:
-        return "No settings found"
-        
-    merchant_id = settings.payme_merchant_id
-    phone = current_user.phone.replace('+', '').replace(' ', '')
-    amount = (settings.min_topup_amount or 1000) * 100
-    return_url = "https://islomcrm.uz/user/finance"
-    
-    variants = []
-    
-    # Variant 1: Base64 with ; (current)
-    s1 = f"m={merchant_id};ac.phone_number={phone};a={amount};l=uz;c={return_url}"
-    variants.append({"name": "Base64: Semicolon (Standard)", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s1.encode()).decode()}"})
-    
-    # Variant 2: Base64 with &
-    s2 = f"m={merchant_id}&ac.phone_number={phone}&a={amount}&l=uz&c={return_url}"
-    variants.append({"name": "Base64: Ampersand", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s2.encode()).decode()}"})
-    
-    # Variant 3: Simplified /pay/ID/AMOUNT
-    variants.append({"name": "Simplified: /pay/ID/AMOUNT", "url": f"https://checkout.payme.uz/pay/{merchant_id}/{amount}"})
-    
-    # Variant 4: ac.phone instead of phone_number
-    s4 = f"m={merchant_id};ac.phone={phone};a={amount};l=uz;c={return_url}"
-    variants.append({"name": "ac.phone (instead of phone_number)", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s4.encode()).decode()}"})
-
-    return render_template('user/test_payme.html', variants=variants)
