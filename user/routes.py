@@ -117,6 +117,26 @@ def topup_payme():
         return redirect(payme_redirect_url)
 
     except Exception as e:
-        logging.error(f"Exception during Payme receipt creation: {e}")
-        flash("To'lov serveri bilan bog'lanishda xatolik yuz berdi.", "danger")
+        error_msg = str(e)
+        logging.error(f"Exception during Payme receipt creation: {error_msg}")
+        flash(f"To'lov serveri bilan bog'lanishda xatolik: {error_msg}", "danger")
         return redirect(url_for('user.finance'))
+
+@user_bp.route('/transaction/cancel/<int:transaction_id>')
+@login_required
+def cancel_transaction(transaction_id):
+    trans = Transaction.query.filter_by(id=transaction_id, user_id=current_user.id).first()
+    
+    if not trans:
+        flash("Tranzaksiya topilmadi.", "danger")
+        return redirect(url_for('user.finance'))
+        
+    if trans.status != 'pending':
+        flash("Ushbu tranzaksiyani bekor qilib bo'lmaydi.", "warning")
+        return redirect(url_for('user.finance'))
+        
+    trans.status = 'failed'
+    db.session.commit()
+    
+    flash(f"#{transaction_id} raqamli to'lov bekor qilindi.", "info")
+    return redirect(url_for('user.finance'))
