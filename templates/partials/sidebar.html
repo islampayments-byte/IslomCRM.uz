@@ -120,7 +120,6 @@
 
     <div style="margin-top: auto; padding-bottom: 20px;">
         <ul class="nav-links" style="margin-bottom: 0;">
-            {# SETTINGS SUB-MENU (Conditional) #}
             {% if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] %}
             <li class="submenu-container" style="margin-bottom: 12px; margin-top: 10px;">
                 <ul class="submenu-links" style="border-left-color: rgba(255,255,255,0.1);">
@@ -140,6 +139,7 @@
             </li>
             {% endif %}
 
+            {# NEW BUTTONS - OUTSIDE IF BLOCK #}
             <li>
                 <a href="#">
                     <i class='bx bx-support'></i>
