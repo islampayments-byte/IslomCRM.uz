@@ -64,11 +64,43 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="{{ 'active' if request.endpoint == 'user.drivers' }}">
+                <a href="{{ url_for('user.drivers') }}" class="{{ 'active' if request.endpoint in ['user.drivers', 'user.auto_reg', 'user.self_employed', 'user.callsigns', 'user.terms'] }}">
                     <i class='bx bx-user'></i>
                     <span class="link_name">Haydovchilar</span>
                 </a>
             </li>
+
+            {# DRIVERS SUB-MENU (Conditional) #}
+            {% if request.endpoint in ['user.drivers', 'user.auto_reg', 'user.self_employed', 'user.callsigns', 'user.terms'] %}
+            <li class="submenu-container">
+                <ul class="submenu-links">
+                    <li>
+                        <a href="{{ url_for('user.auto_reg') }}" class="{{ 'active' if request.endpoint == 'user.auto_reg' }}">
+                            <i class='bx bx-bolt-circle'></i>
+                            <span class="link_name">Avtoregistratsiya</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.self_employed') }}" class="{{ 'active' if request.endpoint == 'user.self_employed' }}">
+                            <i class='bx bx-briefcase'></i>
+                            <span class="link_name">O'z o'zini band qilganlar</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.callsigns') }}" class="{{ 'active' if request.endpoint == 'user.callsigns' }}">
+                            <i class='bx bx-id-card'></i>
+                            <span class="link_name">ID (Pazivnoy)</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.terms') }}" class="{{ 'active' if request.endpoint == 'user.terms' }}">
+                            <i class='bx bx-file-blank'></i>
+                            <span class="link_name">Ishlash shartlari</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
             <li>
                 <a href="#" class="{{ 'active' if request.endpoint == 'user.reports' }}">
                     <i class='bx bx-file'></i>

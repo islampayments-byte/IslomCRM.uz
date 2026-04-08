@@ -29,6 +29,31 @@ def info():
 def profile():
     return render_template('user/profile.html')
 
+@user_bp.route('/drivers')
+@login_required
+def drivers():
+    return render_template('user/drivers.html')
+
+@user_bp.route('/drivers/auto-reg')
+@login_required
+def auto_reg():
+    return render_template('user/auto_reg.html')
+
+@user_bp.route('/drivers/self-employed')
+@login_required
+def self_employed():
+    return render_template('user/self_employed.html')
+
+@user_bp.route('/drivers/callsigns')
+@login_required
+def callsigns():
+    return render_template('user/callsigns.html')
+
+@user_bp.route('/drivers/terms')
+@login_required
+def terms():
+    return render_template('user/terms.html')
+
 @user_bp.route('/finance')
 @login_required
 def finance():

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Avtoregistratsiya{% endblock %}
+{% block page_title %}Haydovchilarni Avtoregistratsiya qilish{% endblock %}
+
+{% block content %}
+<div class="stat-card" style="max-width: 700px; margin: 0 auto;">
+    <div class="card-header">
+        <h3><i class='bx bx-bolt-circle' style="color: var(--primary-color);"></i> Avtomatik ro'yxatdan o'tish</h3>
+    </div>
+    <div class="card-content">
+        <p style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.6;">
+            Ushbu bo'lim orqali haydovchilar masofadan turib, o'z ma'lumotlarini yuborishlari va avtomatik ravishda tizimga qo'shilishlari mumkin.
+        </p>
+        
+        <div style="padding: 24px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; margin-bottom: 24px;">
+            <h4 style="color: var(--accent-color); margin-bottom: 12px;"><i class='bx bx-link-alt'></i> Ro'yxatdan o'tish havolasi</h4>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" readonly value="{{ request.host_url.rstrip('/') }}/auth/register?ref={{ current_user.id }}" 
+                       style="flex: 1; padding: 10px; border-radius: 8px; background: #000; border: 1px solid var(--border-color); color: #fff; font-size: 13px;">
+                <button class="user-pill" style="padding: 10px 16px; border: none; background: var(--accent-color); color: #fff; font-weight: 700;">Nusxa</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

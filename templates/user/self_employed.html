@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}O'z o'zini band qilganlar{% endblock %}
+{% block page_title %}O'z o'zini band qilgan haydovchilar{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <div class="stat-card" style="grid-column: span 2;">
+        <div class="card-header">
+            <h3><i class='bx bx-briefcase' style="color: var(--success);"></i> Soliq imtiyozlari va rejimlar</h3>
+        </div>
+        <div class="card-content">
+            <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">
+                O'z o'zini band qilgan haydovchilar uchun maxsus soliq rejimi va imtiyozlar haqida ma'lumotlar.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="padding: 20px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px;">
+                    <h4 style="color: var(--success); margin-bottom: 8px;">0% Soliq stavkasi</h4>
+                    <p style="font-size: 13px; color: var(--text-muted);">Daromad solig'idan to'liq ozod etilgan.</p>
+                </div>
+                <div style="padding: 20px; background: rgba(255, 204, 0, 0.05); border: 1px solid rgba(255, 204, 0, 0.2); border-radius: 16px;">
+                    <h4 style="color: var(--warning); margin-bottom: 8px;">Ijtimoiy soliq</h4>
+                    <p style="font-size: 13px; color: var(--text-muted);">Yiliga 1 BHM miqdorida to'lov qilinadi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

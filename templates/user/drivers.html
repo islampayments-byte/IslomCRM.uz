@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Haydovchilar Ro'yxati{% endblock %}
+{% block page_title %}Haydovchilar Boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="table-container">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h3><i class='bx bx-group' style="color: var(--primary-color);"></i> Barcha haydovchilar</h3>
+        <button class="user-pill" style="padding: 10px 20px; border: none; background: var(--primary-color); color: #000; font-weight: 700; cursor: pointer;">
+            <i class='bx bx-plus'></i> Yangi haydovchi
+        </button>
+    </div>
+    
+    <div style="text-align: center; padding: 60px 0; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed var(--border-color);">
+        <i class='bx bx-car' style="font-size: 64px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <h4 style="color: var(--text-muted);">Hozircha haydovchilar mavjud emas</h4>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Tizimga haydovchilarni qo'shishni boshlang.</p>
+    </div>
+</div>
+{% endblock %}
