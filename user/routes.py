@@ -62,7 +62,7 @@ def topup_payme():
     logging.info(f"Generating Payme URL for user {current_user.phone}")
     logging.info(f"Raw params: {params}")
     
-    encoded_params = base64.b64encode(params.encode()).decode().rstrip('=')
+    encoded_params = base64.b64encode(params.encode()).decode()
     
     # Choose base URL based on test mode (using checkout.test.paycom.uz for test)
     base_url = "https://checkout.test.paycom.uz" if getattr(settings, 'is_test_mode', False) else "https://checkout.payme.uz"
