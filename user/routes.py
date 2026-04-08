@@ -96,7 +96,7 @@ def topup_payme():
         logging.info(f"Receipt created: {receipt_id}")
         
         # 2. Construct redirect URL
-        payme_redirect_url = f"{checkout_url}/checkout/{receipt_id}"
+        payme_redirect_url = f"https://payme.uz/checkout/{receipt_id}"
 
         # Create pending transaction locally
         new_trans = Transaction(
