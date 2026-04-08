@@ -17,6 +17,7 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(BASE_DIR, "instance", "islomcrm.db")}'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 # Initialize extensions
 db.init_app(app)
@@ -57,6 +58,21 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(payme_bp, url_prefix='/payments/payme')
+
+@app.context_processor
+def override_url_for():
+    return dict(url_for=dated_url_for)
+
+def dated_url_for(endpoint, **values):
+    if endpoint == 'static':
+        filename = values.get('filename', None)
+        if filename:
+            file_path = os.path.join(app.root_path, endpoint, filename)
+            try:
+                values['q'] = int(os.stat(file_path).st_mtime)
+            except OSError:
+                pass
+    return url_for(endpoint, **values)
 
 @app.route('/')
 def index():
