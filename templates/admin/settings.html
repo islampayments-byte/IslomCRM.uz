@@ -43,6 +43,23 @@
                 {% endif %}
             {% endwith %}
 
+            <!-- Callback URL for Payme -->
+            <div style="margin-bottom: 24px; padding: 16px; background: rgba(255, 204, 0, 0.05); border: 1px solid rgba(255, 204, 0, 0.2); border-radius: 14px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--primary-color);">
+                    <i class='bx bx-link'></i> Payme-ga beriladigan Callback URL
+                </label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" readonly id="callback-url"
+                           value="{{ request.host_url.rstrip('/') }}/payments/payme/callback"
+                           style="flex: 1; padding: 10px 14px; border-radius: 10px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff; font-size: 13px; font-family: monospace;">
+                    <button type="button" onclick="copyCallback()"
+                            style="padding: 10px 16px; border-radius: 10px; background: var(--primary-color); color: #000; border: none; font-weight: 700; cursor: pointer; font-size: 13px; white-space: nowrap;">
+                        <i class='bx bx-copy'></i> Nusxa
+                    </button>
+                </div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Bu linkni Payme merchant kabinetidagi <strong style="color: #fff;">Merchant URL</strong> maydoniga kiriting.</p>
+            </div>
+
             <div style="margin-bottom: 24px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Merchant ID</label>
                 <input type="text" name="merchant_id" value="{{ settings.payme_merchant_id or '' }}" 
@@ -90,4 +107,22 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyCallback() {
+    const input = document.getElementById('callback-url');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.querySelector('[onclick="copyCallback()"]');
+        btn.innerHTML = "<i class='bx bx-check'></i> Nusxalandi!";
+        btn.style.background = 'var(--success)';
+        setTimeout(() => {
+            btn.innerHTML = "<i class='bx bx-copy'></i> Nusxa";
+            btn.style.background = 'var(--primary-color)';
+        }, 2000);
+    });
+}
+</script>
 {% endblock %}
