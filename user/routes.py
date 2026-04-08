@@ -115,7 +115,11 @@ def test_payme():
     # Variant 6: phone + ; (checkout.payme.uz)
     variants.append({"name": "PRODUCTION: phone + semicolon", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s1.encode()).decode()}"})
     
-    # Variant 7: phone_number + ; (checkout.payme.uz)
-    variants.append({"name": "PRODUCTION: phone_number + semicolon", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s3.encode()).decode()}"})
+    # Variant 8: using 'merchant=' instead of 'm='
+    s8 = f"merchant={merchant_id};ac.phone={phone};a={amount};l=uz"
+    variants.append({"name": "PRODUCTION: merchant= keyword + phone", "url": f"https://checkout.payme.uz/b/{base64.b64encode(s8.encode()).decode()}"})
+    
+    # Variant 9: Simplified path (pay/ID/AMOUNT)
+    variants.append({"name": "PRODUCTION: Simplified (pay/ID/AMOUNT)", "url": f"https://checkout.payme.uz/pay/{merchant_id}/{amount}"})
 
     return render_template('user/test_payme.html', variants=variants)
