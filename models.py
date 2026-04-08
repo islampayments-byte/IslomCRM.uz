@@ -36,6 +36,7 @@ class PaymentSettings(db.Model):
     is_test_mode = db.Column(db.Boolean, default=True)
     min_topup_amount = db.Column(db.Integer, default=1000)
     max_topup_amount = db.Column(db.Integer, default=10000000)
+    payme_account_field = db.Column(db.String(50), default='phone')
 
 class Transaction(db.Model):
     __tablename__ = 'transactions'

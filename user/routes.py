@@ -48,9 +48,11 @@ def topup_payme():
     amount_tiyin = amount * 100
     merchant_id = settings.payme_merchant_id
     phone_clean = current_user.phone.replace('+', '')
-    params = f"m={merchant_id};ac.phone={phone_clean};a={amount_tiyin}"
+    # Use the account field name configured by admin (default: phone)
+    account_field = getattr(settings, 'payme_account_field', None) or 'phone'
+    params = f"m={merchant_id};ac.{account_field}={phone_clean};a={amount_tiyin};l=uz"
     encoded_params = base64.b64encode(params.encode()).decode()
-    payme_url = f"https://checkout.payme.uz/{encoded_params}"
+    payme_url = f"https://checkout.payme.uz/b/{encoded_params}"
 
     # Create pending transaction
     new_trans = Transaction(

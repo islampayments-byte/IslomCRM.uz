@@ -68,6 +68,15 @@
             </div>
 
             <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Account Field nomi</label>
+                <select name="account_field" style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;">
+                    <option value="phone" {% if settings.payme_account_field == 'phone' or not settings.payme_account_field %}selected{% endif %}>phone</option>
+                    <option value="phone_number" {% if settings.payme_account_field == 'phone_number' %}selected{% endif %}>phone_number</option>
+                </select>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Payme merchant kabinetidagi <strong style="color:#fff;">Account parametri</strong> nomi bilan mos kelishi kerak.</p>
+            </div>
+
+            <div style="margin-bottom: 24px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Secret Key</label>
                 <input type="password" name="secret_key" value="{{ settings.payme_secret_key or '' }}" 
                        style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
