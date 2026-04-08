@@ -100,9 +100,7 @@ def payme_callback():
     raw_data = request.data.decode('utf-8')
     auth_header = request.headers.get('Authorization', '')
     
-    logging.info(f"--- Incoming Payme Request ---")
-    logging.info(f"Headers: {dict(request.headers)}")
-    logging.info(f"Body: {raw_data}")
+    # data = request.get_json(force=True, silent=True) # Already handled below
 
     data = request.get_json(force=True, silent=True)
     if data is None:
@@ -120,7 +118,7 @@ def payme_callback():
         logging.warning(f"Auth check FAILED for method {method}")
         return auth_error(req_id)
 
-    logging.info(f"Auth check PASSED for method {method}")
+    # logging.info(f"Auth check PASSED for method {method}")
 
     # ─── CheckPerformTransaction ───────────────────────────────────────
     if method == 'CheckPerformTransaction':

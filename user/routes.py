@@ -83,7 +83,6 @@ def topup_payme():
     }
 
     try:
-        logging.info(f"Calling Payme receipts.create for user {phone_clean}, amount {amount_tiyin}")
         response = requests.post(api_url, json=payload, headers=headers, timeout=10)
         res_data = response.json()
         
@@ -93,7 +92,6 @@ def topup_payme():
             return redirect(url_for('user.finance'))
             
         receipt_id = res_data["result"]["receipt"]["_id"]
-        logging.info(f"Receipt created: {receipt_id}")
         
         # 2. Construct redirect URL
         payme_redirect_url = f"https://payme.uz/checkout/{receipt_id}"
@@ -104,7 +102,7 @@ def topup_payme():
             amount=amount,
             type='topup',
             status='pending',
-            payme_trans_id=receipt_id # Store receipt ID temporarily
+            payme_trans_id=receipt_id 
         )
         db.session.add(new_trans)
         db.session.commit()
