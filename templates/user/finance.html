@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Moliya{% endblock %}
+{% block page_title %}Moliya{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <!-- Balance Card -->
+    <div class="stat-card">
+        <div class="card-header">
+            <h3><i class='bx bx-wallet' style="color: var(--primary-color);"></i> Hisob Balansi</h3>
+        </div>
+        <div class="card-content">
+            <div class="number">125,000 <span style="font-size: 16px; color: var(--text-muted);">UZS</span></div>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Oxirgi marta bugun, 14:30 da yangilandi</p>
+        </div>
+        <div style="margin-top: 32px; display: flex; gap: 12px;">
+            <button class="user-pill" style="flex: 1; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 12px;">
+                Hisobni to'ldirish
+            </button>
+            <button class="user-pill" style="flex: 1; justify-content: center;">
+                Yulib olish
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stat-card">
+        <div class="card-header">
+            <h3><i class='bx bx-trending-up' style="color: var(--success);"></i> Oylik daromad</h3>
+        </div>
+        <div class="card-content">
+            <div class="number">2,450,000 <span style="font-size: 16px; color: var(--text-muted);">UZS</span></div>
+            <div class="sub-info mt-2">
+                <span>Mart oyi uchun</span>
+                <span style="color: var(--success);">+12% oldingiga nisbatan</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions History -->
+<div class="info-section mt-4">
+    <div class="table-container">
+        <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>To'lovlar tarixi</h3>
+            <div class="user-pill" style="padding: 4px 12px; font-size: 12px;">
+                <i class='bx bx-filter'></i> Filter
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sana</th>
+                    <th>ID</th>
+                    <th>Ma'lumot</th>
+                    <th>Miqdor</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bugun, 14:30</td>
+                    <td>#98234</td>
+                    <td>Payme orqali to'ldirish</td>
+                    <td style="color: var(--success); font-weight: 700;">+ 50,000 UZS</td>
+                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span></td>
+                </tr>
+                <tr>
+                    <td>Kecha, 09:15</td>
+                    <td>#98125</td>
+                    <td>Xizmat uchun to'lov</td>
+                    <td style="color: var(--danger); font-weight: 700;">- 12,000 UZS</td>
+                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span></td>
+                </tr>
+                <tr>
+                    <td>01 Aprel, 18:45</td>
+                    <td>#97882</td>
+                    <td>Hamyonni to'ldirish</td>
+                    <td style="color: var(--success); font-weight: 700;">+ 150,000 UZS</td>
+                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
