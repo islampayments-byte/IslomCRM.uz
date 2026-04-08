@@ -25,7 +25,14 @@ def finance():
     settings = PaymentSettings.query.first()
     min_amount = settings.min_topup_amount if settings else 1000
     max_amount = settings.max_topup_amount if settings else 10000000
-    return render_template('user/finance.html', min_amount=min_amount, max_amount=max_amount)
+    
+    # Fetch user's transactions (most recent first)
+    transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.id.desc()).all()
+    
+    return render_template('user/finance.html', 
+                          min_amount=min_amount, 
+                          max_amount=max_amount,
+                          transactions=transactions)
 
 @user_bp.route('/topup/payme', methods=['POST'])
 @login_required

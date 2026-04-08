@@ -81,27 +81,39 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Bugun, 14:30</td>
-                    <td>#98234</td>
-                    <td>Payme orqali to'ldirish</td>
-                    <td style="color: var(--success); font-weight: 700;">+ 50,000 UZS</td>
-                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span></td>
-                </tr>
-                <tr>
-                    <td>Kecha, 09:15</td>
-                    <td>#98125</td>
-                    <td>Xizmat uchun to'lov</td>
-                    <td style="color: var(--danger); font-weight: 700;">- 12,000 UZS</td>
-                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span></td>
-                </tr>
-                <tr>
-                    <td>01 Aprel, 18:45</td>
-                    <td>#97882</td>
-                    <td>Hamyonni to'ldirish</td>
-                    <td style="color: var(--success); font-weight: 700;">+ 150,000 UZS</td>
-                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span></td>
-                </tr>
+                {% if transactions %}
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.created_at.strftime('%d.%m.%Y, %H:%M') }}</td>
+                        <td>#{{ t.id }}</td>
+                        <td>
+                            {% if t.type == 'topup' %}
+                                Payme orqali to'ldirish
+                            {% else %}
+                                Xizmat to'lovi
+                            {% endif %}
+                        </td>
+                        <td style="color: {% if t.type == 'topup' %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                            {{ "+" if t.type == 'topup' else "-" }} {{ "{:,.0f}".format(t.amount).replace(',', ' ') }} UZS
+                        </td>
+                        <td>
+                            {% if t.status == 'success' %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span>
+                            {% elif t.status == 'pending' %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(245, 158, 11, 0.1); color: var(--warning);">Kutilmoqda</span>
+                            {% else %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(239, 68, 68, 0.1); color: var(--danger);">Bekor qilindi</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                            Hali to'lovlar mavjud emas
+                        </td>
+                    </tr>
+                {% endif %}
             </tbody>
         </table>
     </div>
