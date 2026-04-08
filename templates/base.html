@@ -17,55 +17,7 @@
 
 <body class="dark-theme">
     <div class="app-container">
-        <!-- Sidebar - Modern Slim -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="{{ url_for('static', filename='favicon.png') }}" class="logo-img" alt="Logo">
-                    <span>ISLOM CRM</span>
-                </div>
-            </div>
-
-            <ul class="nav-links">
-                {% block sidebar_menu %}
-                <li>
-                    <a href="{{ url_for('user.dashboard') }}" class="active">
-                        <i class='bx bx-grid-alt'></i>
-                        <span class="link_name">Asosiy</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('user.finance') }}">
-                        <i class='bx bx-wallet'></i>
-                        <span class="link_name">Moliya</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class='bx bx-user'></i>
-                        <span class="link_name">Haydovchilar</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class='bx bx-file'></i>
-                        <span class="link_name">Hisobotlar</span>
-                    </a>
-                </li>
-                {% endblock %}
-            </ul>
-
-            <div style="margin-top: auto; padding-bottom: 20px;">
-                <ul class="nav-links">
-                    <li>
-                        <a href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
-                            <i class='bx bx-log-out'></i>
-                            <span class="link_name">Chiqish</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
+        {% include 'partials/sidebar.html' %}
 
         <!-- Main Content -->
         <main class="main-content">

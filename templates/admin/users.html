@@ -3,26 +3,6 @@
 {% block title %}Foydalanuvchilar | Admin{% endblock %}
 {% block page_title %}Foydalanuvchilar Boshqaruvi{% endblock %}
 
-{% block sidebar_menu %}
-<li>
-    <a href="{{ url_for('admin.dashboard') }}">
-        <i class='bx bx-grid-alt' ></i>
-        <span class="link_name">Statistika</span>
-    </a>
-</li>
-<li>
-    <a href="{{ url_for('admin.users_list') }}" class="active">
-        <i class='bx bx-user' ></i>
-        <span class="link_name">Foydalanuvchilar</span>
-    </a>
-</li>
-<li>
-    <a href="{{ url_for('admin.settings') }}">
-        <i class='bx bx-cog' ></i>
-        <span class="link_name">Sozlamalar</span>
-    </a>
-</li>
-{% endblock %}
 
 {% block content %}
 <style>

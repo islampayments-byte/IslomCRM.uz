@@ -3,26 +3,6 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block page_title %}Admin Panel{% endblock %}
 
-{% block sidebar_menu %}
-<li>
-    <a href="{{ url_for('admin.dashboard') }}" class="active">
-        <i class='bx bx-grid-alt' ></i>
-        <span class="link_name">Statistika</span>
-    </a>
-</li>
-<li>
-    <a href="{{ url_for('admin.users_list') }}">
-        <i class='bx bx-user' ></i>
-        <span class="link_name">Foydalanuvchilar</span>
-    </a>
-</li>
-<li>
-    <a href="{{ url_for('admin.settings') }}">
-        <i class='bx bx-cog' ></i>
-        <span class="link_name">Sozlamalar</span>
-    </a>
-</li>
-{% endblock %}
 
 {% block content %}
 <!-- Flash Messages -->
