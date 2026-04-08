@@ -59,6 +59,16 @@ def terms():
 def settings():
     return render_template('user/settings.html')
 
+@user_bp.route('/settings/permissions')
+@login_required
+def permissions():
+    return render_template('user/permissions.html')
+
+@user_bp.route('/settings/payments')
+@login_required
+def payment_settings():
+    return render_template('user/payment_settings.html')
+
 @user_bp.route('/finance')
 @login_required
 def finance():

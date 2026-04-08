@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}To'lov tizimlari{% endblock %}
+{% block page_title %}To'lov tizimlari sozlamalari{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <!-- Payme Settings -->
+    <div class="stat-card">
+        <div class="card-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 24px;" alt="Payme">
+                <h3>Payme Business</h3>
+            </div>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="card-content">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Merchant ID</label>
+                <input type="text" value="65e12...789" readonly style="width: 100%; padding: 10px; border-radius: 8px; background: #000; border: 1px solid var(--border-color); color: var(--text-muted); font-family: monospace;">
+            </div>
+            <button class="user-pill" style="width: 100%; justify-content: center; background: rgba(59, 130, 246, 0.1); color: var(--accent-color); border: none;">
+                Kalitlarni yangilash
+            </button>
+        </div>
+    </div>
+
+    <!-- CLICK Settings (Placeholder) -->
+    <div class="stat-card">
+        <div class="card-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="{{ url_for('static', filename='click.svg') }}" style="height: 20px;" alt="Click">
+                <h3>Click Up</h3>
+            </div>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="card-content">
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Click to'lov tizimini ulash uchun shartnoma raqamini kiriting.</p>
+            <button class="user-pill" style="width: 100%; justify-content: center; background: var(--border-color); color: var(--text-muted); border: none; cursor: not-allowed;">
+                Tez orada
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Toggle Switch Style (Duplicate from settings.html for isolation if needed or move to style.css) */
+.switch { position: relative; display: inline-block; width: 44px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--success); }
+input:checked + .slider:before { transform: translateX(24px); }
+</style>
+{% endblock %}

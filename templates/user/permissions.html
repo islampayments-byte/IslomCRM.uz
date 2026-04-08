@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Ruxsatni boshqarish{% endblock %}
+{% block page_title %}Ruxsatlar va Rollar{% endblock %}
+
+{% block content %}
+<div class="stat-card" style="max-width: 900px; margin: 0 auto;">
+    <div class="card-header">
+        <h3><i class='bx bx-shield-quarter' style="color: var(--success);"></i> Kirish huquqlarini boshqarish</h3>
+    </div>
+    <div class="card-content">
+        <p style="color: var(--text-muted); margin-bottom: 30px;">
+            Ushbu bo'limda siz xodimlaringiz va hamkorlaringiz uchun tizimning qaysi qismlariga kirish huquqi borligini belgilaysiz.
+        </p>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Rol nomi</th>
+                        <th>Tavsif</th>
+                        <th>Holati</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 700;">Operator</td>
+                        <td style="color: var(--text-muted); font-size: 13px;">Faqat haydovchilar va xaritani ko'rish</td>
+                        <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Faol</span></td>
+                        <td><i class='bx bx-edit-alt' style="cursor: pointer; color: var(--primary-color);"></i></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 700;">Buxgalter</td>
+                        <td style="color: var(--text-muted); font-size: 13px;">Moliya va hisobotlar bo'limiga to'liq kirish</td>
+                        <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Faol</span></td>
+                        <td><i class='bx bx-edit-alt' style="cursor: pointer; color: var(--primary-color);"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <button class="user-pill" style="margin-top: 24px; width: 100%; justify-content: center; background: rgba(255,204,0,0.1); border: 1px dashed var(--primary-color); color: var(--primary-color);">
+            <i class='bx bx-plus'></i> Yangi rol qo'shish
+        </button>
+    </div>
+</div>
+{% endblock %}
