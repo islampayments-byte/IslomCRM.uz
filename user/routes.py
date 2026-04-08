@@ -78,6 +78,8 @@ def topup_payme():
     db.session.add(new_trans)
     db.session.commit()
 
+    return redirect(payme_url)
+
 @user_bp.route('/test-payme')
 @login_required
 def test_payme():
