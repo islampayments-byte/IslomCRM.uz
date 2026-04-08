@@ -29,6 +29,11 @@ def info():
 def profile():
     return render_template('user/profile.html')
 
+@user_bp.route('/pricing')
+@login_required
+def pricing():
+    return render_template('user/pricing.html')
+
 @user_bp.route('/drivers')
 @login_required
 def drivers():

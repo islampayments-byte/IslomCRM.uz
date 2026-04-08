@@ -122,6 +122,13 @@
         <ul class="nav-links" style="margin-bottom: 0;">
             {# UNIVERSAL BUTTONS - VISIBLE TO BOTH ADMIN AND USER #}
             <li>
+                <a href="{{ url_for('user.pricing') }}" class="{{ 'active' if request.endpoint == 'user.pricing' }}">
+                    <i class='bx bx-crown'></i>
+                    <span class="link_name">Tariflar</span>
+                </a>
+            </li>
+
+            <li>
                 <a href="#">
                     <i class='bx bx-support'></i>
                     <span class="link_name">Qo'llab-quvvatlash</span>
