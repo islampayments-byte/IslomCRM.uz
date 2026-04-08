@@ -101,9 +101,9 @@
                                 <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(16, 185, 129, 0.1); color: var(--success);">Muvaffaqiyatli</span>
                             {% elif t.status == 'pending' %}
                                 <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(245, 158, 11, 0.1); color: var(--warning); margin-bottom: 4px; display: inline-block;">Kutilmoqda</span>
-                                <a href="{{ url_for('user.cancel_transaction', transaction_id=t.id) }}" 
+                                <a href="javascript:void(0)" 
                                    style="display: block; font-size: 10px; color: var(--danger); text-decoration: underline;"
-                                   onclick="return confirm('Ushbu to\'lovni bekor qilmoqchimisiz?')">Bekor qilish</a>
+                                   onclick="handleCancel('{{ url_for('user.cancel_transaction', transaction_id=t.id) }}')">Bekor qilish</a>
                             {% else %}
                                 <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: rgba(239, 68, 68, 0.1); color: var(--danger);">Bekor qilindi</span>
                             {% endif %}
@@ -121,4 +121,18 @@
         </table>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    async function handleCancel(url) {
+        const confirmed = await islomConfirm(
+            'Ushbu t\'lovni bekor qilmoqchimisiz? Bu amalni ortga qaytarib bo\'lmaydi.', 
+            'Diqqat!', 
+            'danger'
+        );
+        if (confirmed) {
+            window.location.href = url;
+        }
+    }
+</script>
 {% endblock %}

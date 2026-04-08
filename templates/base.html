@@ -119,6 +119,21 @@
         </main>
     </div>
 
+    <!-- Custom Modal System -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-card">
+            <div class="modal-icon" id="modalIcon">
+                <i class='bx bx-question-mark'></i>
+            </div>
+            <h3 class="modal-title" id="modalTitle">Tasdiqlash</h3>
+            <p class="modal-message" id="modalMessage">Haqiqatan ham ushbu amalni bajarmoqchimisiz?</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="modalCancel">Bekor qilish</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirm">Tasdiqlash</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const sidebar = document.querySelector(".sidebar");
         const menuBtn = document.querySelector("#btn-menu");
@@ -131,6 +146,76 @@
                 menuBtn.classList.replace("bx-menu", "bx-menu-alt-left");
             }
         });
+
+        // Global Modal Logic
+        const modalOverlay = document.getElementById('customModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalConfirmBtn = document.getElementById('modalConfirm');
+        const modalCancelBtn = document.getElementById('modalCancel');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalIcon = document.getElementById('modalIcon');
+
+        window.islomConfirm = function(message, title = 'Tasdiqlash', type = 'confirm') {
+            return new Promise((resolve) => {
+                modalMessage.innerText = message;
+                modalTitle.innerText = title;
+                modalOverlay.classList.add('active');
+
+                // Customize based on type
+                if (type === 'danger') {
+                    modalConfirmBtn.className = 'modal-btn modal-btn-danger';
+                    modalIcon.innerHTML = "<i class='bx bx-error-circle'></i>";
+                    modalIcon.style.color = 'var(--danger)';
+                    modalIcon.style.background = 'rgba(239, 68, 68, 0.1)';
+                } else {
+                    modalConfirmBtn.className = 'modal-btn modal-btn-confirm';
+                    modalIcon.innerHTML = "<i class='bx bx-question-mark'></i>";
+                    modalIcon.style.color = 'var(--primary-color)';
+                    modalIcon.style.background = 'rgba(255, 204, 0, 0.1)';
+                }
+
+                const handleConfirm = () => {
+                    cleanup();
+                    resolve(true);
+                };
+
+                const handleCancel = () => {
+                    cleanup();
+                    resolve(false);
+                };
+
+                const cleanup = () => {
+                    modalOverlay.classList.remove('active');
+                    modalConfirmBtn.removeEventListener('click', handleConfirm);
+                    modalCancelBtn.removeEventListener('click', handleCancel);
+                };
+
+                modalConfirmBtn.addEventListener('click', handleConfirm);
+                modalCancelBtn.addEventListener('click', handleCancel);
+            });
+        };
+
+        window.islomAlert = function(message, title = 'Ma\'lumot') {
+            return new Promise((resolve) => {
+                modalMessage.innerText = message;
+                modalTitle.innerText = title;
+                modalCancelBtn.style.display = 'none';
+                modalOverlay.classList.add('active');
+                
+                modalIcon.innerHTML = "<i class='bx bx-info-circle'></i>";
+                modalIcon.style.color = 'var(--accent-color)';
+                modalIcon.style.background = 'rgba(59, 130, 246, 0.1)';
+
+                const handleConfirm = () => {
+                    modalOverlay.classList.remove('active');
+                    modalConfirmBtn.removeEventListener('click', handleConfirm);
+                    modalCancelBtn.style.display = 'block'; // Restore for next use
+                    resolve(true);
+                };
+
+                modalConfirmBtn.addEventListener('click', handleConfirm);
+            });
+        };
     </script>
     {% block scripts %}{% endblock %}
 </body>
