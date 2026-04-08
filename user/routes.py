@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import User, PaymentSettings, Transaction
 from extensions import db
+import requests
 import base64
 import logging
 import os
@@ -47,37 +48,70 @@ def topup_payme():
         flash(f"Maksimal to'ldirish summasi — {max_amount:,} so'm".replace(',', ' '), "danger")
         return redirect(url_for('user.finance'))
 
-    if not settings or not settings.payme_merchant_id or settings.payme_merchant_id == 'your_merchant_id':
+    if not settings or not settings.payme_merchant_id or not settings.payme_secret_key:
         flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
         return redirect(url_for('user.finance'))
 
     # Payme expects amount in tiyin (1 sum = 100 tiyin)
     amount_tiyin = amount * 100
     merchant_id = settings.payme_merchant_id
+    secret_key = settings.payme_secret_key
     phone_clean = current_user.phone.replace('+', '').replace(' ', '')
-    # Use phone_number as default field as seen in working example
     account_field = getattr(settings, 'payme_account_field', None) or 'phone_number'
     
-    # Minimal parameters as in your working example
-    params = f"m={merchant_id};ac.{account_field}={phone_clean};a={amount_tiyin}"
-    
-    logging.info(f"Generating Payme URL for user {current_user.phone}")
-    logging.info(f"Raw params: {params}")
-    
-    encoded_params = base64.b64encode(params.encode()).decode()
-    
-    # Choose base URL based on test mode
-    base_url = "https://checkout.test.paycom.uz" if getattr(settings, 'is_test_mode', False) else "https://checkout.payme.uz"
-    payme_url = f"{base_url}/b/{encoded_params}"
+    # Check if in test mode
+    is_test = getattr(settings, 'is_test_mode', False)
+    api_url = "https://checkout.test.paycom.uz/api" if is_test else "https://checkout.paycom.uz/api"
+    checkout_url = "https://checkout.test.paycom.uz" if is_test else "https://checkout.payme.uz"
 
-    # Create pending transaction
-    new_trans = Transaction(
-        user_id=current_user.id,
-        amount=amount,
-        type='topup',
-        status='pending'
-    )
-    db.session.add(new_trans)
-    db.session.commit()
+    # 1. Create a receipt via Payme API
+    headers = {
+        "X-Auth": f"{merchant_id}:{secret_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "receipts.create",
+        "params": {
+            "amount": amount_tiyin,
+            "account": {
+                account_field: phone_clean
+            }
+        },
+        "id": int(os.urandom(4).hex(), 16) # Unique request ID
+    }
 
-    return redirect(payme_url)
+    try:
+        logging.info(f"Calling Payme receipts.create for user {phone_clean}, amount {amount_tiyin}")
+        response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+        res_data = response.json()
+        
+        if "error" in res_data:
+            logging.error(f"Payme API Error: {res_data['error']}")
+            flash(f"To'lov tizimida xatolik yuz berdi: {res_data['error'].get('message', 'Noma''lum xato')}", "danger")
+            return redirect(url_for('user.finance'))
+            
+        receipt_id = res_data["result"]["receipt"]["_id"]
+        logging.info(f"Receipt created: {receipt_id}")
+        
+        # 2. Construct redirect URL
+        payme_redirect_url = f"{checkout_url}/checkout/{receipt_id}"
+
+        # Create pending transaction locally
+        new_trans = Transaction(
+            user_id=current_user.id,
+            amount=amount,
+            type='topup',
+            status='pending',
+            payme_trans_id=receipt_id # Store receipt ID temporarily
+        )
+        db.session.add(new_trans)
+        db.session.commit()
+
+        return redirect(payme_redirect_url)
+
+    except Exception as e:
+        logging.error(f"Exception during Payme receipt creation: {e}")
+        flash("To'lov serveri bilan bog'lanishda xatolik yuz berdi.", "danger")
+        return redirect(url_for('user.finance'))
