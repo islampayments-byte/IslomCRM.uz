@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Hamkor Profili{% endblock %}
+{% block page_title %}Hamkor Profili{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <!-- Profile Card -->
+    <div class="stat-card" style="grid-column: span 2;">
+        <div class="card-header">
+            <h3><i class='bx bx-user-circle' style="color: var(--primary-color);"></i> Profil ma'lumotlari</h3>
+        </div>
+        <div class="card-content">
+            <div style="display: flex; gap: 40px; align-items: flex-start;">
+                <div style="width: 120px; height: 120px; background: rgba(255, 204, 0, 0.1); color: var(--primary-color); border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 48px; border: 2px solid rgba(255, 204, 0, 0.2);">
+                    {{ current_user.org_name[0] | upper if current_user.org_name else 'U' }}
+                </div>
+                
+                <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Tashkilot nomi</label>
+                        <div style="font-weight: 700; font-size: 18px;">{{ current_user.org_name or 'Kiritilmagan' }}</div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">STIR (INN)</label>
+                        <div style="font-weight: 700; font-size: 18px;">{{ current_user.stir or 'Kiritilmagan' }}</div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Telefon raqam</label>
+                        <div style="font-weight: 700; font-size: 18px;">{{ current_user.phone }}</div>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Ro'yxatdan o'tilgan sana</label>
+                        <div style="font-weight: 700; font-size: 18px;">{{ current_user.created_at.strftime('%d.%m.%Y') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Card -->
+    <div class="stat-card">
+        <div class="card-header">
+            <h3><i class='bx bx-check-shield' style="color: var(--success);"></i> Hisob holati</h3>
+        </div>
+        <div class="card-content" style="text-align: center; padding: 20px 0;">
+            {% if current_user.is_verified %}
+                <i class='bx bxs-check-shield' style="font-size: 64px; color: var(--success); margin-bottom: 16px;"></i>
+                <h4 style="color: var(--success);">Tasdiqlangan</h4>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Hisobingiz to'liq faollashtirilgan.</p>
+            {% else %}
+                <i class='bx bx-time' style="font-size: 64px; color: var(--warning); margin-bottom: 16px;"></i>
+                <h4 style="color: var(--warning);">Moderatsiyada</h4>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Ma'lumotlaringiz tekshirilmoqda.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

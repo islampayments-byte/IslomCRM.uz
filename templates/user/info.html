@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Axborot{% endblock %}
+{% block page_title %}Axborot va Yangiliklar{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <div class="stat-card" style="grid-column: span 2;">
+        <div class="card-header">
+            <h3><i class='bx bx-news' style="color: var(--primary-color);"></i> So'nggi yangiliklar</h3>
+        </div>
+        <div class="card-content">
+            <div style="padding: 24px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                <h4 style="font-size: 18px; margin-bottom: 12px; color: var(--primary-color);">Tizim yangilanishi v2.4</h4>
+                <p style="color: var(--text-muted); line-height: 1.6;">Yangi modulyar interfeys va keshni avtomatik tozalash tizimi ishga tushirildi. Endi sizning CRM tezroq va silliqroq ishlaydi.</p>
+                <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted);">08.04.2026</div>
+            </div>
+
+            <div style="padding: 24px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid var(--border-color);">
+                <h4 style="font-size: 18px; margin-bottom: 12px;">Yangi to'lov usullari</h4>
+                <p style="color: var(--text-muted); line-height: 1.6;">Tez orada Payme bilan birga Uzum va Click tizimlari orqali ham balansni to'ldirish imkoniyati qo'shiladi.</p>
+                <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted);">07.04.2026</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="card-header">
+            <h3><i class='bx bx-bulb' style="color: var(--warning);"></i> Maslahatlar</h3>
+        </div>
+        <div class="card-content">
+            <ul class="status-list">
+                <li class="status-item">
+                    <i class='bx bx-check-double' style="color: var(--success);"></i>
+                    <span>Balansni o'z vaqtida to'ldirib boring.</span>
+                </li>
+                <li class="status-item">
+                    <i class='bx bx-check-double' style="color: var(--success);"></i>
+                    <span>Xabarnomalarni yoqib qo'ying.</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -36,6 +36,27 @@
                     <span class="link_name">Asosiy</span>
                 </a>
             </li>
+            
+            {# DASHBOARD SUB-MENU (Conditional) #}
+            {% if request.endpoint in ['user.dashboard', 'user.info', 'user.profile'] %}
+            <li class="submenu-container">
+                <ul class="submenu-links">
+                    <li>
+                        <a href="{{ url_for('user.info') }}" class="{{ 'active' if request.endpoint == 'user.info' }}">
+                            <i class='bx bx-info-circle'></i>
+                            <span class="link_name">Axborot</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.profile') }}" class="{{ 'active' if request.endpoint == 'user.profile' }}">
+                            <i class='bx bx-user-pin'></i>
+                            <span class="link_name">Hamkor profili</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %}
+
             <li>
                 <a href="{{ url_for('user.finance') }}" class="{{ 'active' if request.endpoint == 'user.finance' }}">
                     <i class='bx bx-wallet'></i>

@@ -19,6 +19,16 @@ user_bp = Blueprint('user', __name__, template_folder='../templates')
 def dashboard():
     return render_template('user/dashboard.html')
 
+@user_bp.route('/info')
+@login_required
+def info():
+    return render_template('user/info.html')
+
+@user_bp.route('/profile')
+@login_required
+def profile():
+    return render_template('user/profile.html')
+
 @user_bp.route('/finance')
 @login_required
 def finance():
