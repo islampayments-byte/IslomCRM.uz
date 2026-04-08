@@ -11,6 +11,11 @@ def get_settings():
     return PaymentSettings.query.first()
 
 
+def get_phone(account: dict) -> str:
+    """Payme sends phone as 'phone' or 'phone_number' depending on merchant config."""
+    return account.get('phone') or account.get('phone_number') or ''
+
+
 def check_auth(auth_header, settings):
     """Payme Basic Auth: Authorization: Basic base64(Paycom:{key})"""
     if not auth_header or not auth_header.startswith('Basic '):
@@ -66,7 +71,8 @@ def payme_callback():
 
     # ─── CheckPerformTransaction ───────────────────────────────────────
     if method == 'CheckPerformTransaction':
-        phone = params.get('account', {}).get('phone', '')
+        account = params.get('account', {})
+        phone = get_phone(account)
         amount = params.get('amount', 0)  # tiyin
 
         if not phone:
@@ -78,7 +84,12 @@ def payme_callback():
                 }
             }), 200
 
-        user = User.query.filter_by(phone=f'+{phone}').first()
+        # Normalize phone: strip leading '+'
+        phone_clean = phone.lstrip('+')
+        user = User.query.filter(
+            (User.phone == f'+{phone_clean}') | (User.phone == phone)
+        ).first()
+
         if not user:
             return jsonify({
                 "jsonrpc": "2.0", "id": req_id,
@@ -103,7 +114,8 @@ def payme_callback():
 
     # ─── CreateTransaction ─────────────────────────────────────────────
     elif method == 'CreateTransaction':
-        phone = params.get('account', {}).get('phone', '')
+        account = params.get('account', {})
+        phone = get_phone(account)
         amount = params.get('amount', 0)
         payme_id = params.get('id')
         create_time = params.get('time', now_ms())
@@ -114,11 +126,23 @@ def payme_callback():
                 "error": {"code": -31050, "message": {"en": "Phone required"}}
             }), 200
 
-        user = User.query.filter_by(phone=f'+{phone}').first()
+        phone_clean = phone.lstrip('+')
+        user = User.query.filter(
+            (User.phone == f'+{phone_clean}') | (User.phone == phone)
+        ).first()
+
         if not user:
             return jsonify({
                 "jsonrpc": "2.0", "id": req_id,
                 "error": {"code": -31050, "message": {"uz": "Foydalanuvchi topilmadi", "en": "User not found"}}
+            }), 200
+
+        min_t = (settings.min_topup_amount or 1000) * 100
+        max_t = (settings.max_topup_amount or 10000000) * 100
+        if amount < min_t or amount > max_t:
+            return jsonify({
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31001, "message": {"uz": "Noto'g'ri summa", "en": "Invalid amount"}}
             }), 200
 
         # Check if transaction already exists
