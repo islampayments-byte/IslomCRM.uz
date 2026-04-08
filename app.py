@@ -74,13 +74,10 @@ def dated_url_for(endpoint, **values):
                 pass
     return url_for(endpoint, **values)
 
-@app.route('/debug-sidebar')
-def debug_sidebar():
-    sidebar_path = os.path.join(app.root_path, 'templates', 'partials', 'sidebar.html')
-    if os.path.exists(sidebar_path):
-        with open(sidebar_path, 'r', encoding='utf-8') as f:
-            return f"<pre>{f.read()}</pre>"
-    return "Sidebar file not found at " + sidebar_path
+@app.route('/')
+def index():
+    # Redirect to user portal by default or show a landing page
+    return redirect(url_for('user.dashboard'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
