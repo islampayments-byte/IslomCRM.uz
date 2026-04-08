@@ -63,7 +63,10 @@ def topup_payme():
     logging.info(f"Raw params: {params}")
     
     encoded_params = base64.b64encode(params.encode()).decode()
-    payme_url = f"https://checkout.payme.uz/b/{encoded_params}"
+    
+    # Choose base URL based on test mode
+    base_url = "https://test.payme.uz" if getattr(settings, 'is_test_mode', False) else "https://checkout.payme.uz"
+    payme_url = f"{base_url}/b/{encoded_params}"
 
     # Create pending transaction
     new_trans = Transaction(
