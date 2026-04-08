@@ -57,7 +57,7 @@ def topup_payme():
     phone_clean = current_user.phone.replace('+', '').replace(' ', '')
     # Use the account field name configured by admin (default: phone)
     account_field = getattr(settings, 'payme_account_field', None) or 'phone'
-    params = f"m={merchant_id};ac.{account_field}={phone_clean};a={amount_tiyin};l=uz"
+    params = f"m={merchant_id}&ac.{account_field}={phone_clean}&a={amount_tiyin}&l=uz"
     
     logging.info(f"Generating Payme URL for user {current_user.phone}")
     logging.info(f"Raw params: {params}")
