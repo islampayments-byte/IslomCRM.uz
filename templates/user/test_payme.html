@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); color: white;">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Payme To'lov Havolasi Diagnostikasi</h2>
+                    <p class="text-secondary text-center">Iltimos, quyidagi tugmalarning har birini bosib ko'ring. Qaysi biri sizni to'lov sahifasiga to'g'ri olib borsa, o'sha formatni asosiy tizimga o'rnatamiz.</p>
+                    
+                    <div class="d-grid gap-3 mt-4">
+                        {% for variant in variants %}
+                        <a href="{{ variant.url }}" target="_blank" class="btn btn-outline-primary btn-lg py-3">
+                            Variant: {{ variant.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-5 p-3 rounded bg-dark">
+                        <h5>Nima uchun bu sahifa kerak?</h5>
+                        <small class="text-secondary">
+                            Ba'zan Paycom test serverlari turli formatdagi ( separator yoki account field) havolalarni talab qiladi. Ushbu sahifa orqali biz sizning kabinetingizga mos keladigan aniq formatni topib olamiz.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

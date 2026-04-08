@@ -78,4 +78,37 @@ def topup_payme():
     db.session.add(new_trans)
     db.session.commit()
 
-    return redirect(payme_url)
+@user_bp.route('/test-payme')
+@login_required
+def test_payme():
+    settings = PaymentSettings.query.first()
+    if not settings:
+        return "No settings found"
+        
+    merchant_id = settings.payme_merchant_id
+    phone = current_user.phone.replace('+', '').replace(' ', '')
+    amount = (settings.min_topup_amount or 1000) * 100 # Default min amount in tiyin
+    
+    variants = []
+    
+    # Variant 1: phone + ;
+    s1 = f"m={merchant_id};ac.phone={phone};a={amount};l=uz"
+    variants.append({"name": "phone + semicolon", "url": f"https://test.payme.uz/b/{base64.b64encode(s1.encode()).decode()}"})
+    
+    # Variant 2: phone + &
+    s2 = f"m={merchant_id}&ac.phone={phone}&a={amount}&l=uz"
+    variants.append({"name": "phone + ampersand", "url": f"https://test.payme.uz/b/{base64.b64encode(s2.encode()).decode()}"})
+    
+    # Variant 3: phone_number + ;
+    s3 = f"m={merchant_id};ac.phone_number={phone};a={amount};l=uz"
+    variants.append({"name": "phone_number + semicolon", "url": f"https://test.payme.uz/b/{base64.b64encode(s3.encode()).decode()}"})
+    
+    # Variant 4: phone_number + &
+    s4 = f"m={merchant_id}&ac.phone_number={phone}&a={amount}&l=uz"
+    variants.append({"name": "phone_number + ampersand", "url": f"https://test.payme.uz/b/{base64.b64encode(s4.encode()).decode()}"})
+    
+    # Variant 5: phone + ; (no language)
+    s5 = f"m={merchant_id};ac.phone={phone};a={amount}"
+    variants.append({"name": "no language + semicolon", "url": f"https://test.payme.uz/b/{base64.b64encode(s5.encode()).decode()}"})
+
+    return render_template('user/test_payme.html', variants=variants)
