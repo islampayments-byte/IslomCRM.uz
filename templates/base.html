@@ -78,8 +78,8 @@
                     
                     <div class="user-pill">
                         <div class="avatar">
-                            {% if current_user.is_authenticated %}
-                                {{ current_user.phone[4:6] }}
+                            {% if current_user.org_name %}
+                                {{ current_user.org_name[0] | upper }}
                             {% else %}
                                 <i class='bx bx-user'></i>
                             {% endif %}
