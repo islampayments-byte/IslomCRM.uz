@@ -21,6 +21,7 @@ class User(db.Model, UserMixin):
     org_phone = db.Column(db.String(20))
     address = db.Column(db.Text)
     is_verified = db.Column(db.Boolean, default=False) # IPv6 fits in 45 chars
+    balance = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def check_pin(self, pin, bcrypt):
