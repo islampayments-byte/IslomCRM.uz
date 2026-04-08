@@ -34,6 +34,8 @@ class PaymentSettings(db.Model):
     payme_secret_key = db.Column(db.String(255))
     payme_test_key = db.Column(db.String(255))
     is_test_mode = db.Column(db.Boolean, default=True)
+    min_topup_amount = db.Column(db.Integer, default=1000)
+    max_topup_amount = db.Column(db.Integer, default=10000000)
 
 class Transaction(db.Model):
     __tablename__ = 'transactions'

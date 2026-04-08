@@ -14,7 +14,10 @@ def dashboard():
 @user_bp.route('/finance')
 @login_required
 def finance():
-    return render_template('user/finance.html')
+    settings = PaymentSettings.query.first()
+    min_amount = settings.min_topup_amount if settings else 1000
+    max_amount = settings.max_topup_amount if settings else 10000000
+    return render_template('user/finance.html', min_amount=min_amount, max_amount=max_amount)
 
 @user_bp.route('/topup/payme', methods=['POST'])
 @login_required
@@ -23,13 +26,20 @@ def topup_payme():
     if not amount or not amount.isdigit():
         flash("Iltimos, to'g'ri summa kiriting", "danger")
         return redirect(url_for('user.finance'))
-    
+
     amount = int(amount)
-    if amount < 1000:
-        flash("Minimal summa - 1000 so'm", "danger")
+    settings = PaymentSettings.query.first()
+    min_amount = settings.min_topup_amount if settings else 1000
+    max_amount = settings.max_topup_amount if settings else 10000000
+
+    if amount < min_amount:
+        flash(f"Minimal to'ldirish summasi — {min_amount:,} so'm".replace(',', ' '), "danger")
         return redirect(url_for('user.finance'))
 
-    settings = PaymentSettings.query.first()
+    if amount > max_amount:
+        flash(f"Maksimal to'ldirish summasi — {max_amount:,} so'm".replace(',', ' '), "danger")
+        return redirect(url_for('user.finance'))
+
     if not settings or not settings.payme_merchant_id:
         flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
         return redirect(url_for('user.finance'))
@@ -37,15 +47,11 @@ def topup_payme():
     # Payme expects amount in tiyin (1 sum = 100 tiyin)
     amount_tiyin = amount * 100
     merchant_id = settings.payme_merchant_id
-    
-    # Structure for Payme: m={merchant_id};ac.phone={phone};a={amount_tiyin}
-    # Using phone number without '+' for Payme identification
     phone_clean = current_user.phone.replace('+', '')
     params = f"m={merchant_id};ac.phone={phone_clean};a={amount_tiyin}"
     encoded_params = base64.b64encode(params.encode()).decode()
-    
     payme_url = f"https://checkout.payme.uz/{encoded_params}"
-    
+
     # Create pending transaction
     new_trans = Transaction(
         user_id=current_user.id,
@@ -55,5 +61,5 @@ def topup_payme():
     )
     db.session.add(new_trans)
     db.session.commit()
-    
+
     return redirect(payme_url)
