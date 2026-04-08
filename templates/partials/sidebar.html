@@ -135,7 +135,23 @@
 
     <div style="margin-top: auto; padding-bottom: 20px;">
         <ul class="nav-links" style="margin-bottom: 0;">
-            {% if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] %}
+            {# UNIVERSAL BUTTONS - VISIBLE TO BOTH ADMIN AND USER #}
+            <li>
+                <a href="#">
+                    <i class='bx bx-support'></i>
+                    <span class="link_name">Qo'llab-quvvatlash</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class='bx bx-bell'></i>
+                    <span class="link_name">Bildirishnomalar</span>
+                </a>
+            </li>
+
+            {# SETTINGS SUB-MENU (Conditional) #}
+            {% if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings', 'admin.settings'] %}
             <li class="submenu-container" style="margin-bottom: 12px; margin-top: 10px;">
                 <ul class="submenu-links" style="border-left-color: rgba(255,255,255,0.1);">
                     <li>
