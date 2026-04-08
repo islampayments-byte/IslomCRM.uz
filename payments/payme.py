@@ -2,128 +2,194 @@ from flask import Blueprint, request, jsonify
 from models import User, PaymentSettings, Transaction
 from extensions import db
 import base64
+import datetime
 
 payme_bp = Blueprint('payme', __name__)
 
+
+def get_settings():
+    return PaymentSettings.query.first()
+
+
 def check_auth(auth_header, settings):
-    """Payme Basic Auth tekshiruvi."""
+    """Payme Basic Auth: Authorization: Basic base64(Paycom:{key})"""
     if not auth_header or not auth_header.startswith('Basic '):
         return False
     try:
         decoded = base64.b64decode(auth_header[6:]).decode('utf-8')
-        # Format: Paycom:{secret_key} yoki test-{test_key}
-        key_to_check = settings.payme_test_key if settings.is_test_mode else settings.payme_secret_key
-        expected = f"Paycom:{key_to_check}"
-        return decoded == expected
+        # decoded should be: "Paycom:{secret_key}" or "Paycom:{test_key}"
+        parts = decoded.split(':', 1)
+        if len(parts) != 2 or parts[0] != 'Paycom':
+            return False
+        provided_key = parts[1]
+        if settings and settings.is_test_mode and settings.payme_test_key:
+            return provided_key == settings.payme_test_key
+        elif settings and settings.payme_secret_key:
+            return provided_key == settings.payme_secret_key
+        return False
     except Exception:
         return False
 
+
+def auth_error(req_id):
+    """Payme spec: auth errors MUST return HTTP 200 with error code -32504."""
+    return jsonify({
+        "jsonrpc": "2.0",
+        "id": req_id,
+        "error": {
+            "code": -32504,
+            "message": {
+                "uz": "Avtorizatsiyadan o'tmadi",
+                "ru": "Ошибка авторизации",
+                "en": "Unauthorized"
+            }
+        }
+    }), 200  # <-- must be 200 per Payme spec
+
+
+def now_ms():
+    return int(datetime.datetime.utcnow().timestamp() * 1000)
+
+
 @payme_bp.route('/callback', methods=['POST'])
 def payme_callback():
-    """Payme merchant callback endpoint."""
-    settings = PaymentSettings.query.first()
-
-    # Auth tekshiruvi
-    auth = request.headers.get('Authorization', '')
-    if not check_auth(auth, settings):
-        return jsonify({
-            "error": {
-                "code": -32504,
-                "message": {"uz": "Autentifikatsiya muvaffaqiyatsiz", "ru": "Ошибка авторизации", "en": "Unauthorized"}
-            },
-            "id": request.json.get('id') if request.json else None
-        }), 401
-
-    data = request.json
-    method = data.get('method')
+    data = request.get_json(force=True, silent=True) or {}
+    method = data.get('method', '')
     params = data.get('params', {})
     req_id = data.get('id')
 
+    settings = get_settings()
+
+    # Auth check — always return HTTP 200
+    if not check_auth(request.headers.get('Authorization', ''), settings):
+        return auth_error(req_id)
+
+    # ─── CheckPerformTransaction ───────────────────────────────────────
     if method == 'CheckPerformTransaction':
-        # Foydalanuvchini tekshirish
         phone = params.get('account', {}).get('phone', '')
         amount = params.get('amount', 0)  # tiyin
+
+        if not phone:
+            return jsonify({
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {
+                    "code": -31050,
+                    "message": {"uz": "Telefon raqam kiritilmagan", "ru": "Введите номер телефона", "en": "Phone required"}
+                }
+            }), 200
 
         user = User.query.filter_by(phone=f'+{phone}').first()
         if not user:
             return jsonify({
-                "error": {"code": -31050, "message": {"uz": "Foydalanuvchi topilmadi", "en": "User not found"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {
+                    "code": -31050,
+                    "message": {"uz": "Foydalanuvchi topilmadi", "ru": "Пользователь не найден", "en": "User not found"}
+                }
+            }), 200
 
-        min_tiyin = (settings.min_topup_amount or 1000) * 100
-        max_tiyin = (settings.max_topup_amount or 10000000) * 100
-
-        if amount < min_tiyin or amount > max_tiyin:
+        min_t = (settings.min_topup_amount or 1000) * 100
+        max_t = (settings.max_topup_amount or 10000000) * 100
+        if amount < min_t or amount > max_t:
             return jsonify({
-                "error": {"code": -31001, "message": {"uz": "Summa chegaradan tashqarida", "en": "Amount out of range"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {
+                    "code": -31001,
+                    "message": {"uz": "Noto'g'ri summa", "ru": "Неверная сумма", "en": "Invalid amount"}
+                }
+            }), 200
 
-        return jsonify({"result": {"allow": True}, "id": req_id})
+        return jsonify({"jsonrpc": "2.0", "id": req_id, "result": {"allow": True}}), 200
 
+    # ─── CreateTransaction ─────────────────────────────────────────────
     elif method == 'CreateTransaction':
         phone = params.get('account', {}).get('phone', '')
         amount = params.get('amount', 0)
         payme_id = params.get('id')
-        create_time = params.get('time')
+        create_time = params.get('time', now_ms())
+
+        if not phone:
+            return jsonify({
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31050, "message": {"en": "Phone required"}}
+            }), 200
 
         user = User.query.filter_by(phone=f'+{phone}').first()
         if not user:
             return jsonify({
-                "error": {"code": -31050, "message": {"uz": "Foydalanuvchi topilmadi", "en": "User not found"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31050, "message": {"uz": "Foydalanuvchi topilmadi", "en": "User not found"}}
+            }), 200
 
-        # Tranzaksiyani tekshir yoki yarat
+        # Check if transaction already exists
         trans = Transaction.query.filter_by(payme_trans_id=payme_id).first()
-        if not trans:
-            trans = Transaction(
-                user_id=user.id,
-                amount=amount / 100,
-                type='topup',
-                status='pending',
-                payme_trans_id=payme_id
-            )
-            db.session.add(trans)
-            db.session.commit()
+        if trans:
+            if trans.status == 'failed':
+                return jsonify({
+                    "jsonrpc": "2.0", "id": req_id,
+                    "error": {"code": -31008, "message": {"en": "Transaction cancelled"}}
+                }), 200
+            return jsonify({
+                "jsonrpc": "2.0", "id": req_id,
+                "result": {
+                    "create_time": create_time,
+                    "transaction": str(trans.id),
+                    "state": 1
+                }
+            }), 200
+
+        trans = Transaction(
+            user_id=user.id,
+            amount=amount / 100,
+            type='topup',
+            status='pending',
+            payme_trans_id=payme_id
+        )
+        db.session.add(trans)
+        db.session.commit()
 
         return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
             "result": {
                 "create_time": create_time,
                 "transaction": str(trans.id),
                 "state": 1
-            },
-            "id": req_id
-        })
+            }
+        }), 200
 
+    # ─── PerformTransaction ────────────────────────────────────────────
     elif method == 'PerformTransaction':
         payme_id = params.get('id')
         trans = Transaction.query.filter_by(payme_trans_id=payme_id).first()
 
         if not trans:
             return jsonify({
-                "error": {"code": -31003, "message": {"uz": "Tranzaksiya topilmadi", "en": "Transaction not found"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31003, "message": {"en": "Transaction not found"}}
+            }), 200
+
+        if trans.status == 'failed':
+            return jsonify({
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31008, "message": {"en": "Transaction cancelled"}}
+            }), 200
 
         if trans.status != 'success':
-            # Balansni oshir
             user = User.query.get(trans.user_id)
-            user.balance = (user.balance or 0) + trans.amount
+            user.balance = (user.balance or 0.0) + trans.amount
             trans.status = 'success'
             db.session.commit()
 
-        import datetime
         return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
             "result": {
                 "transaction": str(trans.id),
-                "perform_time": int(datetime.datetime.utcnow().timestamp() * 1000),
+                "perform_time": now_ms(),
                 "state": 2
-            },
-            "id": req_id
-        })
+            }
+        }), 200
 
+    # ─── CancelTransaction ─────────────────────────────────────────────
     elif method == 'CancelTransaction':
         payme_id = params.get('id')
         reason = params.get('reason', 0)
@@ -131,42 +197,42 @@ def payme_callback():
 
         if not trans:
             return jsonify({
-                "error": {"code": -31003, "message": {"en": "Transaction not found"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31003, "message": {"en": "Transaction not found"}}
+            }), 200
 
         if trans.status == 'success':
-            # To'liq bekor qilib bo'lmaydi
             return jsonify({
-                "error": {"code": -31007, "message": {"uz": "Bekor qilib bo'lmaydi", "en": "Cannot cancel"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31007, "message": {"uz": "Bekor qilib bo'lmaydi", "en": "Cannot cancel completed transaction"}}
+            }), 200
 
         trans.status = 'failed'
         db.session.commit()
 
-        import datetime
         return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
             "result": {
                 "transaction": str(trans.id),
-                "cancel_time": int(datetime.datetime.utcnow().timestamp() * 1000),
+                "cancel_time": now_ms(),
                 "state": -1
-            },
-            "id": req_id
-        })
+            }
+        }), 200
 
+    # ─── CheckTransaction ──────────────────────────────────────────────
     elif method == 'CheckTransaction':
         payme_id = params.get('id')
         trans = Transaction.query.filter_by(payme_trans_id=payme_id).first()
 
         if not trans:
             return jsonify({
-                "error": {"code": -31003, "message": {"en": "Transaction not found"}},
-                "id": req_id
-            })
+                "jsonrpc": "2.0", "id": req_id,
+                "error": {"code": -31003, "message": {"en": "Transaction not found"}}
+            }), 200
 
         state_map = {'pending': 1, 'success': 2, 'failed': -1}
         return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
             "result": {
                 "create_time": 0,
                 "perform_time": 0,
@@ -174,8 +240,47 @@ def payme_callback():
                 "transaction": str(trans.id),
                 "state": state_map.get(trans.status, 1),
                 "reason": None
-            },
-            "id": req_id
-        })
+            }
+        }), 200
 
-    return jsonify({"error": {"code": -32300, "message": "Unknown method"}, "id": req_id})
+    # ─── GetStatement ──────────────────────────────────────────────────
+    elif method == 'GetStatement':
+        from_time = params.get('from', 0)
+        to_time = params.get('to', now_ms())
+
+        transactions = Transaction.query.filter(
+            Transaction.status == 'success'
+        ).all()
+
+        result = []
+        for t in transactions:
+            created_ms = int(t.created_at.timestamp() * 1000)
+            if from_time <= created_ms <= to_time:
+                result.append({
+                    "id": t.payme_trans_id,
+                    "time": created_ms,
+                    "amount": int(t.amount * 100),
+                    "account": {"phone": User.query.get(t.user_id).phone.replace('+', '')},
+                    "create_time": created_ms,
+                    "perform_time": created_ms,
+                    "cancel_time": 0,
+                    "transaction": str(t.id),
+                    "state": 2,
+                    "reason": None
+                })
+
+        return jsonify({"jsonrpc": "2.0", "id": req_id, "result": {"transactions": result}}), 200
+
+    # ─── ChangePassword ────────────────────────────────────────────────
+    elif method == 'ChangePassword':
+        # According to Payme spec we just return success
+        return jsonify({
+            "jsonrpc": "2.0", "id": req_id,
+            "result": {"success": True}
+        }), 200
+
+    # ─── Unknown method ────────────────────────────────────────────────
+    return jsonify({
+        "jsonrpc": "2.0", "id": req_id,
+        "error": {"code": -32300, "message": {"en": f"Unknown method: {method}"}}
+    }), 200
