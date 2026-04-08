@@ -29,19 +29,24 @@ def check_auth(auth_header, settings):
     """Payme Basic Auth: Authorization: Basic base64(Paycom:{key})"""
     if not auth_header or not auth_header.startswith('Basic '):
         return False
+    if not settings:
+        return False
+        
     try:
         decoded = base64.b64decode(auth_header[6:]).decode('utf-8')
-        # decoded should be: "Paycom:{secret_key}" or "Paycom:{test_key}"
         parts = decoded.split(':', 1)
         if len(parts) != 2 or parts[0] != 'Paycom':
             return False
+            
         provided_key = parts[1]
-        if settings and settings.is_test_mode and settings.payme_test_key:
-            return provided_key == settings.payme_test_key
-        elif settings and settings.payme_secret_key:
-            return provided_key == settings.payme_secret_key
-        return False
-    except Exception:
+        
+        # Check against both keys to allow simultaneous testing/production use
+        is_test_match = settings.payme_test_key and provided_key == settings.payme_test_key
+        is_prod_match = settings.payme_secret_key and provided_key == settings.payme_secret_key
+        
+        return is_test_match or is_prod_match
+    except Exception as e:
+        logging.error(f"Auth decoding error: {e}")
         return False
 
 
