@@ -40,7 +40,7 @@ def topup_payme():
         flash(f"Maksimal to'ldirish summasi — {max_amount:,} so'm".replace(',', ' '), "danger")
         return redirect(url_for('user.finance'))
 
-    if not settings or not settings.payme_merchant_id:
+    if not settings or not settings.payme_merchant_id or settings.payme_merchant_id == 'your_merchant_id':
         flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
         return redirect(url_for('user.finance'))
 

@@ -36,18 +36,14 @@ def check_auth(auth_header, settings):
         return False
 
 
-def auth_error(req_id):
+def auth_error(req_id=None):
     """Payme spec: auth errors MUST return HTTP 200 with error code -32504."""
     return jsonify({
         "jsonrpc": "2.0",
         "id": req_id,
         "error": {
             "code": -32504,
-            "message": {
-                "uz": "Avtorizatsiyadan o'tmadi",
-                "ru": "Ошибка авторизации",
-                "en": "Unauthorized"
-            }
+            "message": "Authorization failed"
         }
     }), 200  # <-- must be 200 per Payme spec
 
@@ -58,7 +54,12 @@ def now_ms():
 
 @payme_bp.route('/callback', methods=['POST'])
 def payme_callback():
-    data = request.get_json(force=True, silent=True) or {}
+    data = request.get_json(force=True, silent=True)
+    if data is None:
+        # Invalid JSON or wrong content type handled by returning auth error or parse error
+        # But we need req_id for the response, which we don't have.
+        return auth_error(None)
+
     method = data.get('method', '')
     params = data.get('params', {})
     req_id = data.get('id')
