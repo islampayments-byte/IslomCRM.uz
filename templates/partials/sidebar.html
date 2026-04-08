@@ -57,12 +57,14 @@
             </li>
             {% endif %}
 
+{# 
             <li>
                 <a href="{{ url_for('user.finance') }}" class="{{ 'active' if request.endpoint == 'user.finance' }}">
                     <i class='bx bx-wallet'></i>
                     <span class="link_name">Moliya</span>
                 </a>
             </li>
+#}
             <li>
                 <a href="{{ url_for('user.drivers') }}" class="{{ 'active' if request.endpoint in ['user.drivers', 'user.auto_reg', 'user.self_employed', 'user.callsigns', 'user.terms'] }}">
                     <i class='bx bx-user'></i>
