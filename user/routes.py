@@ -55,17 +55,17 @@ def topup_payme():
     amount_tiyin = amount * 100
     merchant_id = settings.payme_merchant_id
     phone_clean = current_user.phone.replace('+', '').replace(' ', '')
-    # Use the account field name configured by admin (default: phone)
-    account_field = getattr(settings, 'payme_account_field', None) or 'phone'
-    params = f"m={merchant_id};ac.{account_field}={phone_clean};a={amount_tiyin};l=uz"
+    # Use phone_number as default field as seen in working example
+    account_field = getattr(settings, 'payme_account_field', None) or 'phone_number'
+    params = f"m={merchant_id};ac.{account_field}={phone_clean};a={amount_tiyin}"
     
     logging.info(f"Generating Payme URL for user {current_user.phone}")
     logging.info(f"Raw params: {params}")
     
     encoded_params = base64.b64encode(params.encode()).decode()
     
-    # Choose base URL based on test mode
-    base_url = "https://test.payme.uz" if getattr(settings, 'is_test_mode', False) else "https://checkout.payme.uz"
+    # Choose base URL based on test mode (using checkout.test.paycom.uz for test)
+    base_url = "https://checkout.test.paycom.uz" if getattr(settings, 'is_test_mode', False) else "https://checkout.payme.uz"
     payme_url = f"{base_url}/b/{encoded_params}"
 
     # Create pending transaction
