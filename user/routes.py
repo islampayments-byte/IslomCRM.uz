@@ -122,4 +122,11 @@ def test_payme():
     # Variant 9: Simplified path (pay/ID/AMOUNT)
     variants.append({"name": "PRODUCTION: Simplified (pay/ID/AMOUNT)", "url": f"https://checkout.payme.uz/pay/{merchant_id}/{amount}"})
 
+    # Variant 10: Direct ID path (checkout.payme.uz/ID/AMOUNT)
+    variants.append({"name": "PRODUCTION: Direct Path (checkout.payme.uz/ID/AMOUNT)", "url": f"https://checkout.payme.uz/{merchant_id}/{amount}"})
+    
+    # Variant 11: phone + ; (URL-safe base64, no padding)
+    b64_safe = base64.b64encode(s1.encode()).decode().replace('+', '-').replace('/', '_').rstrip('=')
+    variants.append({"name": "PRODUCTION: URL-safe Base64 (No padding)", "url": f"https://checkout.payme.uz/b/{b64_safe}"})
+
     return render_template('user/test_payme.html', variants=variants)
