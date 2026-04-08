@@ -121,6 +121,12 @@
     <div style="margin-top: auto; padding-bottom: 20px;">
         <ul class="nav-links">
             <li>
+                <a href="{{ url_for('user.settings') }}" class="{{ 'active' if request.endpoint == 'user.settings' }}">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Sozlamalar</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
                     <i class='bx bx-log-out'></i>
                     <span class="link_name">Chiqish</span>

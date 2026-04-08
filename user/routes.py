@@ -54,6 +54,11 @@ def callsigns():
 def terms():
     return render_template('user/terms.html')
 
+@user_bp.route('/settings')
+@login_required
+def settings():
+    return render_template('user/settings.html')
+
 @user_bp.route('/finance')
 @login_required
 def finance():
