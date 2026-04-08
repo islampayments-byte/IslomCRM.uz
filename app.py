@@ -50,11 +50,13 @@ with app.app_context():
 from auth.routes import auth_bp
 from admin.routes import admin_bp
 from user.routes import user_bp
+from payments.payme import payme_bp
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(user_bp, url_prefix='/user')
+app.register_blueprint(payme_bp, url_prefix='/payments/payme')
 
 @app.route('/')
 def index():
