@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="uz">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IslomCRM | {% block title %}{% endblock %}</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Boxicons for icons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     {% block head %}{% endblock %}
 </head>
+
 <body class="dark-theme">
     <div class="app-container">
         <!-- Sidebar - Modern Slim -->
@@ -22,30 +25,30 @@
                     <span>ISLOM CRM</span>
                 </div>
             </div>
-            
+
             <ul class="nav-links">
                 {% block sidebar_menu %}
                 <li>
                     <a href="{{ url_for('user.dashboard') }}" class="active">
-                        <i class='bx bx-grid-alt' ></i>
+                        <i class='bx bx-grid-alt'></i>
                         <span class="link_name">Asosiy</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ url_for('user.finance') }}">
-                        <i class='bx bx-wallet' ></i>
+                        <i class='bx bx-wallet'></i>
                         <span class="link_name">Moliya</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <i class='bx bx-user' ></i>
+                        <i class='bx bx-user'></i>
                         <span class="link_name">Haydovchilar</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <i class='bx bx-file' ></i>
+                        <i class='bx bx-file'></i>
                         <span class="link_name">Hisobotlar</span>
                     </a>
                 </li>
@@ -73,35 +76,36 @@
                     <h2 class="page-title">{% block page_title %}Asosiy{% endblock %}</h2>
                 </div>
                 <div class="topbar-right">
-                    <a href="{{ url_for('user.finance') }}" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 40px; border: 1px solid var(--border-color);">
+                    <a href="{{ url_for('user.finance') }}"
+                        style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 40px; border: 1px solid var(--border-color);">
                         <i class='bx bx-wallet' style="font-size: 22px; color: var(--primary-color);"></i>
                         <span style="font-weight: 700; font-size: 14px;">
                             {% if current_user.is_authenticated and current_user.balance is not none %}
-                                {{ "{:,.0f}".format(current_user.balance).replace(',', ' ') }}
+                            {{ "{:,.0f}".format(current_user.balance).replace(',', ' ') }}
                             {% else %}
-                                0
+                            0
                             {% endif %}
                             <span style="font-size: 11px; color: var(--text-muted); margin-left: 2px;">UZS</span>
                         </span>
                     </a>
-                    
+
                     <div class="user-pill">
                         <div class="avatar">
                             {% if current_user.org_name %}
-                                {{ current_user.org_name[0] | upper }}
+                            {{ current_user.org_name[0] | upper }}
                             {% else %}
-                                <i class='bx bx-user'></i>
+                            <i class='bx bx-user'></i>
                             {% endif %}
                         </div>
                         <div class="user-info">
                             <span class="org-name">
                                 {% if current_user.org_name %}
-                                    {{ current_user.org_name[:20] }}{% if current_user.org_name|length > 20 %}...{% endif %}
+                                {{ current_user.org_name[:20] }}{% if current_user.org_name|length > 20 %}...{% endif %}
                                 {% else %}
-                                    Sizning Profilingiz
+                                Sizning Profilingiz
                                 {% endif %}
                             </span>
-                            <span class="location">Toshkent viloyati</span>
+                            <span class="location">Uzbekistan</span>
                         </div>
                     </div>
                 </div>
@@ -121,7 +125,7 @@
 
         menuBtn.addEventListener("click", () => {
             sidebar.classList.toggle("closed");
-            if(sidebar.classList.contains("closed")){
+            if (sidebar.classList.contains("closed")) {
                 menuBtn.classList.replace("bx-menu-alt-left", "bx-menu");
             } else {
                 menuBtn.classList.replace("bx-menu", "bx-menu-alt-left");
@@ -130,4 +134,5 @@
     </script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

@@ -11,16 +11,34 @@
             <h3><i class='bx bx-wallet' style="color: var(--primary-color);"></i> Hisob Balansi</h3>
         </div>
         <div class="card-content">
-            <div class="number">125,000 <span style="font-size: 16px; color: var(--text-muted);">UZS</span></div>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Oxirgi marta bugun, 14:30 da yangilandi</p>
-        </div>
-        <div style="margin-top: 32px; display: flex; gap: 12px;">
-            <button class="user-pill" style="flex: 1; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 12px;">
-                Hisobni to'ldirish
-            </button>
-            <button class="user-pill" style="flex: 1; justify-content: center;">
-                Yulib olish
-            </button>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div style="padding: 10px; border-radius: 8px; background: rgba(231, 76, 60, 0.1); color: var(--danger); margin-bottom: 16px; font-size: 13px;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="number">
+                {% if current_user.balance is not none %}
+                    {{ "{:,.0f}".format(current_user.balance).replace(',', ' ') }}
+                {% else %}
+                    0
+                {% endif %}
+                <span style="font-size: 16px; color: var(--text-muted);">UZS</span>
+            </div>
+            
+            <form action="{{ url_for('user.topup_payme') }}" method="POST" style="margin-top: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-muted);">To'ldirish summasi (UZS)</label>
+                <input type="number" name="amount" min="1000" step="1000" value="10000" required
+                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff; margin-bottom: 16px; font-size: 18px; font-weight: 700;">
+                
+                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 12px; cursor: pointer;">
+                    <i class='bx bx-plus-circle' style="font-size: 18px; margin-right: 8px;"></i> Payme orqali to'ldirish
+                </button>
+            </form>
         </div>
     </div>
 

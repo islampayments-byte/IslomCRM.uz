@@ -26,3 +26,23 @@ class User(db.Model, UserMixin):
 
     def check_pin(self, pin, bcrypt):
         return bcrypt.check_password_hash(self.pin_hash, pin)
+
+class PaymentSettings(db.Model):
+    __tablename__ = 'payment_settings'
+    id = db.Column(db.Integer, primary_key=True)
+    payme_merchant_id = db.Column(db.String(100))
+    payme_secret_key = db.Column(db.String(255))
+    payme_test_key = db.Column(db.String(255))
+    is_test_mode = db.Column(db.Boolean, default=True)
+
+class Transaction(db.Model):
+    __tablename__ = 'transactions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    type = db.Column(db.String(20)) # topup or payment
+    status = db.Column(db.String(20), default='pending') # pending, success, failed
+    payme_trans_id = db.Column(db.String(100), unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('transactions', lazy=True))

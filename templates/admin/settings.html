@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Sozlamalar{% endblock %}
+{% block page_title %}Tizim Sozlamalari{% endblock %}
+
+{% block sidebar_menu %}
+<li>
+    <a href="{{ url_for('admin.dashboard') }}">
+        <i class='bx bx-grid-alt' ></i>
+        <span class="link_name">Statistika</span>
+    </a>
+</li>
+<li>
+    <a href="{{ url_for('admin.users_list') }}">
+        <i class='bx bx-user' ></i>
+        <span class="link_name">Foydalanuvchilar</span>
+    </a>
+</li>
+<li>
+    <a href="{{ url_for('admin.settings') }}" class="active">
+        <i class='bx bx-cog' ></i>
+        <span class="link_name">Sozlamalar</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="info-section">
+    <div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+        <div class="card-header" style="margin-bottom: 32px;">
+            <h3><i class='bx bx-cog' style="color: var(--primary-color);"></i> To'lov Tizimi (Payme)</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Ushbu ma'lumotlar foydalanuvchilar balansini to'ldirish uchun ishlatiladi.</p>
+        </div>
+
+        <form method="POST">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div style="padding: 12px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: var(--success); margin-bottom: 24px; font-size: 14px;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Merchant ID</label>
+                <input type="text" name="merchant_id" value="{{ settings.payme_merchant_id or '' }}" 
+                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
+                       placeholder="Masalan: 64f12d...">
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Secret Key</label>
+                <input type="password" name="secret_key" value="{{ settings.payme_secret_key or '' }}" 
+                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
+                       placeholder="Sizning maxfiy kalitingiz">
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Test Key (Qumloq rejimi)</label>
+                <input type="text" name="test_key" value="{{ settings.payme_test_key or '' }}" 
+                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
+                       placeholder="Test amaliyotlar uchun kalit">
+            </div>
+
+            <div style="margin-bottom: 32px; display: flex; align-items: center; gap: 12px;">
+                <input type="checkbox" name="is_test_mode" id="test_mode" {% if settings.is_test_mode %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="test_mode" style="font-size: 14px; cursor: pointer;">Test (Sandbox) rejimini yoqish</label>
+            </div>
+
+            <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 14px; cursor: pointer;">
+                Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
