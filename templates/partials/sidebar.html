@@ -120,16 +120,9 @@
 
     <div style="margin-top: auto; padding-bottom: 20px;">
         <ul class="nav-links" style="margin-bottom: 0;">
-            <li>
-                <a href="{{ url_for('user.settings') }}" class="{{ 'active' if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] }}">
-                    <i class='bx bx-cog'></i>
-                    <span class="link_name">Sozlamalar</span>
-                </a>
-            </li>
-
             {# SETTINGS SUB-MENU (Conditional) #}
             {% if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] %}
-            <li class="submenu-container" style="margin-bottom: 12px;">
+            <li class="submenu-container" style="margin-bottom: 12px; margin-top: 10px;">
                 <ul class="submenu-links" style="border-left-color: rgba(255,255,255,0.1);">
                     <li>
                         <a href="{{ url_for('user.permissions') }}" class="{{ 'active' if request.endpoint == 'user.permissions' }}">
@@ -146,6 +139,13 @@
                 </ul>
             </li>
             {% endif %}
+
+            <li>
+                <a href="{{ url_for('user.settings') }}" class="{{ 'active' if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] }}">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Sozlamalar</span>
+                </a>
+            </li>
 
             <li>
                 <a href="{{ url_for('auth.logout') }}" style="color: var(--danger);">
