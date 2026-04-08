@@ -39,8 +39,8 @@
                        value="{{ min_amount }}" required
                        style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff; margin-bottom: 16px; font-size: 18px; font-weight: 700;">
                 
-                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 12px; cursor: pointer;">
-                    <i class='bx bx-plus-circle' style="font-size: 18px; margin-right: 8px;"></i> Payme orqali to'ldirish
+                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 10px; cursor: pointer; display: flex; align-items: center;">
+                    <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 32px;" alt="Payme">
                 </button>
             </form>
         </div>
