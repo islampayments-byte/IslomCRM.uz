@@ -4,6 +4,8 @@ import os
 from dotenv import load_dotenv
 from extensions import db, login_manager, bcrypt
 from models import User
+import datetime
+import traceback
 
 load_dotenv()
 
@@ -54,6 +56,14 @@ from auth.routes import auth_bp
 from admin.routes import admin_bp
 from user.routes import user_bp
 from payments.payme import payme_bp
+
+@app.errorhandler(500)
+def handle_500(e):
+    import traceback
+    error_msg = traceback.format_exc()
+    with open('error.log', 'a') as f:
+        f.write(f"\n{'-'*50}\n{datetime.datetime.now()}\n{error_msg}\n")
+    return "Internal Server Error. Please check error.log on server.", 500
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')

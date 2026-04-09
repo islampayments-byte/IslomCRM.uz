@@ -31,8 +31,9 @@ def get_phone(account: dict) -> str:
 
 def check_auth(auth_header, org_slug):
     """
-    Payme Basic Auth: Authorization: Basic base64(Paycom:{key})
-    Identifies the Takso Park (User) by comparing the provided key with their payme_secret_key.
+    Payme Basic Auth check. 
+    1. Checks if the key matches the specific Takso Park (User) by org_slug.
+    2. FALLBACK: Checks if the key matches the global Platform Settings (IslomCRM).
     """
     if not auth_header or not auth_header.startswith('Basic '):
         return None
@@ -45,16 +46,26 @@ def check_auth(auth_header, org_slug):
             
         provided_key = parts[1]
         
-        # Find the Takso Park (User) that matches this slug
+        # A. Find the specific Takso Park by slug
         user = User.query.filter_by(org_slug=org_slug).first()
-        if not user:
-            return None
-            
-        # Check against both secret and test keys
-        is_prod = user.payme_secret_key and provided_key == user.payme_secret_key
-        is_test = user.payme_test_key and provided_key == user.payme_test_key
         
-        return user if (is_prod or is_test) else None
+        # B. Check global platform settings for fallback
+        global_settings = get_settings()
+        is_global_prod = global_settings and global_settings.payme_secret_key == provided_key
+        is_global_test = global_settings and global_settings.payme_test_key == provided_key
+        
+        if is_global_prod or is_global_test:
+            # If global key is used, identify the user by org_slug but authorize via global key
+            return user
+
+        # C. Check user-specific keys if user exists
+        if user:
+            is_prod = user.payme_secret_key and provided_key == user.payme_secret_key
+            is_test = user.payme_test_key and provided_key == user.payme_test_key
+            if is_prod or is_test:
+                return user
+        
+        return None
     except Exception as e:
         logging.error(f"Auth decoding error for {org_slug}: {e}")
         return None
@@ -106,7 +117,13 @@ def now_ms():
 
 
 @payme_bp.route('/<string:org_slug>/payme/callback', methods=['POST'])
-def payme_callback(org_slug):
+@payme_bp.route('/payme/callback', methods=['POST'])
+def payme_callback(org_slug=None):
+    # If it's the old global URL without slug, we try to identify via auth only 
+    # or assume it's for the platform admin
+    if not org_slug:
+        org_slug = 'platform' # Placeholder for logging 
+
     # 1. IP Whitelisting (Optional but highly recommended)
     client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     # Note: On some proxies it might be '127.0.0.1', so check carefully in production

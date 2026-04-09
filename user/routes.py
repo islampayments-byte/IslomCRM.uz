@@ -266,9 +266,25 @@ def topup_payme():
         return redirect(url_for('user.finance'))
 
     amount = int(amount)
-    settings = PaymentSettings.query.first()
-    min_amount = settings.min_topup_amount if settings else 1000
-    max_amount = settings.max_topup_amount if settings else 10000000
+    global_settings = PaymentSettings.query.first()
+    
+    # 1. Determine which keys to use (Takso Park's own or Global)
+    if current_user.payme_merchant_id and current_user.payme_secret_key:
+        merchant_id = current_user.payme_merchant_id
+        secret_key = current_user.payme_secret_key
+        is_test = current_user.is_payme_test_mode
+        logging.info(f"Topup started using Taksopark's own Payme: {current_user.org_slug}")
+    elif global_settings and global_settings.payme_merchant_id and global_settings.payme_secret_key:
+        merchant_id = global_settings.payme_merchant_id
+        secret_key = global_settings.payme_secret_key
+        is_test = getattr(global_settings, 'is_test_mode', False)
+        logging.info(f"Topup started using Platform (IslomCRM) Payme for user {current_user.phone}")
+    else:
+        flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
+        return redirect(url_for('user.finance'))
+
+    min_amount = global_settings.min_topup_amount if global_settings else 1000
+    max_amount = global_settings.max_topup_amount if global_settings else 10000000
 
     if amount < min_amount:
         flash(f"Minimal to'ldirish summasi — {min_amount:,} so'm".replace(',', ' '), "danger")
@@ -278,21 +294,14 @@ def topup_payme():
         flash(f"Maksimal to'ldirish summasi — {max_amount:,} so'm".replace(',', ' '), "danger")
         return redirect(url_for('user.finance'))
 
-    if not settings or not settings.payme_merchant_id or not settings.payme_secret_key:
-        flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
-        return redirect(url_for('user.finance'))
-
     # Payme expects amount in tiyin (1 sum = 100 tiyin)
     amount_tiyin = amount * 100
-    merchant_id = settings.payme_merchant_id
-    secret_key = settings.payme_secret_key
     phone_clean = current_user.phone.replace('+', '').replace(' ', '')
-    account_field = getattr(settings, 'payme_account_field', None) or 'phone_number'
+    account_field = getattr(global_settings, 'payme_account_field', None) or 'phone_number'
     
-    # Check if in test mode
-    is_test = getattr(settings, 'is_test_mode', False)
+    # API URLs
     api_url = "https://checkout.test.paycom.uz/api" if is_test else "https://checkout.paycom.uz/api"
-    checkout_url = "https://checkout.test.paycom.uz" if is_test else "https://checkout.payme.uz"
+    # checkout_url = "https://checkout.test.paycom.uz" if is_test else "https://checkout.payme.uz"
 
     # 1. Create a receipt via Payme API
     headers = {
