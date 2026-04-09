@@ -62,7 +62,15 @@
                                 Sizning Profilingiz
                                 {% endif %}
                             </span>
-                            <span class="location" style="color: var(--primary-color);">{% if current_user.yandex_keys_active and current_user.yandex_park_name %}{{ current_user.yandex_park_name }}{% else %}Uzbekistan{% endif %}</span>
+                            <span class="location" style="color: var(--primary-color);">
+                                {% if current_user.role == 'admin' %}
+                                    <i class='bx bx-shield-quarter'></i> Boshqaruvchi
+                                {% elif current_user.yandex_keys_active %}
+                                    <i class='bx bx-car'></i> {{ current_user.yandex_park_name or 'Yandex Taksopark' }}
+                                {% else %}
+                                    <i class='bx bx-plug'></i> Ulanmagan
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
