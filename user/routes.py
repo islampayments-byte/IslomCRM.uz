@@ -260,34 +260,32 @@ def finance():
 @user_bp.route('/topup/payme', methods=['POST'])
 @login_required
 def topup_payme():
+    """
+    IslomCRM platformasidagi foydalanuvchi balansini Payme orqali to'ldirish.
+    
+    MUHIM QOIDA:
+      - Bu route FAQAT global admin PaymentSettings kalitlarini ishlatadi.
+      - Foydalanuvchining o'z Payme kalitlari (payme_merchant_id) faqat
+        HAYDOVCHILAR to'lovlari uchun mo'ljallangan (per-org callback).
+      - Callback URL: /payments/payme/callback (global)
+    """
     amount = request.form.get('amount')
     if not amount or not amount.isdigit():
         flash("Iltimos, to'g'ri summa kiriting", "danger")
         return redirect(url_for('user.finance'))
 
     amount = int(amount)
-    global_settings = PaymentSettings.query.first()
-    
-    # Safely read per-user Payme fields (they may be missing in older DB)
-    user_merchant_id = getattr(current_user, 'payme_merchant_id', None)
-    user_secret_key  = getattr(current_user, 'payme_secret_key', None)
-    user_test_key    = getattr(current_user, 'payme_test_key', None)
-    user_is_test     = getattr(current_user, 'is_payme_test_mode', True)
 
-    # 1. Determine which keys to use (Takso Park's own or Global)
-    if user_merchant_id and user_secret_key:
-        merchant_id = user_merchant_id
-        secret_key  = user_secret_key
-        is_test     = user_is_test
-        logging.info(f"Topup: using user's own Payme keys ({current_user.org_slug})")
-    elif global_settings and global_settings.payme_merchant_id and global_settings.payme_secret_key:
-        merchant_id = global_settings.payme_merchant_id
-        secret_key  = global_settings.payme_secret_key
-        is_test     = getattr(global_settings, 'is_test_mode', False)
-        logging.info(f"Topup: using global Payme keys for user {current_user.phone}")
-    else:
+    # FAQAT admin global kalitlaridan foydalanamiz
+    global_settings = PaymentSettings.query.first()
+    if not global_settings or not global_settings.payme_merchant_id or not global_settings.payme_secret_key:
         flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
         return redirect(url_for('user.finance'))
+
+    merchant_id  = global_settings.payme_merchant_id
+    secret_key   = global_settings.payme_secret_key
+    is_test      = bool(getattr(global_settings, 'is_test_mode', False))
+    logging.info(f"Topup started | user: {current_user.phone} | test: {is_test}")
 
     min_amount = global_settings.min_topup_amount if global_settings else 1000
     max_amount = global_settings.max_topup_amount if global_settings else 10000000
