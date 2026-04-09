@@ -194,6 +194,29 @@
 
         // Delay notification request by 3 seconds for better UX
         setTimeout(requestNotifications, 3000);
+
+        // Auto-logout after 30 minutes of inactivity
+        let inactivityTimeout;
+        const TIMEOUT_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+        function resetInactivityTimeout() {
+            clearTimeout(inactivityTimeout);
+            // Only set timeout if user is presumably logged in (has the logout button)
+            if (document.querySelector('a[href="/auth/logout"]')) {
+                inactivityTimeout = setTimeout(() => {
+                    window.location.href = "{{ url_for('auth.logout') }}";
+                }, TIMEOUT_DURATION);
+            }
+        }
+
+        // Listen for user activity
+        ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'].forEach(evt => {
+            window.addEventListener(evt, resetInactivityTimeout, true);
+        });
+
+        // Initialize on setup
+        resetInactivityTimeout();
+
     </script>
     {% block scripts %}{% endblock %}
 </body>

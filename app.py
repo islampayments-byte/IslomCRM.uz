@@ -1,4 +1,5 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, session
+from datetime import timedelta
 import os
 from dotenv import load_dotenv
 from extensions import db, login_manager, bcrypt
@@ -18,6 +19,7 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # Initialize extensions
 db.init_app(app)
@@ -73,6 +75,10 @@ def dated_url_for(endpoint, **values):
             except OSError:
                 pass
     return url_for(endpoint, **values)
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 @app.route('/')
 def index():
