@@ -132,13 +132,55 @@ def vps_management():
                     logs = "".join(f.readlines()[-20:]) # Last 20 lines
                 break
 
+        # Additional metrics
+        net_io = psutil.net_io_counters() if hasattr(psutil, 'net_io_counters') else None
+        
+        try:
+            load_avg = os.getloadavg()
+        except AttributeError:
+            load_avg = (0.0, 0.0, 0.0) # Windows fallback
+            
+        swap = psutil.swap_memory()
+        
+        # Format network variables for template (MB/GB)
+        def format_size(bytes_val):
+            for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                if bytes_val < 1024.0:
+                    return f"{bytes_val:.2f} {unit}"
+                bytes_val /= 1024.0
+            return f"{bytes_val:.2f} PB"
+            
+        net_stats = {
+            'sent': format_size(net_io.bytes_sent) if net_io else "0 B",
+            'recv': format_size(net_io.bytes_recv) if net_io else "0 B"
+        }
+        
+        # Database size
+        from flask import current_app
+        db_path = current_app.config.get('SQLALCHEMY_DATABASE_URI', '').replace('sqlite:///', '')
+        db_size = format_size(os.path.getsize(db_path)) if os.path.exists(db_path) else "Topilmadi"
+        
+        # Auth / Security logs
+        auth_logs = []
+        try:
+            if os.path.exists('/var/log/auth.log'):
+                with open('/var/log/auth.log', 'r') as f:
+                    auth_logs = f.readlines()[-10:] # last 10 entries
+        except Exception:
+            auth_logs = ["Xavfsizlik loglarini o'qishga ruxsat yo'q (Root talab etiladi)"]
+
         return render_template('admin/vps.html', 
                                system_info=system_info, 
                                cpu_percent=cpu_percent,
                                memory=memory,
                                disk=disk,
                                processes=python_processes[:10],
-                               logs=logs)
+                               logs=logs,
+                               net_stats=net_stats,
+                               load_avg=load_avg,
+                               swap=swap,
+                               db_size=db_size,
+                               auth_logs=auth_logs)
     except Exception as e:
         flash(f"VPS ma'lumotlarini olishda xatolik: {str(e)}", "danger")
         return redirect(url_for('admin.dashboard'))

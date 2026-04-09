@@ -89,16 +89,53 @@
     <!-- Uptime -->
     <div class="vps-stat-card uptime-card">
         <div class="card-glow" style="background: #9b59b6;"></div>
-        <div class="vps-card-header">
+        <div class="vps-card-header" style="margin-bottom:0;">
             <div class="vps-icon-wrapper" style="color: #9b59b6; background: rgba(155, 89, 182, 0.1);">
                 <i class='bx bx-time-five bx-tada-hover'></i>
             </div>
-        </div>
-        <div class="vps-card-body text-center">
-            <h3 class="uptime-text">{{ system_info.uptime }}</h3>
-            <p class="text-muted">Tizim tinimsiz ishlash vaqti</p>
+            <div style="text-align: right;">
+                <h3 class="uptime-text" style="font-size: 1.5rem; margin:0;">{{ system_info.uptime }}</h3>
+                <p class="text-muted" style="font-size: 0.75rem; margin:0;">Uptime</p>
+            </div>
         </div>
     </div>
+
+    <!-- Swap Memory -->
+    <div class="vps-stat-card">
+        <div class="card-glow" style="background: #e74c3c;"></div>
+        <div class="vps-card-header">
+            <div class="vps-icon-wrapper" style="color: #e74c3c; background: rgba(231, 76, 60, 0.1);">
+                <i class='bx bx-layer'></i>
+            </div>
+            <div class="vps-stat-value">{{ swap.percent }}%</div>
+        </div>
+        <div class="vps-card-body">
+            <h4>Swap Xotira</h4>
+            <p>{{ (swap.used / 1024 / 1024 / 1024)|round(2) }} GB ishl. / {{ (swap.total / 1024 / 1024 / 1024)|round(2) }} GB</p>
+            <div class="vps-progress-bg">
+                <div class="vps-progress-bar" style="width: {{ swap.percent }}%; background: linear-gradient(90deg, #e74c3c, #c0392b);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network Traffic -->
+    <div class="vps-stat-card">
+        <div class="card-glow" style="background: #34495e;"></div>
+        <div class="vps-card-header" style="margin-bottom:0;">
+            <div class="vps-icon-wrapper" style="color: #00cec9; background: rgba(0, 206, 201, 0.1);">
+                <i class='bx bx-transfer'></i>
+            </div>
+            <div style="text-align: right;">
+                <div style="color: #00cec9; font-weight: bold; font-size: 14px;"><i class='bx bx-down-arrow-alt'></i> {{ net_stats.recv }}</div>
+                <div style="color: #fdcb6e; font-weight: bold; font-size: 14px;"><i class='bx bx-up-arrow-alt'></i> {{ net_stats.sent }}</div>
+            </div>
+        </div>
+        <div class="vps-card-body mt-2">
+            <h4 style="margin-top: 10px;">Tarmoq Trafigi</h4>
+            <p style="margin-bottom:0;">Jami qabul qilingan va yuborilgan</p>
+        </div>
+    </div>
+
 </div>
 
 <div class="vps-details-section mt-4">
@@ -124,6 +161,14 @@
                 <li>
                     <span class="info-label"><i class='bx bx-microchip'></i> Arxitektura</span>
                     <span class="info-value">{{ system_info.machine }}</span>
+                </li>
+                <li>
+                    <span class="info-label"><i class='bx bx-data'></i> App Ma'lumotlar Bazasi</span>
+                    <span class="info-value badge-glow" style="color: #f39c12; border-color: rgba(243,156,18,0.2); background: rgba(243,156,18,0.1);">{{ db_size }}</span>
+                </li>
+                <li>
+                    <span class="info-label" title="1, 5, 15 daqiqalik System Load"><i class='bx bx-tachometer'></i> CPU Yuklanishi (Load Avg)</span>
+                    <span class="info-value" style="font-family: monospace;">{{ load_avg[0]|round(2) }}, {{ load_avg[1]|round(2) }}, {{ load_avg[2]|round(2) }}</span>
                 </li>
             </ul>
             <div class="panel-footer mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
@@ -186,20 +231,37 @@
 </div>
 
 <!-- Terminal / Logs Panel -->
-<div class="terminal-panel mt-4">
-    <div class="terminal-header">
-        <div class="window-controls">
-            <span class="dot close"></span>
-            <span class="dot minimize"></span>
-            <span class="dot maximize"></span>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <!-- App Logs -->
+    <div class="terminal-panel">
+        <div class="terminal-header">
+            <div class="window-controls">
+                <span class="dot close"></span><span class="dot minimize"></span><span class="dot maximize"></span>
+            </div>
+            <div class="terminal-title">App_Logs (~/app.log)</div>
+            <div class="terminal-actions">
+                <button onclick="copyLogs('logContainer')" class="icon-btn" title="Nusxa"><i class='bx bx-copy'></i></button>
+            </div>
         </div>
-        <div class="terminal-title">server_logs@vps06538:~ — bash</div>
-        <div class="terminal-actions">
-            <button onclick="copyLogs()" class="icon-btn" title="Nusxa olish"><i class='bx bx-copy'></i></button>
+        <div class="terminal-body custom-scrollbar" id="logContainer">
+            <pre><code class="language-bash">{{ logs }}</code></pre>
         </div>
     </div>
-    <div class="terminal-body custom-scrollbar" id="logContainer">
-        <pre><code class="language-bash">{{ logs }}</code></pre>
+
+    <!-- Security Auth Logs -->
+    <div class="terminal-panel" style="border-color: rgba(231,76,60,0.3);">
+        <div class="terminal-header" style="background: #2c0e0e; border-bottom: 1px solid rgba(231,76,60,0.2);">
+            <div class="window-controls">
+                <span class="dot close"></span><span class="dot minimize"></span><span class="dot maximize"></span>
+            </div>
+            <div class="terminal-title" style="color: #e74c3c;">Security_Logs (/var/log/auth.log)</div>
+            <div class="terminal-actions">
+                <button onclick="copyLogs('authContainer')" class="icon-btn" title="Nusxa"><i class='bx bx-copy'></i></button>
+            </div>
+        </div>
+        <div class="terminal-body custom-scrollbar" id="authContainer">
+            <pre><code class="language-bash" style="color: #ff9f43; text-shadow: 0 0 5px rgba(255, 159, 67, 0.3);">{% for line in auth_logs %}{{ line }}{% else %}Bosh.{% endfor %}</code></pre>
+        </div>
     </div>
 </div>
 
@@ -583,8 +645,8 @@
 </style>
 
 <script>
-    function copyLogs() {
-        const text = document.querySelector('#logContainer pre').innerText;
+    function copyLogs(containerId) {
+        const text = document.querySelector('#' + containerId + ' pre').innerText;
         navigator.clipboard.writeText(text).then(() => {
             alert("Loglar xotiraga nusxalandi!");
         });

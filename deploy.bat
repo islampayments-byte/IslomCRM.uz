@@ -1,17 +1,13 @@
 @echo off
-echo Vaqt sozlamalari (O'zbekiston vaqti) tizimga kiritildi...
+echo O'zgarishlar Github'ga yuborilmoqda...
 git add .
-git commit -m "Configure all timestamps to use local time (Uzbekistan timezone)"
+git commit -m "Add advanced VPS metrics: Network, Swap, DB Size, Load Avg, Security logs"
 git push origin main
 
 echo.
-echo Server vaqt mintaqasi O'zbekistonga (Asia/Tashkent) o'zgartirilmoqda va kod yangilanmoqda...
-ssh root@45.138.158.217 "timedatectl set-timezone Asia/Tashkent && cd /var/www/islomcrm && git pull origin main && systemctl restart islomcrm"
+echo Server o'zgarishlarni qabul qilmoqda...
+ssh root@45.138.158.217 "cd /var/www/islomcrm && git pull origin main && systemctl restart islomcrm"
 
 echo.
-echo Keraksiz fayllar o'chirilmoqda...
-del deploy.bat
-
-echo.
-echo Barcha jaryonlar yakunlandi! Endi hammasi siz xohlagandek O'zbekiston vaqti bo'yicha ishlaydi.
+echo Barcha jaryonlar yakunlandi! Brauzerni yangilab (Ctrl+R) admin panelni tekshiring.
 pause
