@@ -65,6 +65,14 @@ def handle_500(e):
         f.write(f"\n{'-'*50}\n{datetime.datetime.now()}\n{error_msg}\n")
     return "Internal Server Error. Please check error.log on server.", 500
 
+@app.route('/debug-errors')
+def debug_errors():
+    if not os.path.exists('error.log'):
+        return "error.log not found."
+    with open('error.log', 'r') as f:
+        lines = f.readlines()
+        return "<pre>" + "".join(lines[-100:]) + "</pre>"
+
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
