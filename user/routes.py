@@ -37,7 +37,42 @@ def pricing():
 @user_bp.route('/drivers')
 @login_required
 def drivers():
-    return render_template('user/drivers.html')
+    drivers_data = []
+    error_msg = None
+    
+    if current_user.yandex_keys_active:
+        url = "https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list"
+        headers = {
+            'X-Client-ID': current_user.yandex_client_id,
+            'X-Api-Key': current_user.yandex_api_key
+        }
+        payload = {
+            "query": {
+                "park": {
+                    "id": current_user.yandex_park_id
+                }
+            },
+            "limit": 200 # fetch up to 200 drivers 
+        }
+        
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                profiles = data.get('driver_profiles', [])
+                for p in profiles:
+                    prof = p.get('driver_profile', {})
+                    drivers_data.append({
+                        'first_name': prof.get('first_name', ''),
+                        'last_name': prof.get('last_name', ''),
+                        'phones': prof.get('phones', [])
+                    })
+            else:
+                error_msg = f"Yandex bilan ulanishda xato: {response.status_code}"
+        except Exception as e:
+            error_msg = f"Tarmoq xatosi: {str(e)}"
+            
+    return render_template('user/drivers.html', drivers=drivers_data, error_msg=error_msg)
 
 @user_bp.route('/drivers/auto-reg')
 @login_required

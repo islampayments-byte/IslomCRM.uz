@@ -5,17 +5,59 @@
 
 {% block content %}
 <div class="table-container">
-    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <h3><i class='bx bx-group' style="color: var(--primary-color);"></i> Barcha haydovchilar</h3>
-        <button class="user-pill" style="padding: 10px 20px; border: none; background: var(--primary-color); color: #000; font-weight: 700; cursor: pointer;">
-            <i class='bx bx-plus'></i> Yangi haydovchi
-        </button>
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color);">
+        <h3><i class='bx bx-group' style="color: var(--primary-color);"></i> Yandex Haydovchilar Bazasi</h3>
     </div>
     
-    <div style="text-align: center; padding: 60px 0; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed var(--border-color);">
-        <i class='bx bx-car' style="font-size: 64px; color: var(--text-muted); margin-bottom: 16px;"></i>
-        <h4 style="color: var(--text-muted);">Hozircha haydovchilar mavjud emas</h4>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Tizimga haydovchilarni qo'shishni boshlang.</p>
-    </div>
+    {% if not current_user.yandex_keys_active %}
+        <div style="text-align: center; padding: 60px 20px;">
+            <i class='bx bx-plug' style="font-size: 64px; color: var(--warning); margin-bottom: 16px;"></i>
+            <h4 style="color: #fff; margin-bottom: 10px;">Yandex API Ulanmagan</h4>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Haydovchilar ro'yxatini ko'rish uchun avval Yandex API kalitlarini faollashtiring.</p>
+            <a href="{{ url_for('user.settings') }}" class="user-pill" style="display: inline-flex; background: var(--primary-color); color: #000; padding: 10px 20px; text-decoration: none; font-weight: 700;">
+                Sozlamalarga o'tish
+            </a>
+        </div>
+    {% elif error_msg %}
+        <div style="padding: 40px; text-align: center;">
+            <i class='bx bx-error-circle' style="font-size: 48px; color: #e74c3c; margin-bottom: 15px;"></i>
+            <h4 style="color: #e74c3c;">{{ error_msg }}</h4>
+        </div>
+    {% else %}
+        <div style="overflow-x: auto; padding: 0;" class="custom-scrollbar">
+            <table class="data-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="padding: 16px 24px; color: var(--text-muted); font-size: 13px;">Haydovchi Ism va Familiyasi</th>
+                        <th style="padding: 16px 24px; color: var(--text-muted); font-size: 13px;">Telefon Raqami</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for driver in drivers %}
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 16px 24px; font-weight: 600;">
+                            <i class='bx bx-user-circle' style="color: var(--primary-color); margin-right: 8px;"></i>
+                            {{ driver.first_name }} {{ driver.last_name }}
+                        </td>
+                        <td style="padding: 16px 24px; font-family: monospace; color: #a0aec0;">
+                            {% for phone in driver.phones %}
+                                <div><i class='bx bx-phone' style="font-size: 12px; margin-right: 4px;"></i>{{ phone }}</div>
+                            {% else %}
+                                -
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; padding: 60px 0; background: rgba(255,255,255,0.01);">
+                            <i class='bx bx-car' style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px; opacity: 0.5;"></i>
+                            <h4 style="color: var(--text-muted);">Taksoparkingizda hozircha haydovchilar yo'q</h4>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
