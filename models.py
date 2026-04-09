@@ -33,6 +33,8 @@ class User(db.Model, UserMixin):
     # Personal Payment Settings (Payme per Taksopark)
     payme_merchant_id = db.Column(db.String(100))
     payme_secret_key = db.Column(db.String(255))
+    payme_test_key = db.Column(db.String(255))
+    is_payme_test_mode = db.Column(db.Boolean, default=True)
     org_slug = db.Column(db.String(100), unique=True) # URL identifier e.g. 'islom-taxi'
     
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)

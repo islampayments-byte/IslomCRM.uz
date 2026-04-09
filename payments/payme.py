@@ -45,9 +45,16 @@ def check_auth(auth_header, org_slug):
             
         provided_key = parts[1]
         
-        # Find the Takso Park (User) that matches this slug AND secret key
-        user = User.query.filter_by(org_slug=org_slug, payme_secret_key=provided_key).first()
-        return user
+        # Find the Takso Park (User) that matches this slug
+        user = User.query.filter_by(org_slug=org_slug).first()
+        if not user:
+            return None
+            
+        # Check against both secret and test keys
+        is_prod = user.payme_secret_key and provided_key == user.payme_secret_key
+        is_test = user.payme_test_key and provided_key == user.payme_test_key
+        
+        return user if (is_prod or is_test) else None
     except Exception as e:
         logging.error(f"Auth decoding error for {org_slug}: {e}")
         return None

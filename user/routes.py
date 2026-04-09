@@ -218,13 +218,17 @@ def payment_settings():
     if request.method == 'POST':
         merchant_id = request.form.get('merchant_id')
         secret_key = request.form.get('secret_key')
+        test_key = request.form.get('test_key')
+        test_mode = request.form.get('test_mode') == 'on'
         
         if not merchant_id or not secret_key:
-            flash("Barcha maydonlarni to'ldiring.", "danger")
+            flash("Asosiy Merchant ID va Secret Key bo'sh bo'lmasligi kerak.", "danger")
             return redirect(url_for('user.payment_settings'))
             
         current_user.payme_merchant_id = merchant_id.strip()
         current_user.payme_secret_key = secret_key.strip()
+        current_user.payme_test_key = test_key.strip() if test_key else None
+        current_user.is_payme_test_mode = test_mode
         
         # Ensure org_slug exists (safety check)
         if not current_user.org_slug and current_user.yandex_park_name:

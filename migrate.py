@@ -39,7 +39,9 @@ try:
     cursor.execute("ALTER TABLE users ADD COLUMN org_slug VARCHAR(100)")
     cursor.execute("ALTER TABLE users ADD COLUMN payme_merchant_id VARCHAR(100)")
     cursor.execute("ALTER TABLE users ADD COLUMN payme_secret_key VARCHAR(255)")
-    print("Yangi ustunlar (org_slug, payme) muvaffaqiyatli qo'shildi.")
+    cursor.execute("ALTER TABLE users ADD COLUMN payme_test_key VARCHAR(255)")
+    cursor.execute("ALTER TABLE users ADD COLUMN is_payme_test_mode BOOLEAN DEFAULT 1")
+    print("Yangi ustunlar (org_slug, payme test/prod) muvaffaqiyatli qo'shildi.")
 except Exception as e:
     if "duplicate column name" in str(e).lower():
         print("Ustunlar allaqachon mavjud, davom etamiz...")
