@@ -86,18 +86,66 @@
         </div>
     </div>
 
-    <!-- CLICK Settings (Future) -->
-    <div class="stat-card" style="opacity: 0.7; filter: grayscale(0.5); position: relative;">
-        <div class="card-header">
+    <!-- Click Settings -->
+    <div class="stat-card" style="padding: 0; overflow: hidden;">
+        <div class="card-header" style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0, 123, 255, 0.03);">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <img src="{{ url_for('static', filename='click.svg') }}" style="height: 20px;" alt="Click">
-                <h3>Click Up Integration</h3>
+                <h3 style="margin: 0; font-size: 1.2rem;">Click Merchant</h3>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;">SOON</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                {% if current_user.click_merchant_id %}
+                <span style="font-size: 12px; color: #3498db; background: rgba(52, 152, 219, 0.1); padding: 4px 10px; border-radius: 10px;">BOG'LANGAN</span>
+                {% else %}
+                <span style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 10px;">ULANMAGAN</span>
+                {% endif %}
+            </div>
         </div>
-        <div class="card-content" style="padding: 40px 20px; text-align: center;">
-            <i class='bx bx-time-five' style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
-            <p style="color: var(--text-muted); font-size: 14px;">Click to'lov tizimi tez orada ushbu bo'limda faollashadi.</p>
+        
+        <div class="card-content" style="padding: 24px;">
+            {% if not current_user.yandex_keys_active %}
+            <div style="text-align: center; padding: 20px;">
+                <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
+                <p style="color: var(--text-muted); font-size: 14px;">Click'ni ulash uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
+            </div>
+            {% else %}
+            <form action="{{ url_for('user.payment_settings') }}" method="POST">
+                <input type="hidden" name="payment_method" value="click">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Service ID</label>
+                    <input type="text" name="click_service_id" value="{{ current_user.click_service_id or '' }}" placeholder="Masalan: 12345" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant ID</label>
+                    <input type="text" name="click_merchant_id" value="{{ current_user.click_merchant_id or '' }}" placeholder="Masalan: 67890" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant Key (Secret Key)</label>
+                    <div style="position: relative;">
+                        <input type="password" name="click_secret_key" id="clickSecret" value="{{ current_user.click_secret_key or '' }}" placeholder="Click maxfiy kaliti..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
+                        <i class='bx bx-hide hide-toggle' data-target="clickSecret" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: #007bff; color: #fff; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
+                    Click sozlamalarini saqlash
+                </button>
+            </form>
+
+            <div style="margin-top: 30px; padding: 15px; background: rgba(0, 123, 255, 0.05); border-radius: 12px; border: 1px dashed rgba(0, 123, 255, 0.3);">
+                <h4 style="color: #3498db; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i class='bx bx-link-external'></i> Shaxsiy Callback URL (Click uchun)
+                </h4>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <code id="clickCallbackUrl" style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 11px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/click/callback</code>
+                    <button onclick="copyLink('clickCallbackUrl')" style="background: #3498db; color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
+                        <i class='bx bx-copy'></i>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -120,10 +168,14 @@ input:checked + .slider-mini:before { transform: translateX(20px); }
 </style>
 
 <script>
-function copyToClipboard() {
-    const text = document.querySelector('code').innerText;
+function copyLink(id) {
+    const text = document.getElementById(id).innerText;
     navigator.clipboard.writeText(text);
     alert('Manzil ko\'chirildi!');
+}
+
+function copyToClipboard() {
+    copyLink('callbackUrl');
 }
 
 document.querySelectorAll('.hide-toggle').forEach(btn => {

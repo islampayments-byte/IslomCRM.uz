@@ -40,11 +40,18 @@ def settings():
         db.session.commit()
 
     if request.method == 'POST':
+        # Payme settings
         settings.payme_merchant_id = request.form.get('merchant_id')
         settings.payme_secret_key = request.form.get('secret_key')
         settings.payme_test_key = request.form.get('test_key')
         settings.is_test_mode = 'is_test_mode' in request.form
         settings.payme_account_field = request.form.get('account_field', 'phone')
+        
+        # Click settings
+        settings.click_service_id = request.form.get('click_service_id')
+        settings.click_merchant_id = request.form.get('click_merchant_id')
+        settings.click_secret_key = request.form.get('click_secret_key')
+
         try:
             settings.min_topup_amount = int(request.form.get('min_topup_amount', 1000))
             settings.max_topup_amount = int(request.form.get('max_topup_amount', 10000000))

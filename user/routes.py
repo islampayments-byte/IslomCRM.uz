@@ -216,19 +216,37 @@ def permissions():
 @login_required
 def payment_settings():
     if request.method == 'POST':
-        merchant_id = request.form.get('merchant_id')
-        secret_key = request.form.get('secret_key')
-        test_key = request.form.get('test_key')
-        test_mode = request.form.get('test_mode') == 'on'
+        payment_method = request.form.get('payment_method', 'payme')
         
-        if not merchant_id or not secret_key:
-            flash("Asosiy Merchant ID va Secret Key bo'sh bo'lmasligi kerak.", "danger")
-            return redirect(url_for('user.payment_settings'))
+        if payment_method == 'payme':
+            merchant_id = request.form.get('merchant_id')
+            secret_key = request.form.get('secret_key')
+            test_key = request.form.get('test_key')
+            test_mode = request.form.get('test_mode') == 'on'
             
-        current_user.payme_merchant_id = merchant_id.strip()
-        current_user.payme_secret_key = secret_key.strip()
-        current_user.payme_test_key = test_key.strip() if test_key else None
-        current_user.is_payme_test_mode = test_mode
+            if not merchant_id or not secret_key:
+                flash("Payme: Merchant ID va Secret Key bo'sh bo'lmasligi kerak.", "danger")
+                return redirect(url_for('user.payment_settings'))
+                
+            current_user.payme_merchant_id = merchant_id.strip()
+            current_user.payme_secret_key = secret_key.strip()
+            current_user.payme_test_key = test_key.strip() if test_key else None
+            current_user.is_payme_test_mode = test_mode
+            flash("Payme sozlamalari muvaffaqiyatli saqlandi!", "success")
+
+        elif payment_method == 'click':
+            click_service_id = request.form.get('click_service_id')
+            click_merchant_id = request.form.get('click_merchant_id')
+            click_secret_key = request.form.get('click_secret_key')
+            
+            if not click_service_id or not click_merchant_id or not click_secret_key:
+                flash("Click: Barcha qatorlarni to'ldiring.", "danger")
+                return redirect(url_for('user.payment_settings'))
+                
+            current_user.click_service_id = click_service_id.strip()
+            current_user.click_merchant_id = click_merchant_id.strip()
+            current_user.click_secret_key = click_secret_key.strip()
+            flash("Click sozlamalari muvaffaqiyatli saqlandi!", "success")
         
         # Ensure org_slug exists (safety check)
         if not current_user.org_slug and current_user.yandex_park_name:
@@ -237,7 +255,6 @@ def payment_settings():
             current_user.org_slug = slug
             
         db.session.commit()
-        flash("Payme sozlamalari muvaffaqiyatli saqlandi!", "success")
         return redirect(url_for('user.payment_settings'))
         
     return render_template('user/payment_settings.html')
@@ -427,6 +444,53 @@ def topup_payme():
         logging.error(f"Exception during Payme receipt creation: {error_msg}")
         flash(f"To'lov serveri bilan bog'lanishda xatolik: {error_msg}", "danger")
         return redirect(url_for('user.finance'))
+
+@user_bp.route('/topup/click', methods=['POST'])
+@login_required
+def topup_click():
+    """
+    IslomCRM platformasidagi foydalanuvchi balansini Click orqali to'ldirish.
+    FAQAT global admin kalitlaridan foydalanamiz.
+    """
+    amount = request.form.get('amount')
+    if not amount or not amount.isdigit():
+        flash("Iltimos, to'g'ri summa kiriting", "danger")
+        return redirect(url_for('user.finance'))
+
+    amount = int(amount)
+    global_settings = PaymentSettings.query.first()
+    
+    if not global_settings or not global_settings.click_service_id or not global_settings.click_merchant_id:
+        flash("Click to'lov tizimi hali sozlanmagan.", "warning")
+        return redirect(url_for('user.finance'))
+
+    service_id = global_settings.click_service_id
+    merchant_id = global_settings.click_merchant_id
+    
+    # Create pending transaction locally
+    new_trans = Transaction(
+        user_id=current_user.id,
+        amount=amount,
+        type='balance_topup',
+        status='pending',
+        payer_phone=current_user.phone
+    )
+    db.session.add(new_trans)
+    db.session.commit()
+
+    # Click Redirect URL construction
+    # https://my.click.uz/services/pay?service_id=ID&merchant_id=ID&amount=AMOUNT&transaction_param=TRANS_ID
+    # Click expects amount as float (e.g. 1000.00)
+    click_url = (
+        f"https://my.click.uz/services/pay?"
+        f"service_id={service_id}&"
+        f"merchant_id={merchant_id}&"
+        f"amount={amount}&"
+        f"transaction_param={new_trans.id}"
+    )
+    
+    logging.info(f"Click topup started | user: {current_user.phone} | trans: {new_trans.id}")
+    return redirect(click_url)
 
 @user_bp.route('/transaction/cancel/<int:transaction_id>')
 @login_required

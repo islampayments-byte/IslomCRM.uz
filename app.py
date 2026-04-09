@@ -56,6 +56,7 @@ from auth.routes import auth_bp
 from admin.routes import admin_bp
 from user.routes import user_bp
 from payments.payme import payme_bp
+from payments.click import click_bp
 
 @app.errorhandler(500)
 def handle_500(e):
@@ -78,6 +79,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(payme_bp, url_prefix='/payments')
+app.register_blueprint(click_bp, url_prefix='/payments')
 
 # -------------------------------------------------------------
 # Background Sync Daemon (Real-time caching architecture)

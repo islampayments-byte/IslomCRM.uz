@@ -119,6 +119,63 @@
         </form>
     </div>
 </div>
+
+<div class="glass-panel" style="max-width: 800px; margin-top: 30px;">
+    <div class="panel-header">
+        <h3><i class='bx bx-credit-card' style="color: #007bff;"></i> To'lov Tizimi (Click)</h3>
+    </div>
+    
+    <div class="panel-body">
+        <form method="POST" action="{{ url_for('admin.settings') }}">
+            <!-- Callback URL for Click -->
+            <div style="margin-bottom: 30px; padding: 20px; background: rgba(0, 123, 255, 0.05); border: 1px solid rgba(0, 123, 255, 0.2); border-radius: 14px;">
+                <label class="form-label text-primary" style="color: #007bff !important; font-weight: 700;">
+                    <i class='bx bx-link'></i> Click-ga beriladigan Callback URL
+                </label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                    <input type="text" readonly id="click-callback-url"
+                           value="{{ request.host_url.rstrip('/') }}/payments/click/callback"
+                           class="modern-input" style="font-family: monospace; color: #a0aec0;">
+                    <button type="button" onclick="copyClickCallback()" class="btn-glow primary" style="padding: 14px 20px; background: #007bff;">
+                        <i class='bx bx-copy'></i> Nusxa
+                    </button>
+                </div>
+                <p style="font-size: 0.8rem; color: #718096; margin-top: 10px;">Bu linkni Click merchant kabinetidagi <strong style="color: #e2e8f0;">URL</strong> maydoniga kiriting.</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Click Service ID</label>
+                <div style="position: relative;">
+                    <i class='bx bx-hash' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="text" name="click_service_id" value="{{ settings.click_service_id or '' }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Masalan: 12345">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Click Merchant ID</label>
+                <div style="position: relative;">
+                    <i class='bx bx-id-card' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="text" name="click_merchant_id" value="{{ settings.click_merchant_id or '' }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Masalan: 67890">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Click Secret Key (Merchant Key)</label>
+                <div style="position: relative;">
+                    <i class='bx bx-key' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="password" name="click_secret_key" value="{{ settings.click_secret_key or '' }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Click maxfiy kaliti">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-glow primary" style="width: 100%; padding: 16px; font-size: 1rem; background: #007bff;">
+                <i class='bx bx-save'></i> Click Sozlamalarini Saqlash
+            </button>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -135,6 +192,21 @@ function copyCallback() {
             btn.innerHTML = "<i class='bx bx-copy'></i> Nusxa";
             btn.style.background = 'var(--primary-color)';
             btn.style.color = '#000';
+        }, 2000);
+    });
+}
+function copyClickCallback() {
+    const input = document.getElementById('click-callback-url');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.querySelector('[onclick="copyClickCallback()"]');
+        btn.innerHTML = "<i class='bx bx-check'></i> Nusxalandi!";
+        btn.style.background = 'var(--success)';
+        btn.style.color = '#fff';
+        setTimeout(() => {
+            btn.innerHTML = "<i class='bx bx-copy'></i> Nusxa";
+            btn.style.background = '#007bff';
+            btn.style.color = '#fff';
         }, 2000);
     });
 }

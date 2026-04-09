@@ -30,19 +30,34 @@
                 <span style="font-size: 16px; color: var(--text-muted);">UZS</span>
             </div>
             
-            <form action="{{ url_for('user.topup_payme') }}" method="POST" style="margin-top: 24px;">
+            <div style="margin-top: 24px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-muted);">
-                    To'ldirish summasi (UZS) — min: <strong>{{ "{:,}".format(min_amount).replace(',', ' ') }}</strong>, 
-                    maks: <strong>{{ "{:,}".format(max_amount).replace(',', ' ') }}</strong>
+                    To'ldirish summasi (UZS)
                 </label>
-                <input type="number" name="amount" min="{{ min_amount }}" max="{{ max_amount }}" step="1" 
-                       value="{{ min_amount }}" required
+                <input type="number" id="topupAmount" min="{{ min_amount }}" max="{{ max_amount }}" step="1" 
+                       value="{{ min_amount }}" 
                        style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff; margin-bottom: 16px; font-size: 18px; font-weight: 700;">
                 
-                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 10px; cursor: pointer; display: flex; align-items: center;">
-                    <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 32px;" alt="Payme">
-                </button>
-            </form>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <form action="{{ url_for('user.topup_payme') }}" method="POST" id="paymeForm">
+                        <input type="hidden" name="amount" class="hidden-amount">
+                        <button type="button" onclick="submitTopup('paymeForm')" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 10px; cursor: pointer; display: flex; align-items: center;">
+                            <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 32px;" alt="Payme">
+                        </button>
+                    </form>
+                    
+                    <form action="{{ url_for('user.topup_click') }}" method="POST" id="clickForm">
+                        <input type="hidden" name="amount" class="hidden-amount">
+                        <button type="button" onclick="submitTopup('clickForm')" class="user-pill" style="width: 100%; justify-content: center; background: #007bff; color: #fff; border: none; font-weight: 800; padding: 10px; cursor: pointer; display: flex; align-items: center;">
+                            <img src="{{ url_for('static', filename='click.svg') }}" style="height: 24px;" alt="Click">
+                        </button>
+                    </form>
+                </div>
+                <p style="font-size: 11px; color: #718096; margin-top: 12px; text-align: center;">
+                    Min: <strong>{{ "{:,}".format(min_amount).replace(',', ' ') }}</strong> | 
+                    Max: <strong>{{ "{:,}".format(max_amount).replace(',', ' ') }}</strong>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -87,10 +102,16 @@
                         <td>{{ t.created_at.strftime('%d.%m.%Y, %H:%M') }}</td>
                         <td>#{{ t.id }}</td>
                         <td>
-                            {% if t.type == 'topup' %}
-                                Payme orqali to'ldirish
+                            {% if t.type == 'balance_topup' %}
+                                {% if t.payme_trans_id %}
+                                    Payme orqali to'ldirish
+                                {% else %}
+                                    Click orqali to'ldirish
+                                {% endif %}
+                            {% elif t.type == 'driver_payment' %}
+                                Haydovchi to'lovi
                             {% else %}
-                                Xizmat to'lovi
+                                To'lov (Eski)
                             {% endif %}
                         </td>
                         <td style="color: {% if t.type == 'topup' %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
@@ -124,6 +145,13 @@
 {% endblock %}
 {% block scripts %}
 <script>
+    function submitTopup(formId) {
+        const amount = document.getElementById('topupAmount').value;
+        const form = document.getElementById(formId);
+        form.querySelector('.hidden-amount').value = amount;
+        form.submit();
+    }
+
     async function handleCancel(url) {
         const confirmed = await islomConfirm(
             'Ushbu t\'lovni bekor qilmoqchimisiz? Bu amalni ortga qaytarib bo\'lmaydi.', 

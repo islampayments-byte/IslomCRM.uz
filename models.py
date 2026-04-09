@@ -35,6 +35,12 @@ class User(db.Model, UserMixin):
     payme_secret_key = db.Column(db.String(255))
     payme_test_key = db.Column(db.String(255))
     is_payme_test_mode = db.Column(db.Boolean, default=True)
+    
+    # Personal Payment Settings (Click per Taksopark)
+    click_service_id = db.Column(db.String(100))
+    click_merchant_id = db.Column(db.String(100))
+    click_secret_key = db.Column(db.String(255))
+    
     org_slug = db.Column(db.String(100), unique=True) # URL identifier e.g. 'islom-taxi'
     
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -49,6 +55,12 @@ class PaymentSettings(db.Model):
     payme_secret_key = db.Column(db.String(255))
     payme_test_key = db.Column(db.String(255))
     is_test_mode = db.Column(db.Boolean, default=True)
+    
+    # Global Click Settings
+    click_service_id = db.Column(db.String(100))
+    click_merchant_id = db.Column(db.String(100))
+    click_secret_key = db.Column(db.String(255))
+    
     min_topup_amount = db.Column(db.Integer, default=1000)
     max_topup_amount = db.Column(db.Integer, default=10000000)
     payme_account_field = db.Column(db.String(50), default='phone')

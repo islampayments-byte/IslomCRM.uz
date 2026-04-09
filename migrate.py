@@ -55,6 +55,10 @@ add_column('users', 'payme_merchant_id', 'VARCHAR(100)')
 add_column('users', 'payme_secret_key',  'VARCHAR(255)')
 add_column('users', 'payme_test_key',    'VARCHAR(255)')
 add_column('users', 'is_payme_test_mode', 'BOOLEAN DEFAULT 1')
+# Click
+add_column('users', 'click_service_id',  'VARCHAR(100)')
+add_column('users', 'click_merchant_id', 'VARCHAR(100)')
+add_column('users', 'click_secret_key',   'VARCHAR(255)')
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")
@@ -73,6 +77,10 @@ CREATE TABLE IF NOT EXISTS payment_settings (
 # Also add payme_test_key to payment_settings if missing
 add_column('payment_settings', 'payme_test_key', 'VARCHAR(255)')
 add_column('payment_settings', 'is_test_mode', 'BOOLEAN DEFAULT 0')
+# Click
+add_column('payment_settings', 'click_service_id',  'VARCHAR(100)')
+add_column('payment_settings', 'click_merchant_id', 'VARCHAR(100)')
+add_column('payment_settings', 'click_secret_key',   'VARCHAR(255)')
 print("  [=] payment_settings jadvali mavjud yoki yaratildi")
 
 
