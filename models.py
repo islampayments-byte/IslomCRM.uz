@@ -61,6 +61,7 @@ class Transaction(db.Model):
     type = db.Column(db.String(20)) # topup or payment
     status = db.Column(db.String(20), default='pending') # pending, success, failed
     payme_trans_id = db.Column(db.String(100), unique=True)
+    payer_phone = db.Column(db.String(50)) # To distinguish payer (driver vs owner)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))

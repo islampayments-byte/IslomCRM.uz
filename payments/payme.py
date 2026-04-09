@@ -259,7 +259,8 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
             amount=amount / 100,
             type=trans_type,
             status='pending',
-            payme_trans_id=payme_id
+            payme_trans_id=payme_id,
+            payer_phone=phone  # Saqlaymiz: kim to'ladi
         )
         db.session.add(trans)
         db.session.commit()
@@ -282,9 +283,16 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
             return payme_error(req_id, -31008, {"uz": "Tranzaksiya bekor qilingan"})
 
         if trans.status != 'success':
-            owner = User.query.get(trans.user_id)
-            if owner:
-                owner.balance = (owner.balance or 0.0) + trans.amount
+            # FAQAT balance_topup (user uz balansini tuldirganda) balans oshadi
+            # driver_payment (haydovchi tulovi) bo'lsa, platforma balansi o'zgarmaydi
+            if trans.type == 'balance_topup':
+                owner = User.query.get(trans.user_id)
+                if owner:
+                    owner.balance = (owner.balance or 0.0) + trans.amount
+                    logging.info(f"Balance UPDATED for user {owner.id}: +{trans.amount}")
+            else:
+                logging.info(f"Driver payment SUCCESS (no balance update for org): {trans.payme_trans_id}")
+
             trans.status = 'success'
             db.session.commit()
 

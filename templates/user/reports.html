@@ -213,19 +213,18 @@
             </thead>
             <tbody>
                 {% for t in transactions %}
-                {% set driver = driver_map.get(t.user.phone if t.user else '') %}
                 <tr>
                     <td style="color: var(--text-muted); font-size: 13px;">{{ t.id }}</td>
                     <td>
-                        {% if t.user %}
-                            {% set phone_digits = t.user.phone.replace('+', '') %}
-                            {% set d = driver_map.get(t.user.phone) or driver_map.get(phone_digits) %}
+                        {% if t.payer_phone %}
+                            {% set phone_digits = t.payer_phone.replace('+', '') %}
+                            {% set d = driver_map.get(t.payer_phone) or driver_map.get(phone_digits) %}
                             {% if d %}
                                 <span class="driver-name">{{ d.first_name }} {{ d.last_name }}</span>
                                 <span class="driver-phone">{{ d.phone }}</span>
                             {% else %}
-                                <span class="driver-name">{{ t.user.phone }}</span>
-                                <span class="driver-phone" style="color: rgba(59,130,246,0.7);">Platform foydalanuvchi</span>
+                                <span class="driver-name">{{ t.payer_phone }}</span>
+                                <span class="driver-phone" style="color: rgba(59,130,246,0.7);">Noma'lum haydovchi</span>
                             {% endif %}
                         {% else %}
                             <span class="driver-phone">—</span>

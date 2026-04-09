@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     FOREIGN KEY(user_id) REFERENCES users(id)
 )
 """)
+add_column('transactions', 'payer_phone', 'VARCHAR(50)')
 print("  [=] transactions jadvali mavjud yoki yaratildi")
 
 
