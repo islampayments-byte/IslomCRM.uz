@@ -1,151 +1,594 @@
 {% extends 'base.html' %}
 
 {% block title %}VPS Boshqaruvi{% endblock %}
-{% block page_title %}VPS Boshqaruvi{% endblock %}
+{% block page_title %}Server Holati va Boshqaruvi{% endblock %}
 
 {% block content %}
 <!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 8px;">
-        {{ message }}
+      <div class="alert-box alert-{{ category }}">
+        <i class='bx {% if category == "success" %}bx-check-circle{% elif category == "danger" %}bx-error-circle{% else %}bx-info-circle{% endif %}'></i>
+        <span>{{ message }}</span>
       </div>
     {% endfor %}
   {% endif %}
 {% endwith %}
 
-<div class="cards-grid">
+<div class="dashboard-header mb-4">
+    <div>
+        <h2 class="text-gradient">Real-vaqt Tizim Monitoringi</h2>
+        <p class="text-muted">vps06538.eskiz.uz holati va faol jarayonlar</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('admin.vps_action', action='restart_app') }}" class="btn-glow warning" title="Gunicorn servisini qayta ishga tushirish">
+            <i class='bx bx-refresh bx-spin-hover'></i> <span>Restart Gunicorn</span>
+        </a>
+        <button onclick="location.reload()" class="btn-glow primary">
+            <i class='bx bx-sync'></i> <span>Yangilash</span>
+        </button>
+    </div>
+</div>
+
+<div class="vps-cards-grid">
     <!-- CPU Usage -->
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number">{{ cpu_percent }}%</div>
-            <div class="card-name">CPU Ishlatilishi</div>
-            <div class="progress-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 10px;">
-                <div style="width: {{ cpu_percent }}%; height: 100%; background: var(--primary-color); border-radius: 4px;"></div>
+    <div class="vps-stat-card">
+        <div class="card-glow" style="background: var(--primary-color);"></div>
+        <div class="vps-card-header">
+            <div class="vps-icon-wrapper" style="color: var(--primary-color); background: rgba(var(--primary-rgb), 0.1);">
+                <i class='bx bx-chip'></i>
             </div>
+            <div class="vps-stat-value">{{ cpu_percent }}%</div>
         </div>
-        <div class="icon-box">
-            <i class='bx bx-chip'></i>
+        <div class="vps-card-body">
+            <h4>CPU Ishlatilishi</h4>
+            <p>{{ system_info.cpu_count }} Yadroli protsessor</p>
+            <div class="vps-progress-bg">
+                <div class="vps-progress-bar" style="width: {{ cpu_percent }}%; background: linear-gradient(90deg, #3498db, #2980b9);"></div>
+            </div>
         </div>
     </div>
 
     <!-- RAM Usage -->
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number">{{ memory.percent }}%</div>
-            <div class="card-name">RAM: {{ (memory.used / 1024 / 1024 / 1024)|round(2) }} / {{ (memory.total / 1024 / 1024 / 1024)|round(2) }} GB</div>
-            <div class="progress-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 10px;">
-                <div style="width: {{ memory.percent }}%; height: 100%; background: #2ecc71; border-radius: 4px;"></div>
+    <div class="vps-stat-card">
+        <div class="card-glow" style="background: #2ecc71;"></div>
+        <div class="vps-card-header">
+            <div class="vps-icon-wrapper" style="color: #2ecc71; background: rgba(46, 204, 113, 0.1);">
+                <i class='bx bx-memory-card'></i>
             </div>
+            <div class="vps-stat-value">{{ memory.percent }}%</div>
         </div>
-        <div class="icon-box" style="color: #2ecc71; background: rgba(46, 204, 113, 0.1);">
-            <i class='bx bx-memory-card'></i>
+        <div class="vps-card-body">
+            <h4>Operativ Xotira (RAM)</h4>
+            <p>{{ (memory.used / 1024 / 1024 / 1024)|round(2) }} GB ishl. / {{ (memory.total / 1024 / 1024 / 1024)|round(2) }} GB</p>
+            <div class="vps-progress-bg">
+                <div class="vps-progress-bar" style="width: {{ memory.percent }}%; background: linear-gradient(90deg, #2ecc71, #27ae60);"></div>
+            </div>
         </div>
     </div>
 
     <!-- Disk Usage -->
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number">{{ disk.percent }}%</div>
-            <div class="card-name">Disk: {{ (disk.used / 1024 / 1024 / 1024)|round(1) }} / {{ (disk.total / 1024 / 1024 / 1024)|round(1) }} GB</div>
-            <div class="progress-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 10px;">
-                <div style="width: {{ disk.percent }}%; height: 100%; background: #e67e22; border-radius: 4px;"></div>
+    <div class="vps-stat-card">
+        <div class="card-glow" style="background: #f39c12;"></div>
+        <div class="vps-card-header">
+            <div class="vps-icon-wrapper" style="color: #f39c12; background: rgba(243, 156, 18, 0.1);">
+                <i class='bx bx-hdd'></i>
             </div>
+            <div class="vps-stat-value">{{ disk.percent }}%</div>
         </div>
-        <div class="icon-box" style="color: #e67e22; background: rgba(230, 126, 34, 0.1);">
-            <i class='bx bx-hdd'></i>
+        <div class="vps-card-body">
+            <h4>Xotira (Disk)</h4>
+            <p>{{ (disk.used / 1024 / 1024 / 1024)|round(1) }} GB ishl. / {{ (disk.total / 1024 / 1024 / 1024)|round(1) }} GB</p>
+            <div class="vps-progress-bg">
+                <div class="vps-progress-bar" style="width: {{ disk.percent }}%; background: linear-gradient(90deg, #f39c12, #d35400);"></div>
+            </div>
         </div>
     </div>
 
     <!-- Uptime -->
-    <div class="stat-card">
-        <div class="card-content">
-            <div class="number" style="font-size: 1.2rem;">{{ system_info.uptime }}</div>
-            <div class="card-name">Tizim Ish vaqti</div>
+    <div class="vps-stat-card uptime-card">
+        <div class="card-glow" style="background: #9b59b6;"></div>
+        <div class="vps-card-header">
+            <div class="vps-icon-wrapper" style="color: #9b59b6; background: rgba(155, 89, 182, 0.1);">
+                <i class='bx bx-time-five bx-tada-hover'></i>
+            </div>
         </div>
-        <div class="icon-box" style="color: #9b59b6; background: rgba(155, 89, 182, 0.1);">
-            <i class='bx bx-time-five'></i>
+        <div class="vps-card-body text-center">
+            <h3 class="uptime-text">{{ system_info.uptime }}</h3>
+            <p class="text-muted">Tizim tinimsiz ishlash vaqti</p>
         </div>
     </div>
 </div>
 
-<div class="grid-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-    <!-- System Info -->
-    <div class="table-container">
-        <div class="table-header">
-            <h3>Tizim Ma'lumotlari</h3>
+<div class="vps-details-section mt-4">
+    <!-- System Info Panel -->
+    <div class="glass-panel">
+        <div class="panel-header">
+            <h3><i class='bx bx-server'></i> Server Ma'lumotlari</h3>
         </div>
-        <div style="padding: 20px;">
-            <p><strong>Hostname:</strong> {{ system_info.hostname }}</p>
-            <p><strong>OS:</strong> {{ system_info.os }} {{ system_info.os_release }}</p>
-            <p><strong>IP:</strong> {{ system_info.ip_address }}</p>
-            <p><strong>CPU Yadrolari:</strong> {{ system_info.cpu_count }}</p>
-            <p><strong>Arxitektura:</strong> {{ system_info.machine }}</p>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-            <div style="display: flex; gap: 10px;">
-                <a href="{{ url_for('admin.vps_action', action='restart_app') }}" class="btn-submit" style="background: var(--warning); text-decoration: none; font-size: 13px;">
-                    <i class='bx bx-refresh'></i> Ilovani Restart qilish
-                </a>
-                <a href="{{ url_for('admin.vps_action', action='clear_cache') }}" class="btn-submit" style="background: var(--secondary-color); text-decoration: none; font-size: 13px;">
-                    <i class='bx bx-trash'></i> Keshni tozalash
+        <div class="panel-body">
+            <ul class="system-info-list">
+                <li>
+                    <span class="info-label"><i class='bx bx-laptop'></i> Hostname</span>
+                    <span class="info-value badge-glow">{{ system_info.hostname }}</span>
+                </li>
+                <li>
+                    <span class="info-label"><i class='bx bxl-tux'></i> Operatsion Tizim</span>
+                    <span class="info-value">{{ system_info.os }} {{ system_info.os_release }}</span>
+                </li>
+                <li>
+                    <span class="info-label"><i class='bx bx-network-chart'></i> IP Manzil</span>
+                    <span class="info-value text-primary">{{ system_info.ip_address }}</span>
+                </li>
+                <li>
+                    <span class="info-label"><i class='bx bx-microchip'></i> Arxitektura</span>
+                    <span class="info-value">{{ system_info.machine }}</span>
+                </li>
+            </ul>
+            <div class="panel-footer mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                <a href="{{ url_for('admin.vps_action', action='clear_cache') }}" class="btn-outline-danger">
+                    <i class='bx bx-trash'></i> Tizim keshini tozalash
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Python Processes -->
-    <div class="table-container">
-        <div class="table-header">
-            <h3>Faol Jarayonlar (Python/Gunicorn)</h3>
+    <!-- Process List Panel -->
+    <div class="glass-panel">
+        <div class="panel-header">
+            <h3><i class='bx bx-list-ul'></i> Faol Jarayonlar (Python/Gunicorn)</h3>
         </div>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>PID</th>
-                    <th>Nomi</th>
-                    <th>CPU %</th>
-                    <th>RAM %</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for proc in processes %}
-                <tr>
-                    <td>#{{ proc.pid }}</td>
-                    <td>{{ proc.name }}</td>
-                    <td>{{ proc.cpu_percent }}%</td>
-                    <td>{{ proc.memory_percent|round(2) }}%</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="panel-body p-0">
+            <div class="table-responsive custom-scrollbar">
+                <table class="vps-table">
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>Jarayon nomi</th>
+                            <th>CPU</th>
+                            <th>RAM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proc in processes %}
+                        <tr>
+                            <td><span class="pid-badge">#{{ proc.pid }}</span></td>
+                            <td>
+                                <div class="proc-name">
+                                    <i class='bx {% if "gunicorn" in proc.name.lower() %}bxl-python{% else %}bx-cog{% endif %}'></i>
+                                    {{ proc.name }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="mini-progress">
+                                    <div class="bar" style="width: {{ proc.cpu_percent }}%; background: var(--primary-color);"></div>
+                                </div>
+                                <span class="val">{{ proc.cpu_percent }}%</span>
+                            </td>
+                            <td>
+                                <div class="mini-progress">
+                                    <div class="bar" style="width: {{ proc.memory_percent }}%; background: #2ecc71;"></div>
+                                </div>
+                                <span class="val">{{ proc.memory_percent|round(2) }}%</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">Faol jarayonlar topilmadi.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Logs Section -->
-<div class="table-container mt-4">
-    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Tizim Loglari (Oxirgi 20 qator)</h3>
-        <button onclick="location.reload()" class="btn-submit" style="padding: 5px 15px; font-size: 12px; background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);">
-            <i class='bx bx-sync'></i> Yangilash
-        </button>
+<!-- Terminal / Logs Panel -->
+<div class="terminal-panel mt-4">
+    <div class="terminal-header">
+        <div class="window-controls">
+            <span class="dot close"></span>
+            <span class="dot minimize"></span>
+            <span class="dot maximize"></span>
+        </div>
+        <div class="terminal-title">server_logs@vps06538:~ — bash</div>
+        <div class="terminal-actions">
+            <button onclick="copyLogs()" class="icon-btn" title="Nusxa olish"><i class='bx bx-copy'></i></button>
+        </div>
     </div>
-    <div style="padding: 15px; background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; font-size: 13px; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; white-space: pre-wrap;">
-{{ logs }}
+    <div class="terminal-body custom-scrollbar" id="logContainer">
+        <pre><code class="language-bash">{{ logs }}</code></pre>
     </div>
 </div>
 
 <style>
-    .grid-container {
+    /* Styling Configuration */
+    :root {
+        --primary-rgb: 52, 152, 219;
+    }
+
+    /* Page Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .text-gradient {
+        background: linear-gradient(135deg, #fff, #a0aec0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    /* Alert Box */
+    .alert-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        animation: slideDown 0.4s ease;
+    }
+    .alert-success { background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); color: #2ecc71; }
+    .alert-info { background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.2); color: #3498db; }
+    .alert-warning { background: rgba(243, 156, 18, 0.1); border: 1px solid rgba(243, 156, 18, 0.2); color: #f39c12; }
+    .alert-danger { background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); color: #e74c3c; }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Action Buttons */
+    .btn-glow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-glow.primary {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+    .btn-glow.warning {
+        background: #e67e22;
+        color: white;
+        box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+    }
+    .btn-glow:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }
+
+    .btn-outline-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid rgba(231, 76, 60, 0.5);
+        background: transparent;
+        color: #e74c3c;
+        transition: all 0.2s;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+    .btn-outline-danger:hover {
+        background: rgba(231, 76, 60, 0.1);
+    }
+
+    /* VPS Grid & Cards */
+    .vps-cards-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 20px;
     }
+
+    .vps-stat-card {
+        background: var(--card-bg, #1e222d);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .vps-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .card-glow {
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 100px;
+        height: 100px;
+        filter: blur(50px);
+        opacity: 0.5;
+        z-index: 0;
+    }
+
+    .vps-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .vps-icon-wrapper {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+    }
+
+    .vps-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .vps-card-body {
+        position: relative;
+        z-index: 1;
+    }
+    .vps-card-body h4 {
+        margin: 0 0 5px 0;
+        font-size: 0.95rem;
+        color: #a0aec0;
+    }
+    .vps-card-body p {
+        margin: 0 0 15px 0;
+        font-size: 0.8rem;
+        color: #718096;
+    }
+
+    .vps-progress-bg {
+        width: 100%;
+        height: 6px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .vps-progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    .vps-progress-bar::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+        animation: shimmer 2s infinite;
+        background-size: 200% 100%;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .uptime-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .uptime-text {
+        font-size: 2rem;
+        color: #fff;
+        font-weight: 700;
+        margin: 10px 0;
+    }
+
+    /* Details Section */
+    .vps-details-section {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+    }
+
+    .glass-panel {
+        background: rgba(30, 34, 45, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .panel-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .panel-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .panel-header h3 i {
+        color: var(--primary-color);
+    }
+    .panel-body {
+        padding: 20px;
+    }
+
+    .system-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .system-info-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .info-label {
+        color: #a0aec0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+    .info-value {
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .badge-glow {
+        background: rgba(52, 152, 219, 0.1);
+        color: var(--primary-color);
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(52, 152, 219, 0.2);
+    }
+
+    /* Tables */
+    .vps-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .vps-table th {
+        text-align: left;
+        padding: 15px 20px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #718096;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .vps-table td {
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.02);
+        vertical-align: middle;
+    }
+    .vps-table  tr:last-child td { border: none; }
+    
+    .pid-badge {
+        background: rgba(255,255,255,0.05);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        color: #a0aec0;
+    }
+    .proc-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #e2e8f0;
+    }
+    .proc-name i { color: var(--primary-color); font-size: 1.2rem; }
+    
+    .mini-progress {
+        width: 100px;
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 2px;
+        display: inline-block;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    .mini-progress .bar { height: 100%; border-radius: 2px; }
+
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    /* Terminal Hacker Vibe */
+    .terminal-panel {
+        background: #0f111a;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        overflow: hidden;
+    }
+    .terminal-header {
+        background: #1a1d27;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .window-controls { display: flex; gap: 8px; }
+    .window-controls .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.close { background: #ff5f56; }
+    .dot.minimize { background: #ffbd2e; }
+    .dot.maximize { background: #27c93f; }
+    
+    .terminal-title {
+        font-family: inherit;
+        font-size: 0.85rem;
+        color: #8f93a2;
+    }
+    .icon-btn {
+        background: transparent;
+        border: none;
+        color: #8f93a2;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+    }
+    .icon-btn:hover { color: #fff; }
+
+    .terminal-body {
+        padding: 20px;
+        max-height: 350px;
+        overflow-y: auto;
+    }
+    .terminal-body pre {
+        margin: 0;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: #00ff41;
+        text-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+    }
+
     @media (max-width: 992px) {
-        .grid-container {
-            grid-template-columns: 1fr;
-        }
+        .vps-details-section { grid-template-columns: 1fr; }
     }
 </style>
+
+<script>
+    function copyLogs() {
+        const text = document.querySelector('#logContainer pre').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Loglar xotiraga nusxalandi!");
+        });
+    }
+</script>
 
 {% endblock %}
