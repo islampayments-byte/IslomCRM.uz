@@ -59,7 +59,7 @@ from payments.payme import payme_bp
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(user_bp, url_prefix='/user')
-app.register_blueprint(payme_bp, url_prefix='/payments/payme')
+app.register_blueprint(payme_bp, url_prefix='/payments')
 
 # -------------------------------------------------------------
 # Background Sync Daemon (Real-time caching architecture)

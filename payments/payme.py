@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import User, PaymentSettings, Transaction
+from models import User, PaymentSettings, Transaction, Driver
 from extensions import db
 import base64
 import datetime
@@ -105,7 +105,7 @@ def now_ms():
     return int(time.time() * 1000)
 
 
-@payme_bp.route('/<string:org_slug>/callback', methods=['POST'])
+@payme_bp.route('/<string:org_slug>/payme/callback', methods=['POST'])
 def payme_callback(org_slug):
     # 1. IP Whitelisting (Optional but highly recommended)
     client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -129,6 +129,8 @@ def payme_callback(org_slug):
     if not taksopark:
         logging.warning(f"Auth FAILED for {org_slug}")
         return auth_error(req_id)
+
+    settings = get_settings()
 
     # ─── CheckPerformTransaction ───────────────────────────────────────
     if method == 'CheckPerformTransaction':
