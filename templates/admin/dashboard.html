@@ -3,91 +3,122 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block page_title %}Admin Panel{% endblock %}
 
-
 {% block content %}
 <!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 10px; border-radius: 8px; background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2);">
-        {{ message }}
+      <div class="alert-box alert-{{ category }}">
+        <i class='bx {% if category == "danger" %}bx-error-circle{% else %}bx-info-circle{% endif %}'></i>
+        <span>{{ message }}</span>
       </div>
     {% endfor %}
   {% endif %}
 {% endwith %}
 
-<div class="cards-grid">
+<div class="vps-cards-grid mt-2">
+    <!-- Total Users -->
     <a href="{{ url_for('admin.users_list') }}" style="text-decoration: none; color: inherit;">
-        <div class="stat-card">
-            <div class="card-content">
-                <div class="number">{{ total_users }}</div>
-                <div class="card-name">Jami Foydalanuvchilar</div>
+        <div class="vps-stat-card">
+            <div class="card-glow" style="background: var(--primary-color);"></div>
+            <div class="vps-card-header">
+                <div class="vps-icon-wrapper" style="color: var(--primary-color); background: rgba(255, 204, 0, 0.1);">
+                    <i class='bx bx-group'></i>
+                </div>
             </div>
-            <div class="icon-box">
-                <i class='bx bx-group'></i>
+            <div class="vps-card-body">
+                <div class="vps-stat-value">{{ total_users }}</div>
+                <h4>Jami Foydalanuvchilar</h4>
+                <p class="mb-0">Ro'yxatdan o'tgan barcha mijozlar</p>
             </div>
         </div>
     </a>
+
+    <!-- Blocked Users -->
     <a href="{{ url_for('admin.users_list') }}" style="text-decoration: none; color: inherit;">
-        <div class="stat-card">
-            <div class="card-content">
-                <div class="number" style="color: var(--danger);">{{ blocked_users }}</div>
-                <div class="card-name">Bloklanganlar</div>
+        <div class="vps-stat-card">
+            <div class="card-glow" style="background: #e74c3c;"></div>
+            <div class="vps-card-header">
+                <div class="vps-icon-wrapper" style="color: #e74c3c; background: rgba(231, 76, 60, 0.1);">
+                    <i class='bx bx-lock-alt'></i>
+                </div>
             </div>
-            <div class="icon-box" style="color: var(--danger); background: rgba(231, 76, 60, 0.1);">
-                <i class='bx bx-lock-alt'></i>
+            <div class="vps-card-body">
+                <div class="vps-stat-value text-danger">{{ blocked_users }}</div>
+                <h4>Bloklanganlar</h4>
+                <p class="mb-0">Tizimga kirish huquqidan mahrum qilinganlar</p>
             </div>
         </div>
     </a>
 </div>
 
-<div class="table-container mt-4">
-    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Oxirgi foydalanuvchilar</h3>
-        <a href="{{ url_for('admin.users_list') }}" style="color: var(--primary-color); font-size: 13px; font-weight: 600; text-decoration: none;">Hammasini ko'rish</a>
+<div class="glass-panel mt-4">
+    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3><i class='bx bx-time'></i> Oxirgi ro'yxatdan o'tganlar</h3>
+        <a href="{{ url_for('admin.users_list') }}" class="btn-glow primary" style="padding: 6px 16px; font-size: 0.85rem;">
+            Hammasini ko'rish
+        </a>
     </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Telefon raqam</th>
-                <th>Rol</th>
-                <th>Xato urinishlar</th>
-                <th>IP Manzil</th>
-                <th>Sana</th>
-                <th>Status</th>
-                <th>Amal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>#{{ user.id }}</td>
-                <td>{{ user.phone }}</td>
-                <td><span class="status {{ 'success' if user.role == 'admin' else 'info' }}">{{ user.role }}</span></td>
-                <td>{{ user.failed_attempts }} / 3</td>
-                <td>{{ user.last_ip or '-' }}</td>
-                <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>
-                    {% if user.is_blocked %}
-                        <span class="status warning" style="background: rgba(231,76,60,0.1); color: var(--danger);">Bloklangan</span>
+    <div class="panel-body p-0">
+        <div style="overflow-x: auto;">
+            <table class="vps-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Telefon raqam</th>
+                        <th>Rol</th>
+                        <th>Xato urinishlar</th>
+                        <th>IP Manzil</th>
+                        <th>Sana</th>
+                        <th>Status</th>
+                        <th>Amal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><span class="pid-badge">#{{ user.id }}</span></td>
+                        <td><strong>{{ user.phone }}</strong></td>
+                        <td>
+                            <span class="badge-glow {% if user.role == 'admin' %}badge-success{% endif %}">
+                                <i class='bx {% if user.role == "admin" %}bx-shield{% else %}bx-user{% endif %}'></i>
+                                {{ user.role|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="mini-progress" style="width: 50px;">
+                                <div class="bar" style="width: {{ (user.failed_attempts / 3) * 100 }}%; background: {% if user.failed_attempts >= 3 %}#e74c3c{% else %}#f39c12{% endif %};"></div>
+                            </div>
+                            <span style="font-size: 13px; color: #a0aec0;">{{ user.failed_attempts }}/3</span>
+                        </td>
+                        <td style="color: #a0aec0; font-family: monospace;">{{ user.last_ip or '-' }}</td>
+                        <td style="color: #a0aec0; font-size: 13px;">{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if user.is_blocked %}
+                                <span class="badge-glow badge-danger"><i class='bx bx-lock'></i> Bloklangan</span>
+                            {% else %}
+                                <span class="badge-glow badge-success"><i class='bx bx-check'></i> Aktiv</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.id != current_user.id %}
+                                <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
+                                   class="btn-outline-danger" style="{% if not user.is_blocked %}color: #e74c3c; border-color: rgba(231,76,60,0.5);{% else %}color: #2ecc71; border-color: rgba(46,204,113,0.5);{% endif %} padding: 4px 10px; font-size: 12px;">
+                                    {{ "Blokdan yechish" if user.is_blocked else "Bloklash" }}
+                                </a>
+                            {% else %}
+                                <span style="color: #64748b; font-size: 12px;">Siz</span>
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% else %}
-                        <span class="status success">Aktiv</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if user.id != current_user.id %}
-                        <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
-                           class="btn-submit" style="padding: 5px 10px; font-size: 11px; text-decoration: none; {{ 'background: var(--danger);' if not user.is_blocked else 'background: var(--success);' }}">
-                            {{ "Blokdan yechish" if user.is_blocked else "Bloklash" }}
-                        </a>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    <tr>
+                        <td colspan="8" class="text-center" style="padding: 30px; color: #718096;">Foydalanuvchilar yo'q.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -3,141 +3,99 @@
 {% block title %}Foydalanuvchilar | Admin{% endblock %}
 {% block page_title %}Foydalanuvchilar Boshqaruvi{% endblock %}
 
-
 {% block content %}
-<style>
-    .data-table-wrapper {
-        background: var(--card-bg);
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: var(--shadow);
-        overflow-x: auto;
-    }
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 1200px;
-    }
-    .data-table th {
-        text-align: left;
-        padding: 15px;
-        color: #94a3b8;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .data-table td {
-        padding: 15px;
-        color: #fff;
-        font-size: 14px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .org-cell {
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .btn-action {
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-    .btn-block {
-        background: rgba(231, 76, 60, 0.1);
-        color: #e74c3c;
-        border: 1px solid rgba(231, 76, 60, 0.2);
-    }
-    .btn-unblock {
-        background: rgba(46, 204, 113, 0.1);
-        color: #2ecc71;
-        border: 1px solid rgba(46, 204, 113, 0.2);
-    }
-    .btn-action:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.2);
-    }
-    .search-box {
-        margin-bottom: 20px;
-        display: flex;
-        gap: 10px;
-    }
-    .search-input {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 10px;
-        padding: 10px 15px;
-        color: #fff;
-        width: 300px;
-        outline: none;
-    }
-</style>
-
 <!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 10px; background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2);">
-        {{ message }}
+      <div class="alert-box alert-{{ category }}">
+        <i class='bx {% if category == "danger" %}bx-error-circle{% else %}bx-info-circle{% endif %}'></i>
+        <span>{{ message }}</span>
       </div>
     {% endfor %}
   {% endif %}
 {% endwith %}
 
-<div class="data-table-wrapper">
-    <div class="search-box">
-        <input type="text" id="userSearch" class="search-input" placeholder="Qidirish (STIR, Nomi, Telefon)...">
+<div class="dashboard-header mb-4 mt-2">
+    <div>
+        <h2 class="text-gradient">Mijozlar Bazasi</h2>
+        <p class="text-muted">Barcha ro'yxatdan o'tgan foydalanuvchilarni qidirish va boshqarish</p>
     </div>
+    <div class="header-actions">
+        <div style="position: relative;">
+            <i class='bx bx-search' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+            <input type="text" id="userSearch" class="modern-input" placeholder="Qidirish (STIR, Ism, Telefon)..." style="padding-left: 45px; width: 350px;">
+        </div>
+    </div>
+</div>
 
-    <table class="data-table" id="usersTable">
-        <thead>
-            <tr>
-                <th>Telefon</th>
-                <th>STIR</th>
-                <th>Tashkilot</th>
-                <th>Rahbar</th>
-                <th>IP Manzil</th>
-                <th>Email</th>
-                <th>Manzil</th>
-                <th>Holat</th>
-                <th>Amallar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td><strong>{{ user.phone }}</strong></td>
-                <td><code>{{ user.stir or '-' }}</code></td>
-                <td class="org-cell" title="{{ user.org_name }}">{{ user.org_name or '-' }}</td>
-                <td>{{ user.director or '-' }}</td>
-                <td>{{ user.last_ip or '-' }}</td>
-                <td>{{ user.email or '-' }}</td>
-                <td class="org-cell" title="{{ user.address }}">{{ user.address or '-' }}</td>
-                <td>
-                    {% if user.is_blocked %}
-                        <span class="status warning" style="background: rgba(231,76,60,0.1); color: #e74c3c;">Bloklangan</span>
+<div class="glass-panel">
+    <div class="panel-body p-0">
+        <div style="overflow-x: auto;" class="custom-scrollbar">
+            <table class="vps-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Telefon</th>
+                        <th>STIR</th>
+                        <th>Tashkilot</th>
+                        <th>Rahbar</th>
+                        <th>IP Manzil</th>
+                        <th>Email</th>
+                        <th>Manzil</th>
+                        <th>Holat</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="proc-name">
+                                <i class='bx bx-phone' style="color: var(--primary-color);"></i>
+                                {{ user.phone }}
+                            </div>
+                        </td>
+                        <td><span class="pid-badge">{{ user.stir or '-' }}</span></td>
+                        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ user.org_name }}">
+                            {{ user.org_name or '-' }}
+                        </td>
+                        <td>{{ user.director or '-' }}</td>
+                        <td style="color: #a0aec0; font-family: monospace;">{{ user.last_ip or '-' }}</td>
+                        <td style="color: #a0aec0;">{{ user.email or '-' }}</td>
+                        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ user.address }}">
+                            {{ user.address or '-' }}
+                        </td>
+                        <td>
+                            {% if user.is_blocked %}
+                                <span class="badge-glow badge-danger"><i class='bx bx-lock'></i> Bloklangan</span>
+                            {% else %}
+                                <span class="badge-glow badge-success"><i class='bx bx-check'></i> Aktiv</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.id != current_user.id %}
+                                <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
+                                   class="btn-outline-danger" style="{% if not user.is_blocked %}color: #e74c3c; border-color: rgba(231,76,60,0.5);{% else %}color: #2ecc71; border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.1);{% endif %} padding: 6px 12px; font-size: 13px; text-decoration: none;">
+                                    <i class='bx {% if user.is_blocked %}bx-lock-open-alt{% else %}bx-lock-alt{% endif %}'></i>
+                                    {{ "Yechish" if user.is_blocked else "Bloklash" }}
+                                </a>
+                            {% else %}
+                                <span class="badge-glow" style="background: rgba(255,255,255,0.05); color: #fff; border: none;">Siz</span>
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% else %}
-                        <span class="status success">Aktiv</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if user.id != current_user.id %}
-                        <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
-                           class="btn-action {{ 'btn-unblock' if user.is_blocked else 'btn-block' }}">
-                            {{ "Blokdan yechish" if user.is_blocked else "Bloklash" }}
-                        </a>
-                    {% else %}
-                        <span style="color: #64748b; font-size: 11px;">Siz</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    <tr>
+                        <td colspan="9" class="text-center" style="padding: 40px; color: #718096;">
+                            <i class='bx bx-folder-open' style="font-size: 3rem; opacity: 0.5; margin-bottom: 10px; display: block;"></i>
+                            Foydalanuvchilar topilmadi.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -147,6 +105,7 @@
         
         rows.forEach(row => {
             let text = row.innerText.toLowerCase();
+            if (row.querySelector('td[colspan]')) return; // skip empty message
             row.style.display = text.includes(filter) ? '' : 'none';
         });
     });

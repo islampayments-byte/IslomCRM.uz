@@ -3,95 +3,118 @@
 {% block title %}Sozlamalar{% endblock %}
 {% block page_title %}Tizim Sozlamalari{% endblock %}
 
-
 {% block content %}
-<div class="info-section">
-    <div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
-        <div class="card-header" style="margin-bottom: 32px;">
-            <h3><i class='bx bx-cog' style="color: var(--primary-color);"></i> To'lov Tizimi (Payme)</h3>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Ushbu ma'lumotlar foydalanuvchilar balansini to'ldirish uchun ishlatiladi.</p>
-        </div>
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert-box alert-{{ category }}">
+        <i class='bx {% if category == "success" %}bx-check-circle{% elif category == "danger" %}bx-error-circle{% else %}bx-info-circle{% endif %}'></i>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
+<div class="dashboard-header mb-4 mt-2">
+    <div>
+        <h2 class="text-gradient">Konfiguratsiya</h2>
+        <p class="text-muted">Tizim va To'lov Gateway parametrlarini sozlash</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="max-width: 800px;">
+    <div class="panel-header">
+        <h3><i class='bx bx-credit-card' style="color: var(--primary-color);"></i> To'lov Tizimi (Payme)</h3>
+    </div>
+    
+    <div class="panel-body">
         <form method="POST">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div style="padding: 12px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: var(--success); margin-bottom: 24px; font-size: 14px;">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
             <!-- Callback URL for Payme -->
-            <div style="margin-bottom: 24px; padding: 16px; background: rgba(255, 204, 0, 0.05); border: 1px solid rgba(255, 204, 0, 0.2); border-radius: 14px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--primary-color);">
+            <div style="margin-bottom: 30px; padding: 20px; background: rgba(52, 152, 219, 0.05); border: 1px solid rgba(52, 152, 219, 0.2); border-radius: 14px;">
+                <label class="form-label text-primary" style="color: #3498db !important; font-weight: 700;">
                     <i class='bx bx-link'></i> Payme-ga beriladigan Callback URL
                 </label>
-                <div style="display: flex; gap: 8px; align-items: center;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
                     <input type="text" readonly id="callback-url"
                            value="{{ request.host_url.rstrip('/') }}/payments/payme/callback"
-                           style="flex: 1; padding: 10px 14px; border-radius: 10px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff; font-size: 13px; font-family: monospace;">
-                    <button type="button" onclick="copyCallback()"
-                            style="padding: 10px 16px; border-radius: 10px; background: var(--primary-color); color: #000; border: none; font-weight: 700; cursor: pointer; font-size: 13px; white-space: nowrap;">
+                           class="modern-input" style="font-family: monospace; color: #a0aec0;">
+                    <button type="button" onclick="copyCallback()" class="btn-glow primary" style="padding: 14px 20px;">
                         <i class='bx bx-copy'></i> Nusxa
                     </button>
                 </div>
-                <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Bu linkni Payme merchant kabinetidagi <strong style="color: #fff;">Merchant URL</strong> maydoniga kiriting.</p>
+                <p style="font-size: 0.8rem; color: #718096; margin-top: 10px;">Bu linkni Payme merchant kabinetidagi <strong style="color: #e2e8f0;">Merchant URL</strong> maydoniga kiriting.</p>
             </div>
 
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Merchant ID</label>
-                <input type="text" name="merchant_id" value="{{ settings.payme_merchant_id or '' }}" 
-                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
-                       placeholder="Masalan: 64f12d...">
-            </div>
-
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Account Field nomi</label>
-                <select name="account_field" style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;">
-                    <option value="phone" {% if settings.payme_account_field == 'phone' or not settings.payme_account_field %}selected{% endif %}>phone</option>
-                    <option value="phone_number" {% if settings.payme_account_field == 'phone_number' %}selected{% endif %}>phone_number</option>
-                </select>
-                <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Payme merchant kabinetidagi <strong style="color:#fff;">Account parametri</strong> nomi bilan mos kelishi kerak.</p>
-            </div>
-
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Secret Key</label>
-                <input type="password" name="secret_key" value="{{ settings.payme_secret_key or '' }}" 
-                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
-                       placeholder="Sizning maxfiy kalitingiz">
-            </div>
-
-            <div style="margin-bottom: 24px;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Test Key (Qumloq rejimi)</label>
-                <input type="text" name="test_key" value="{{ settings.payme_test_key or '' }}" 
-                       style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;" 
-                       placeholder="Test amaliyotlar uchun kalit">
-            </div>
-
-            <div style="margin-bottom: 32px; display: flex; align-items: center; gap: 12px;">
-                <input type="checkbox" name="is_test_mode" id="test_mode" {% if settings.is_test_mode %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
-                <label for="test_mode" style="font-size: 14px; cursor: pointer;">Test (Sandbox) rejimini yoqish</label>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;">
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Minimal to'ldirish summasi (UZS)</label>
-                    <input type="number" name="min_topup_amount" value="{{ settings.min_topup_amount or 1000 }}"
-                           style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;"
-                           placeholder="Masalan: 1000">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Maksimal to'ldirish summasi (UZS)</label>
-                    <input type="number" name="max_topup_amount" value="{{ settings.max_topup_amount or 10000000 }}"
-                           style="width: 100%; padding: 12px; border-radius: 12px; background: #0c0d0e; border: 1px solid var(--border-color); color: #fff;"
-                           placeholder="Masalan: 10000000">
+            <div class="form-group">
+                <label class="form-label">Merchant ID</label>
+                <div style="position: relative;">
+                    <i class='bx bx-id-card' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="text" name="merchant_id" value="{{ settings.payme_merchant_id or '' }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Masalan: 64f12d...">
                 </div>
             </div>
 
-            <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 14px; cursor: pointer;">
-                Saqlash
+            <div class="form-group">
+                <label class="form-label">Account Field nomi</label>
+                <div style="position: relative;">
+                    <i class='bx bx-tag-alt' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <select name="account_field" class="modern-input" style="padding-left: 45px; appearance: none; -webkit-appearance: none;">
+                        <option value="phone" {% if settings.payme_account_field == 'phone' or not settings.payme_account_field %}selected{% endif %} style="background: var(--bg-color);">phone</option>
+                        <option value="phone_number" {% if settings.payme_account_field == 'phone_number' %}selected{% endif %} style="background: var(--bg-color);">phone_number</option>
+                    </select>
+                    <i class='bx bx-chevron-down' style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                </div>
+                <p style="font-size: 0.8rem; color: #718096; margin-top: 8px;">Payme merchant kabinetidagi <strong style="color:#e2e8f0;">Account parametri</strong> nomi bilan mos kelishi kerak.</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Secret Key</label>
+                <div style="position: relative;">
+                    <i class='bx bx-key' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="password" name="secret_key" value="{{ settings.payme_secret_key or '' }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Sizning maxfiy kalitingiz">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Test Key (Qumloq rejimi uchun)</label>
+                <div style="position: relative;">
+                    <i class='bx bx-shield-quarter' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="text" name="test_key" value="{{ settings.payme_test_key or '' }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Test amaliyotlar uchun kalit">
+                </div>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-top: 30px;">
+                <div class="checkbox-wrapper" style="position: relative;">
+                    <input type="checkbox" name="is_test_mode" id="test_mode" {% if settings.is_test_mode %}checked{% endif %} 
+                           style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-color);">
+                </div>
+                <label for="test_mode" style="font-size: 0.95rem; cursor: pointer; color: #e2e8f0; user-select: none;">
+                    Payme <span class="badge-glow" style="margin-left: 5px;">Test (Sandbox)</span> rejimini yoqish
+                </label>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; margin-bottom: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px;">
+                <div class="form-group mb-0">
+                    <label class="form-label">Min to'ldirish summasi (UZS)</label>
+                    <div style="position: relative;">
+                        <input type="number" name="min_topup_amount" value="{{ settings.min_topup_amount or 1000 }}"
+                               class="modern-input" placeholder="Masalan: 1000">
+                    </div>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">Max to'ldirish summasi (UZS)</label>
+                    <div style="position: relative;">
+                        <input type="number" name="max_topup_amount" value="{{ settings.max_topup_amount or 10000000 }}"
+                               class="modern-input" placeholder="Masalan: 10000000">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-glow primary" style="width: 100%; padding: 16px; font-size: 1rem;">
+                <i class='bx bx-save'></i> Sozlamalarni Saqlash
             </button>
         </form>
     </div>
@@ -107,9 +130,11 @@ function copyCallback() {
         const btn = document.querySelector('[onclick="copyCallback()"]');
         btn.innerHTML = "<i class='bx bx-check'></i> Nusxalandi!";
         btn.style.background = 'var(--success)';
+        btn.style.color = '#fff';
         setTimeout(() => {
             btn.innerHTML = "<i class='bx bx-copy'></i> Nusxa";
             btn.style.background = 'var(--primary-color)';
+            btn.style.color = '#000';
         }, 2000);
     });
 }
