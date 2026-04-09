@@ -251,10 +251,13 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
             })
 
         owner_id = user_context.id if user_context else (target.id if hasattr(target, 'user_id') is False else target.user_id)
+        # user_context mavjud = per-org callback = haydovchi to'lovi
+        # user_context None  = global callback   = user o'z balansi
+        trans_type = 'driver_payment' if user_context else 'balance_topup'
         trans = Transaction(
             user_id=owner_id,
             amount=amount / 100,
-            type='topup',
+            type=trans_type,
             status='pending',
             payme_trans_id=payme_id
         )

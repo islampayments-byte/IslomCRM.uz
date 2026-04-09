@@ -262,31 +262,35 @@ def finance():
 def reports():
     """
     Hisobotlar bo'limi.
-    Joriy taksopark uchun barcha tranzaksiyalar (haydovchilar to'lovlari).
+    Faqat haydovchilar tranzaksiyalarini ko'rsatadi (driver_payment).
+    User o'z balansini to'ldirganda bu yerda ko'rinmaydi.
     """
-    from sqlalchemy import func
-    import datetime
-
     # Filter params
     status_filter = request.args.get('status', 'all')
     
-    # Base query — faqat shu taksoparkka tegishli tranzaksiyalar
-    query = Transaction.query.filter_by(user_id=current_user.id)
+    # Faqat haydovchi to'lovlari — type='driver_payment'
+    query = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        Transaction.type == 'driver_payment'
+    )
     if status_filter != 'all':
         query = query.filter_by(status=status_filter)
     
     transactions = query.order_by(Transaction.id.desc()).all()
 
-    # Summary stats
-    all_trans = Transaction.query.filter_by(user_id=current_user.id).all()
+    # Summary stats (faqat driver_payment)
+    all_driver_trans = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        Transaction.type == 'driver_payment'
+    ).all()
     
-    total_count   = len(all_trans)
-    success_count = sum(1 for t in all_trans if t.status == 'success')
-    pending_count = sum(1 for t in all_trans if t.status == 'pending')
-    failed_count  = sum(1 for t in all_trans if t.status == 'failed')
+    total_count   = len(all_driver_trans)
+    success_count = sum(1 for t in all_driver_trans if t.status == 'success')
+    pending_count = sum(1 for t in all_driver_trans if t.status == 'pending')
+    failed_count  = sum(1 for t in all_driver_trans if t.status == 'failed')
     
-    total_amount   = sum(t.amount for t in all_trans if t.status == 'success')
-    pending_amount = sum(t.amount for t in all_trans if t.status == 'pending')
+    total_amount   = sum(t.amount for t in all_driver_trans if t.status == 'success')
+    pending_amount = sum(t.amount for t in all_driver_trans if t.status == 'pending')
 
     # Drivers lookup map for phone display
     drivers = Driver.query.filter_by(user_id=current_user.id).all()
@@ -405,11 +409,11 @@ def topup_payme():
         # 2. Redirect to Payme checkout
         payme_redirect_url = f"{checkout_base}/{receipt_id}"
 
-        # Create pending transaction locally
+        # Create pending transaction locally (balance_topup = user o'z balansi)
         new_trans = Transaction(
             user_id=current_user.id,
             amount=amount,
-            type='topup',
+            type='balance_topup',
             status='pending',
             payme_trans_id=receipt_id 
         )
