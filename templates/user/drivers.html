@@ -48,7 +48,7 @@
                 </thead>
                 <tbody>
                     {% for driver in drivers %}
-                    {% set has_phone = driver.phones|length > 0 %}
+                    {% set has_phone = driver.phones and driver.phones|length > 0 %}
                     <tr class="driver-row" data-has-phone="{{ 'true' if has_phone else 'false' }}" style="border-bottom: 1px solid var(--border-color);">
                         <td class="driver-name" style="padding: 16px 24px; font-weight: 600;">
                             <i class='bx bx-user-circle' style="color: var(--primary-color); margin-right: 8px;"></i>
