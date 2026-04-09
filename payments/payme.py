@@ -26,6 +26,42 @@ def get_phone(account: dict) -> str:
     return account.get('phone') or account.get('phone_number') or ''
 
 
+def find_user_by_phone(phone_raw, user_id=None):
+    """
+    Find a User or Driver by phone number.
+    Tries multiple formats: +998XXXXXXXXX, 998XXXXXXXXX, XXXXXXXXX
+    If user_id given, searches Driver table for that taksopark.
+    Otherwise searches User table.
+    """
+    phone = phone_raw.strip()
+    # Build list of variants to try
+    digits = phone.lstrip('+')
+    variants = [
+        f'+{digits}',         # +998991476534
+        digits,               # 998991476534
+    ]
+    # If only 9 digits (local format), add UZ prefix
+    if len(digits) == 9:
+        variants.append(f'+998{digits}')
+        variants.append(f'998{digits}')
+
+    if user_id is not None:
+        for v in variants:
+            obj = Driver.query.filter_by(user_id=user_id).filter(
+                (Driver.phone == v) | (Driver.phone == v.replace('+', ''))
+            ).first()
+            if obj:
+                return obj
+    else:
+        for v in variants:
+            obj = User.query.filter(
+                (User.phone == v) | (User.phone == v.replace('+', ''))
+            ).first()
+            if obj:
+                return obj
+    return None
+
+
 def auth_error(req_id=None):
     """Payme spec: auth errors MUST return HTTP 200 with error code -32504."""
     return _json_response({
@@ -168,20 +204,10 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
         if not phone:
             return payme_error(req_id, -31050, {"uz": "Telefon raqam kiritilmagan", "ru": "Телефон не указан"})
 
-        phone_clean = phone.lstrip('+')
+        found = find_user_by_phone(phone, user_id=user_context.id if user_context else None)
 
-        if user_context:
-            # Taksopark: check only their drivers
-            user_obj = Driver.query.filter_by(user_id=user_context.id).filter(
-                (Driver.phone == f'+{phone_clean}') | (Driver.phone == phone)
-            ).first()
-        else:
-            # Global: check User table by phone
-            user_obj = User.query.filter(
-                (User.phone == f'+{phone_clean}') | (User.phone == phone)
-            ).first()
-
-        if not user_obj:
+        if not found:
+            logging.warning(f"Phone not found: '{phone}' | user_context: {user_context.id if user_context else 'global'}")
             return payme_error(req_id, -31050, {"uz": "Foydalanuvchi topilmadi", "ru": "Пользователь не найден"})
 
         min_t = (settings.min_topup_amount if settings else 1000) * 100
@@ -202,18 +228,10 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
         if not phone:
             return payme_error(req_id, -31050, {"uz": "Telefon kiritilmagan"})
 
-        phone_clean = phone.lstrip('+')
-
-        if user_context:
-            target = Driver.query.filter_by(user_id=user_context.id).filter(
-                (Driver.phone == f'+{phone_clean}') | (Driver.phone == phone)
-            ).first()
-        else:
-            target = User.query.filter(
-                (User.phone == f'+{phone_clean}') | (User.phone == phone)
-            ).first()
+        target = find_user_by_phone(phone, user_id=user_context.id if user_context else None)
 
         if not target:
+            logging.warning(f"CreateTransaction: Phone not found: '{phone}'")
             return payme_error(req_id, -31050, {"uz": "Foydalanuvchi topilmadi"})
 
         min_t = (settings.min_topup_amount if settings else 1000) * 100
