@@ -109,13 +109,16 @@
         <div style="display: flex; gap: 15px; align-items: center;">
             <div style="position: relative;">
                 <i class='bx bx-search' style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
-                <input type="text" id="driverSearch" class="modern-search-input" placeholder="Ism orqali qidirish...">
+                <input type="text" id="driverSearch" class="modern-search-input" placeholder="Ism yoki raqam orqali qidirish...">
             </div>
-            <select id="driverFilter" class="modern-select">
-                <option value="all">Barchasi</option>
-                <option value="with_phone">Raqami borlar</option>
-                <option value="no_phone">Raqami yo'qlar</option>
-            </select>
+            <div style="position: relative;">
+                <select id="driverFilter" class="modern-select" style="appearance: none; -webkit-appearance: none; padding-right: 36px;">
+                    <option value="all" style="background: #111; color: #fff; padding: 10px;">Barchasi</option>
+                    <option value="with_phone" style="background: #111; color: #fff; padding: 10px;">Raqami borlar</option>
+                    <option value="no_phone" style="background: #111; color: #fff; padding: 10px;">Raqami yo'qlar</option>
+                </select>
+                <i class='bx bx-chevron-down' style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--primary-color); pointer-events: none; font-size: 18px;"></i>
+            </div>
         </div>
         {% endif %}
     </div>
@@ -153,7 +156,7 @@
                             </div>
                             <span style="color: #fff;">{{ driver.first_name }} {{ driver.last_name }}</span>
                         </td>
-                        <td style="padding: 18px 24px;">
+                        <td class="driver-phone" style="padding: 18px 24px;">
                             {% if has_phone %}
                                 {% for phone in driver.phones %}
                                     <div class="phone-badge"><i class='bx bxs-phone' style="color: var(--text-muted);"></i> {{ phone }}</div>
@@ -218,9 +221,11 @@
         
         rows.forEach(row => {
             let name = row.querySelector('.driver-name').innerText.toLowerCase();
+            let phone = row.querySelector('.driver-phone').innerText.toLowerCase();
             let hasPhone = row.getAttribute('data-has-phone');
             
-            let matchesSearch = name.includes(searchTerm);
+            let combinedSearchText = name + " " + phone;
+            let matchesSearch = combinedSearchText.includes(searchTerm);
             let matchesFilter = true;
             
             if(filterValue === 'with_phone' && hasPhone === 'false') matchesFilter = false;
