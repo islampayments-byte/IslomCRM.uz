@@ -4,17 +4,114 @@
 {% block page_title %}Haydovchilar Boshqaruvi{% endblock %}
 
 {% block content %}
-<div class="table-container">
-    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 15px;">
-        <h3><i class='bx bx-group' style="color: var(--primary-color);"></i> Yandex Haydovchilar Bazasi</h3>
+<style>
+    /* Premium Haydovchilar Jadvali Dizayni */
+    .driver-table-wrapper {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+    
+    .table-header-custom {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 24px; 
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+        flex-wrap: wrap; 
+        gap: 15px;
+        background: linear-gradient(90deg, rgba(255,204,0,0.05) 0%, rgba(0,0,0,0) 100%);
+    }
+
+    .modern-search-input {
+        padding: 12px 20px 12px 45px;
+        width: 280px; 
+        background: rgba(0,0,0,0.4); 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        color: #fff; 
+        border-radius: 12px;
+        transition: all 0.3s;
+        font-family: 'Inter', sans-serif;
+    }
+    .modern-search-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 15px rgba(255,204,0,0.2);
+        background: rgba(0,0,0,0.6);
+    }
+
+    .modern-select {
+        background: rgba(0,0,0,0.4); 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        color: #fff; 
+        padding: 12px 18px; 
+        border-radius: 12px; 
+        outline: none; 
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: 'Inter', sans-serif;
+    }
+    .modern-select:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    .modern-select:focus {
+        border-color: var(--primary-color);
+    }
+
+    .driver-row {
+        transition: all 0.2s ease-in-out;
+    }
+    .driver-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+        transform: scale(1.002);
+    }
+
+    .driver-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(255, 204, 0, 0.15);
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-right: 12px;
+        border: 1px solid rgba(255, 204, 0, 0.3);
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.1);
+    }
+    
+    .phone-badge {
+        display: inline-flex; 
+        align-items: center; 
+        gap: 6px; 
+        background: rgba(255,255,255,0.05); 
+        padding: 6px 12px; 
+        border-radius: 8px; 
+        border: 1px solid rgba(255,255,255,0.05);
+        font-family: monospace;
+        letter-spacing: 0.5px;
+    }
+</style>
+
+<div class="table-container driver-table-wrapper">
+    <div class="table-header-custom">
+        <h3 style="display: flex; align-items: center; gap: 10px; font-size: 1.25rem;">
+            <div style="padding: 8px; background: rgba(255,204,0,0.1); border-radius: 10px;">
+                <i class='bx bx-group' style="color: var(--primary-color);"></i>
+            </div>
+            Yandex Haydovchilar Bazasi
+        </h3>
         
         {% if current_user.yandex_keys_active and not error_msg %}
         <div style="display: flex; gap: 15px; align-items: center;">
             <div style="position: relative;">
-                <i class='bx bx-search' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
-                <input type="text" id="driverSearch" class="modern-input" placeholder="Ism orqali qidirish..." style="padding-left: 45px; width: 250px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding-top: 10px; padding-bottom: 10px; border-radius: 12px;">
+                <i class='bx bx-search' style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                <input type="text" id="driverSearch" class="modern-search-input" placeholder="Ism orqali qidirish...">
             </div>
-            <select id="driverFilter" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding: 10px 15px; border-radius: 12px; outline: none; cursor: pointer;">
+            <select id="driverFilter" class="modern-select">
                 <option value="all">Barchasi</option>
                 <option value="with_phone">Raqami borlar</option>
                 <option value="no_phone">Raqami yo'qlar</option>
@@ -41,27 +138,29 @@
         <div style="overflow-x: auto; padding: 0;" class="custom-scrollbar">
             <table class="data-table" style="width: 100%;">
                 <thead>
-                    <tr>
-                        <th style="padding: 16px 24px; color: var(--text-muted); font-size: 13px;">Haydovchi Ism va Familiyasi</th>
-                        <th style="padding: 16px 24px; color: var(--text-muted); font-size: 13px;">Telefon Raqami</th>
+                    <tr style="background: rgba(0,0,0,0.2);">
+                        <th style="padding: 18px 24px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Haydovchi Ism va Familiyasi</th>
+                        <th style="padding: 18px 24px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Telefon Raqami</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for driver in drivers %}
                     {% set has_phone = driver.phones and driver.phones|length > 0 %}
-                    <tr class="driver-row" data-has-phone="{{ 'true' if has_phone else 'false' }}" style="border-bottom: 1px solid var(--border-color);">
-                        <td class="driver-name" style="padding: 16px 24px; font-weight: 600;">
-                            <i class='bx bx-user-circle' style="color: var(--primary-color); margin-right: 8px;"></i>
-                            {{ driver.first_name }} {{ driver.last_name }}
+                    <tr class="driver-row" data-has-phone="{{ 'true' if has_phone else 'false' }}" style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                        <td class="driver-name" style="padding: 18px 24px; font-weight: 500; font-size: 15px; display: flex; align-items: center;">
+                            <div class="driver-avatar">
+                                <i class='bx bx-user'></i>
+                            </div>
+                            <span style="color: #fff;">{{ driver.first_name }} {{ driver.last_name }}</span>
                         </td>
-                        <td style="padding: 16px 24px; font-family: monospace; color: #a0aec0;">
+                        <td style="padding: 18px 24px;">
                             {% if has_phone %}
                                 {% for phone in driver.phones %}
-                                    <div><i class='bx bx-phone' style="font-size: 12px; margin-right: 4px;"></i>{{ phone }}</div>
+                                    <div class="phone-badge"><i class='bx bxs-phone' style="color: var(--text-muted);"></i> {{ phone }}</div>
                                 {% endfor %}
                             {% else %}
-                                <div onclick="openDismissModal()" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #e74c3c; background: rgba(231, 76, 60, 0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(231, 76, 60, 0.3); transition: all 0.3s;">
-                                    <i class='bx bx-error-circle bx-burst-hover' style="font-size: 16px;"></i> Raqam yo'q
+                                <div onclick="openDismissModal()" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255, 107, 107, 0.3); transition: all 0.3s; font-size: 13px; font-weight: 600;">
+                                    <i class='bx bx-error-circle bx-tada-hover' style="font-size: 18px;"></i> Raqam yo'q
                                 </div>
                             {% endif %}
                         </td>
