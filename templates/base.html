@@ -62,7 +62,7 @@
                                 Sizning Profilingiz
                                 {% endif %}
                             </span>
-                            <span class="location">Uzbekistan</span>
+                            <span class="location" style="color: var(--primary-color);">{% if current_user.yandex_keys_active and current_user.yandex_park_name %}{{ current_user.yandex_park_name }}{% else %}Uzbekistan{% endif %}</span>
                         </div>
                     </div>
                 </div>

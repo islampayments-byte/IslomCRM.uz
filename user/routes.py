@@ -132,12 +132,24 @@ def save_yandex_keys():
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
         if response.status_code == 200:
+            data = response.json()
+            
+            # Extract park name if available
+            park_name = "Yandex Taksopark"
+            try:
+                parks_data = data.get('parks', [])
+                if parks_data and isinstance(parks_data, list):
+                    park_name = parks_data[0].get('name', 'Yandex Taksopark')
+            except Exception as e:
+                logging.error(f"Failed to parse park name: {e}")
+
+            current_user.yandex_park_name = park_name
             current_user.yandex_park_id = park_id.strip()
             current_user.yandex_client_id = client_id.strip()
             current_user.yandex_api_key = api_key.strip()
             current_user.yandex_keys_active = True
             db.session.commit()
-            flash("Yandex API kalitlari muvaffaqiyatli saqlandi va bog'landi!", "success")
+            flash(f"Yandex API kalitlari muvaffaqiyatli saqlandi va bog'landi! (Park: {park_name})", "success")
         else:
             flash(f"Kalitlar aktiv emas yoki xato (Status: {response.status_code}). Boshqatdan urinib ko'ring.", "danger")
             logging.error(f"Yandex API klyuch test xatosi: {response.text}")

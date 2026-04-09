@@ -24,6 +24,7 @@ class User(db.Model, UserMixin):
     balance = db.Column(db.Float, default=0.0)
     
     # Yandex Fleet Integration
+    yandex_park_name = db.Column(db.String(255))
     yandex_park_id = db.Column(db.String(255))
     yandex_client_id = db.Column(db.String(255))
     yandex_api_key = db.Column(db.String(255))

@@ -17,6 +17,7 @@ conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 columns_to_add = [
+    "yandex_park_name VARCHAR(255)",
     "yandex_park_id VARCHAR(255)",
     "yandex_client_id VARCHAR(255)",
     "yandex_api_key VARCHAR(255)",
