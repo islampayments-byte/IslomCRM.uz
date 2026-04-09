@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% block title %}Hisobotlar{% endblock %}
+{% block page_title %}Hisobotlar{% endblock %}
+
+{% block head %}
+<style>
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.report-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+.report-card:hover { transform: translateY(-2px); }
+.report-card.success { border-color: rgba(34,197,94,0.3); }
+.report-card.pending { border-color: rgba(251,191,36,0.3); }
+.report-card.failed  { border-color: rgba(239,68,68,0.3); }
+.report-card.total   { border-color: rgba(59,130,246,0.3); }
+
+.report-icon {
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+.success .report-icon { background: rgba(34,197,94,0.1);  color: #22c55e; }
+.pending .report-icon { background: rgba(251,191,36,0.1); color: #fbbf24; }
+.failed  .report-icon { background: rgba(239,68,68,0.1);  color: #ef4444; }
+.total   .report-icon { background: rgba(59,130,246,0.1); color: #3b82f6; }
+
+.report-info .label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.report-info .value { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+.report-info .sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Filter tabs */
+.filter-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.filter-tab {
+    padding: 8px 18px; border-radius: 30px; font-size: 13px;
+    font-weight: 600; text-decoration: none; border: 1px solid var(--border-color);
+    color: var(--text-muted); background: transparent; cursor: pointer;
+    transition: all 0.2s;
+}
+.filter-tab:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.filter-tab.active-all    { background: rgba(59,130,246,0.15);  border-color: #3b82f6; color: #3b82f6; }
+.filter-tab.active-success { background: rgba(34,197,94,0.15);  border-color: #22c55e; color: #22c55e; }
+.filter-tab.active-pending { background: rgba(251,191,36,0.15); border-color: #fbbf24; color: #fbbf24; }
+.filter-tab.active-failed  { background: rgba(239,68,68,0.15);  border-color: #ef4444; color: #ef4444; }
+
+/* Table */
+.reports-table-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.reports-table-header {
+    padding: 18px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+}
+.reports-table {
+    width: 100%; border-collapse: collapse;
+}
+.reports-table th {
+    padding: 12px 16px; text-align: left;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted);
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border-color);
+}
+.reports-table td {
+    padding: 14px 16px; font-size: 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+}
+.reports-table tr:last-child td { border-bottom: none; }
+.reports-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.badge-success { background: rgba(34,197,94,0.1);  color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+.badge-pending { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.badge-failed  { background: rgba(239,68,68,0.1);  color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+
+.amount-cell { font-weight: 700; color: var(--text-primary); font-size: 15px; }
+.amount-cell.success-amount { color: #22c55e; }
+
+.empty-state {
+    text-align: center; padding: 60px 20px;
+}
+.empty-state i { font-size: 56px; color: var(--text-muted); opacity: 0.4; display: block; margin-bottom: 16px; }
+.empty-state p { color: var(--text-muted); font-size: 15px; }
+
+.driver-name { font-weight: 600; color: var(--text-primary); display: block; }
+.driver-phone { font-size: 12px; color: var(--text-muted); }
+
+.trans-id { font-family: monospace; font-size: 11px; color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert-box alert-{{ category }}">
+        <i class='bx {% if category == "success" %}bx-check-circle{% elif category == "danger" %}bx-error-circle{% else %}bx-info-circle{% endif %}'></i>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="dashboard-header mb-4 mt-2">
+    <div>
+        <h2 class="text-gradient">Hisobotlar</h2>
+        <p class="text-muted">Barcha to'lov tranzaksiyalari va haydovchilar balanslari</p>
+    </div>
+</div>
+
+<!-- Summary cards -->
+<div class="reports-grid">
+    <div class="report-card total">
+        <div class="report-icon"><i class='bx bx-list-ul'></i></div>
+        <div class="report-info">
+            <div class="label">Jami tranzaksiyalar</div>
+            <div class="value">{{ total_count }}</div>
+            <div class="sub">Barcha vaqt uchun</div>
+        </div>
+    </div>
+    <div class="report-card success">
+        <div class="report-icon"><i class='bx bx-check-circle'></i></div>
+        <div class="report-info">
+            <div class="label">Muvaffaqiyatli</div>
+            <div class="value">{{ success_count }}</div>
+            <div class="sub">{{ "{:,.0f}".format(total_amount).replace(',', ' ') }} UZS</div>
+        </div>
+    </div>
+    <div class="report-card pending">
+        <div class="report-icon"><i class='bx bx-time-five'></i></div>
+        <div class="report-info">
+            <div class="label">Kutilmoqda</div>
+            <div class="value">{{ pending_count }}</div>
+            <div class="sub">{{ "{:,.0f}".format(pending_amount).replace(',', ' ') }} UZS</div>
+        </div>
+    </div>
+    <div class="report-card failed">
+        <div class="report-icon"><i class='bx bx-x-circle'></i></div>
+        <div class="report-info">
+            <div class="label">Bekor qilingan</div>
+            <div class="value">{{ failed_count }}</div>
+            <div class="sub">Rad etilgan to'lovlar</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter tabs -->
+<div class="filter-tabs">
+    <a href="{{ url_for('user.reports') }}?status=all"
+       class="filter-tab {% if status_filter == 'all' %}active-all{% endif %}">
+        <i class='bx bx-list-ul'></i> Barchasi ({{ total_count }})
+    </a>
+    <a href="{{ url_for('user.reports') }}?status=success"
+       class="filter-tab {% if status_filter == 'success' %}active-success{% endif %}">
+        <i class='bx bx-check'></i> Muvaffaqiyatli ({{ success_count }})
+    </a>
+    <a href="{{ url_for('user.reports') }}?status=pending"
+       class="filter-tab {% if status_filter == 'pending' %}active-pending{% endif %}">
+        <i class='bx bx-time'></i> Kutilmoqda ({{ pending_count }})
+    </a>
+    <a href="{{ url_for('user.reports') }}?status=failed"
+       class="filter-tab {% if status_filter == 'failed' %}active-failed{% endif %}">
+        <i class='bx bx-x'></i> Bekor qilingan ({{ failed_count }})
+    </a>
+</div>
+
+<!-- Transactions table -->
+<div class="reports-table-wrap">
+    <div class="reports-table-header">
+        <h3 style="font-size: 16px; font-weight: 700; margin: 0;">
+            <i class='bx bx-receipt' style="color: var(--primary-color); margin-right: 8px;"></i>
+            Tranzaksiyalar jadvali
+        </h3>
+        <span style="font-size: 13px; color: var(--text-muted);">{{ transactions|length }} ta natija</span>
+    </div>
+
+    {% if transactions %}
+    <div style="overflow-x: auto;">
+        <table class="reports-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Haydovchi / Telefon</th>
+                    <th>Summa</th>
+                    <th>Holat</th>
+                    <th>Sana</th>
+                    <th>Payme ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                {% set driver = driver_map.get(t.user.phone if t.user else '') %}
+                <tr>
+                    <td style="color: var(--text-muted); font-size: 13px;">{{ t.id }}</td>
+                    <td>
+                        {% if t.user %}
+                            {% set phone_digits = t.user.phone.replace('+', '') %}
+                            {% set d = driver_map.get(t.user.phone) or driver_map.get(phone_digits) %}
+                            {% if d %}
+                                <span class="driver-name">{{ d.first_name }} {{ d.last_name }}</span>
+                                <span class="driver-phone">{{ d.phone }}</span>
+                            {% else %}
+                                <span class="driver-name">{{ t.user.phone }}</span>
+                                <span class="driver-phone" style="color: rgba(59,130,246,0.7);">Platform foydalanuvchi</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="driver-phone">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="amount-cell {% if t.status == 'success' %}success-amount{% endif %}">
+                            {{ "{:,.0f}".format(t.amount).replace(',', ' ') }} <small style="font-size: 11px; font-weight: 500;">UZS</small>
+                        </span>
+                    </td>
+                    <td>
+                        {% if t.status == 'success' %}
+                            <span class="badge badge-success"><i class='bx bx-check'></i> To'landi</span>
+                        {% elif t.status == 'pending' %}
+                            <span class="badge badge-pending"><i class='bx bx-time-five'></i> Kutilmoqda</span>
+                        {% else %}
+                            <span class="badge badge-failed"><i class='bx bx-x'></i> Bekor</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 13px; color: var(--text-muted);">
+                        {% if t.created_at %}
+                            {{ t.created_at.strftime('%d.%m.%Y') }}<br>
+                            <small>{{ t.created_at.strftime('%H:%M') }}</small>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if t.payme_trans_id %}
+                            <span class="trans-id">{{ t.payme_trans_id[:16] }}...</span>
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class='bx bx-receipt'></i>
+        <p>Hozircha hech qanday tranzaksiya mavjud emas</p>
+        <small style="color: var(--text-muted); font-size: 13px;">
+            Haydovchilar Payme orqali to'lov qilganda bu yerda ko'rinadi
+        </small>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

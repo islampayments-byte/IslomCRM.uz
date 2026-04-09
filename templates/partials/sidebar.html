@@ -110,8 +110,8 @@
             </li>
             {% endif %}
             <li>
-                <a href="#" class="{{ 'active' if request.endpoint == 'user.reports' }}">
-                    <i class='bx bx-file'></i>
+                <a href="{{ url_for('user.reports') }}" class="{{ 'active' if request.endpoint == 'user.reports' }}">
+                    <i class='bx bx-bar-chart-alt-2'></i>
                     <span class="link_name">Hisobotlar</span>
                 </a>
             </li>

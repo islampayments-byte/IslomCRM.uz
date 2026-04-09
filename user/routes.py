@@ -257,6 +257,54 @@ def finance():
                           max_amount=max_amount,
                           transactions=transactions)
 
+@user_bp.route('/reports')
+@login_required
+def reports():
+    """
+    Hisobotlar bo'limi.
+    Joriy taksopark uchun barcha tranzaksiyalar (haydovchilar to'lovlari).
+    """
+    from sqlalchemy import func
+    import datetime
+
+    # Filter params
+    status_filter = request.args.get('status', 'all')
+    
+    # Base query — faqat shu taksoparkka tegishli tranzaksiyalar
+    query = Transaction.query.filter_by(user_id=current_user.id)
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+    
+    transactions = query.order_by(Transaction.id.desc()).all()
+
+    # Summary stats
+    all_trans = Transaction.query.filter_by(user_id=current_user.id).all()
+    
+    total_count   = len(all_trans)
+    success_count = sum(1 for t in all_trans if t.status == 'success')
+    pending_count = sum(1 for t in all_trans if t.status == 'pending')
+    failed_count  = sum(1 for t in all_trans if t.status == 'failed')
+    
+    total_amount   = sum(t.amount for t in all_trans if t.status == 'success')
+    pending_amount = sum(t.amount for t in all_trans if t.status == 'pending')
+
+    # Drivers lookup map for phone display
+    drivers = Driver.query.filter_by(user_id=current_user.id).all()
+    driver_map = {d.phone: d for d in drivers}
+    driver_map.update({d.phone.replace('+', ''): d for d in drivers if d.phone})
+
+    return render_template('user/reports.html',
+        transactions=transactions,
+        status_filter=status_filter,
+        total_count=total_count,
+        success_count=success_count,
+        pending_count=pending_count,
+        failed_count=failed_count,
+        total_amount=total_amount,
+        pending_amount=pending_amount,
+        driver_map=driver_map,
+    )
+
 @user_bp.route('/topup/payme', methods=['POST'])
 @login_required
 def topup_payme():
