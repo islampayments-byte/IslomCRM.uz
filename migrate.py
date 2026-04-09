@@ -93,11 +93,13 @@ CREATE TABLE IF NOT EXISTS transactions (
     type VARCHAR(20),
     status VARCHAR(20) DEFAULT 'pending',
     payme_trans_id VARCHAR(100) UNIQUE,
+    click_trans_id VARCHAR(100) UNIQUE,
     created_at DATETIME,
     FOREIGN KEY(user_id) REFERENCES users(id)
 )
 """)
 add_column('transactions', 'payer_phone', 'VARCHAR(50)')
+add_column('transactions', 'click_trans_id', 'VARCHAR(100)')
 print("  [=] transactions jadvali mavjud yoki yaratildi")
 
 
