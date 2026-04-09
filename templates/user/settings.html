@@ -4,111 +4,95 @@
 {% block page_title %}Tizim Sozlamalari{% endblock %}
 
 {% block content %}
-<div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
-    <div class="card-header" style="margin-bottom: 32px;">
-        <h3><i class='bx bx-cog' style="color: var(--primary-color);"></i> Shaxsiy sozlamalar</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Hisobingiz va tizim haqidagi sozlamalarni boshqaring.</p>
+<div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px; position: relative; overflow: hidden;">
+    <div class="card-glow" style="background: var(--primary-color);"></div>
+    <div class="card-header" style="margin-bottom: 32px; position: relative; z-index: 1;">
+        <h3><i class='bx bxl-yandex' style="color: #ffcc00; font-size: 24px;"></i> Yandex Fleet API Sozlamalari</h3>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Taksoparkingizni IslomCRM bilan avtomatik bog'lash ustasi.</p>
     </div>
 
-    <form method="POST" action="#">
-        <!-- PIN Change Section -->
-        <div style="margin-bottom: 32px; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid var(--border-color);">
-            <h4 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class='bx bx-lock-alt' style="color: var(--warning);"></i> PIN kodni o'zgartirish
-            </h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Hozirgi PIN</label>
-                    <input type="password" maxlength="4" placeholder="****" 
-                           style="width: 100%; padding: 12px; border-radius: 12px; background: #000; border: 1px solid var(--border-color); color: #fff; text-align: center; letter-spacing: 8px;">
+    {% if current_user.yandex_keys_active %}
+        <!-- Keys are actively set -->
+        <div style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); padding: 30px; border-radius: 20px; text-align: center; position: relative; z-index: 1;">
+            <i class='bx bx-check-shield' style="font-size: 64px; color: #2ecc71; margin-bottom: 15px;"></i>
+            <h4 style="color: #fff; margin-bottom: 10px; font-size: 1.2rem;">Sizning kalitlaringiz muvaffaqiyatli saqlangan</h4>
+            <p style="color: #a0aec0; font-size: 0.95rem; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Yandex Fleet integratsiyasi aktiv holatda. Endi sizning haydovchilaringiz to'lov qilganda mablag'lari to'g'ridan to'g'ri Yandex balansiga avtomatik tushadi.
+            </p>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; display: inline-block; text-align: left; min-width: 300px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #a0aec0; font-size: 13px;">Park ID:</span>
+                    <span style="color: #fff; font-family: monospace;">{{ current_user.yandex_park_id[:5] }}...{{ current_user.yandex_park_id[-4:] }}</span>
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Yangi PIN</label>
-                    <input type="password" maxlength="4" placeholder="****" 
-                           style="width: 100%; padding: 12px; border-radius: 12px; background: #000; border: 1px solid var(--border-color); color: #fff; text-align: center; letter-spacing: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #a0aec0; font-size: 13px;">Holat:</span>
+                    <span style="color: #2ecc71; font-weight: 600; font-size: 13px;">BOG'LANGAN</span>
                 </div>
             </div>
+            <p style="color: rgba(255,255,255,0.3); font-size: 12px; margin-top: 25px;">
+                <i class='bx bx-info-circle'></i> Xavfsizlik maqsadida kalitlarni o'zingiz o'zgartira olmaysiz. Agar o'zgartirish zarurati bo'lsa administratorga murojaat qiling.
+            </p>
         </div>
-
-        <!-- Notifications Section -->
-        <div style="margin-bottom: 32px; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid var(--border-color);">
-            <h4 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class='bx bx-bell' style="color: var(--accent-color);"></i> Bildirishnomalar
-            </h4>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-weight: 600;">Push-bildirishnomalar</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Yangi to'lovlar va xabarlar haqida bildirishnoma olish</div>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="slider round"></span>
-                </label>
+    {% else %}
+        <!-- Keys formulation form -->
+        <form method="POST" action="{{ url_for('user.save_yandex_keys') }}" style="position: relative; z-index: 1;">
+            
+            <div class="alert-box alert-warning" style="background: rgba(243, 156, 18, 0.1); border-color: rgba(243, 156, 18, 0.3);">
+                <i class='bx bx-error-alt'></i> Tizim ishlayotgani yo'q: Kalitlar aktiv emas!
             </div>
-        </div>
+            
+            <div style="margin-bottom: 32px; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid var(--border-color);">
+                <h4 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class='bx bx-key' style="color: var(--warning);"></i> API Ma'lumotlarini kiriting
+                </h4>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Yandex Park ID</label>
+                    <input type="text" name="park_id" required placeholder="Masalan: e9bd10...4f8a" 
+                           style="width: 100%; padding: 14px 20px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; font-family: monospace;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Client ID (X-Client-ID)</label>
+                    <input type="text" name="client_id" required placeholder="Masalan: taxi/park/e9bd10...4f8a" 
+                           style="width: 100%; padding: 14px 20px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; font-family: monospace;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Maxfiy API Kalit (X-Api-Key)</label>
+                    <input type="password" name="api_key" required placeholder="Masalan: d8c42...b71d" 
+                           style="width: 100%; padding: 14px 20px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; font-family: monospace;">
+                </div>
+                
+            </div>
 
-        <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 14px; cursor: pointer;">
-            Saqlash
-        </button>
-    </form>
+            <button type="submit" class="user-pill" onclick="this.innerHTML='<i class=\'bx bx-loader-alt bx-spin\'></i> Tekshirilmoqda...'; this.style.opacity='0.7'; return true;" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; font-weight: 800; padding: 16px; cursor: pointer; font-size: 1rem;">
+                <i class='bx bx-check-shield'></i> Bog'lash va Saqlash
+            </button>
+        </form>
+    {% endif %}
 </div>
 
 <style>
-/* Toggle Switch Style */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255,255,255,0.1);
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: var(--primary-color);
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-  background-color: #000;
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
+    /* Styling adjustments relative to template constraints */
+    .card-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        filter: blur(80px);
+        opacity: 0.3;
+        z-index: 0;
+    }
+    .alert-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
 </style>
 {% endblock %}

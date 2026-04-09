@@ -64,6 +64,53 @@ def terms():
 def settings():
     return render_template('user/settings.html')
 
+@user_bp.route('/settings/yandex/save', methods=['POST'])
+@login_required
+def save_yandex_keys():
+    if current_user.yandex_keys_active:
+        flash("Kalitlar allaqachon tasdiqlangan va saqlangan.", "warning")
+        return redirect(url_for('user.settings'))
+        
+    park_id = request.form.get('park_id')
+    client_id = request.form.get('client_id')
+    api_key = request.form.get('api_key')
+    
+    if not all([park_id, client_id, api_key]):
+        flash("Barcha qatorlarni to'ldiring.", "danger")
+        return redirect(url_for('user.settings'))
+        
+    # Verify using Yandex API Endpoint (fetching empty list of drivers to test Auth)
+    url = "https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list"
+    headers = {
+        'X-Client-ID': client_id.strip(),
+        'X-Api-Key': api_key.strip()
+    }
+    payload = {
+        "query": {
+            "park": {
+                "id": park_id.strip()
+            }
+        },
+        "limit": 1
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        if response.status_code == 200:
+            current_user.yandex_park_id = park_id.strip()
+            current_user.yandex_client_id = client_id.strip()
+            current_user.yandex_api_key = api_key.strip()
+            current_user.yandex_keys_active = True
+            db.session.commit()
+            flash("Yandex API kalitlari muvaffaqiyatli saqlandi va bog'landi!", "success")
+        else:
+            flash(f"Kalitlar aktiv emas yoki xato (Status: {response.status_code}). Boshqatdan urinib ko'ring.", "danger")
+            logging.error(f"Yandex API klyuch test xatosi: {response.text}")
+    except Exception as e:
+        flash(f"Server(lar) bilan bog'lanishda xatolik yuz berdi: {str(e)}", "danger")
+        
+    return redirect(url_for('user.settings'))
+
 @user_bp.route('/settings/permissions')
 @login_required
 def permissions():

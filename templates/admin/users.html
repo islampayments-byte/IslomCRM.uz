@@ -73,15 +73,24 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if user.id != current_user.id %}
-                                <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
-                                   class="btn-outline-danger" style="{% if not user.is_blocked %}color: #e74c3c; border-color: rgba(231,76,60,0.5);{% else %}color: #2ecc71; border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.1);{% endif %} padding: 6px 12px; font-size: 13px; text-decoration: none;">
-                                    <i class='bx {% if user.is_blocked %}bx-lock-open-alt{% else %}bx-lock-alt{% endif %}'></i>
-                                    {{ "Yechish" if user.is_blocked else "Bloklash" }}
-                                </a>
-                            {% else %}
-                                <span class="badge-glow" style="background: rgba(255,255,255,0.05); color: #fff; border: none;">Siz</span>
-                            {% endif %}
+                            <div style="display: flex; gap: 8px;">
+                                {% if user.id != current_user.id %}
+                                    <a href="{{ url_for('admin.toggle_block_user', user_id=user.id) }}" 
+                                       class="btn-outline-danger" style="{% if not user.is_blocked %}color: #e74c3c; border-color: rgba(231,76,60,0.5);{% else %}color: #2ecc71; border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.1);{% endif %} padding: 6px 12px; font-size: 13px; text-decoration: none;">
+                                        <i class='bx {% if user.is_blocked %}bx-lock-open-alt{% else %}bx-lock-alt{% endif %}'></i>
+                                        {{ "Yechish" if user.is_blocked else "Bloklash" }}
+                                    </a>
+                                    {% if user.yandex_keys_active %}
+                                    <a href="{{ url_for('admin.reset_yandex_keys', user_id=user.id) }}" 
+                                       onclick="return confirm('Rostdan ham bu foydalanuvchining Yandex API kalitlarini o\'chirib tashlamoqchimisiz?');"
+                                       class="btn-outline-danger" style="color: #f39c12; border-color: rgba(243,156,18,0.5); padding: 6px 12px; font-size: 13px; text-decoration: none;">
+                                        <i class='bx bx-reset'></i> Kalit
+                                    </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge-glow" style="background: rgba(255,255,255,0.05); color: #fff; border: none; padding: 6px 12px;">Siz</span>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% else %}

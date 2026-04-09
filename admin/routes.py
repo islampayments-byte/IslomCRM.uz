@@ -86,6 +86,22 @@ def toggle_block_user(user_id):
     flash(f"Foydalanuvchi {user.phone} {status}", "success")
     return redirect(request.referrer or url_for('admin.users_list'))
 
+@admin_bp.route('/users/<int:user_id>/reset_keys')
+@login_required
+def reset_yandex_keys(user_id):
+    if current_user.role != 'admin':
+        abort(403)
+        
+    user = User.query.get_or_404(user_id)
+    user.yandex_park_id = None
+    user.yandex_client_id = None
+    user.yandex_api_key = None
+    user.yandex_keys_active = False
+    
+    db.session.commit()
+    flash(f"{user.phone} (ID: {user.id}) uchun Yandex kalitlari muvaffaqiyatli o'chirildi.", "success")
+    return redirect(request.referrer or url_for('admin.users_list'))
+
 @admin_bp.route('/vps')
 @login_required
 def vps_management():

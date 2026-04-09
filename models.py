@@ -22,6 +22,13 @@ class User(db.Model, UserMixin):
     address = db.Column(db.Text)
     is_verified = db.Column(db.Boolean, default=False) # IPv6 fits in 45 chars
     balance = db.Column(db.Float, default=0.0)
+    
+    # Yandex Fleet Integration
+    yandex_park_id = db.Column(db.String(255))
+    yandex_client_id = db.Column(db.String(255))
+    yandex_api_key = db.Column(db.String(255))
+    yandex_keys_active = db.Column(db.Boolean, default=False)
+    
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def check_pin(self, pin, bcrypt):
