@@ -59,6 +59,17 @@ def drivers():
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             if response.status_code == 200:
                 data = response.json()
+                
+                # Fetch park name automatically if missing
+                if not current_user.yandex_park_name:
+                    try:
+                        parks_data = data.get('parks', [])
+                        if parks_data and isinstance(parks_data, list):
+                            current_user.yandex_park_name = parks_data[0].get('name')
+                            db.session.commit()
+                    except:
+                        pass
+                
                 profiles = data.get('driver_profiles', [])
                 for p in profiles:
                     prof = p.get('driver_profile', {})
