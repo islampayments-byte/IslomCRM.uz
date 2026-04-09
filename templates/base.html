@@ -20,6 +20,8 @@
 
 <body class="dark-theme">
     <div class="app-container">
+        <!-- Sidebar and mobile overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         {% include 'partials/sidebar.html' %}
 
         <!-- Main Content -->
@@ -92,14 +94,30 @@
     <script>
         const sidebar = document.querySelector(".sidebar");
         const menuBtn = document.querySelector("#btn-menu");
+        const overlay = document.querySelector("#sidebarOverlay");
 
-        menuBtn.addEventListener("click", () => {
-            sidebar.classList.toggle("closed");
-            if (sidebar.classList.contains("closed")) {
-                menuBtn.classList.replace("bx-menu-alt-left", "bx-menu");
+        function toggleSidebar() {
+            if (window.innerWidth <= 1024) {
+                // Mobile/Tablet logic: Open completely via off-canvas overlay
+                sidebar.classList.toggle("mobile-open");
+                overlay.classList.toggle("active");
             } else {
-                menuBtn.classList.replace("bx-menu", "bx-menu-alt-left");
+                // Desktop logic: Shrink to 80px Width
+                sidebar.classList.toggle("closed");
+                if (sidebar.classList.contains("closed")) {
+                    menuBtn.classList.replace("bx-menu-alt-left", "bx-menu");
+                } else {
+                    menuBtn.classList.replace("bx-menu", "bx-menu-alt-left");
+                }
             }
+        }
+
+        menuBtn.addEventListener("click", toggleSidebar);
+        
+        // Close sidebar when clicking overlay on mobile
+        overlay.addEventListener("click", () => {
+            sidebar.classList.remove("mobile-open");
+            overlay.classList.remove("active");
         });
 
         // Global Modal Logic
