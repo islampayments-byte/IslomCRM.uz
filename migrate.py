@@ -30,12 +30,7 @@ def add_column(table, col_name, col_def):
 
 
 print("\n--- users jadvalini yangilash ---")
-add_column('users', 'yandex_park_name', 'VARCHAR(255)')
-add_column('users', 'yandex_park_id',   'VARCHAR(255)')
-add_column('users', 'yandex_client_id', 'VARCHAR(255)')
-add_column('users', 'yandex_api_key',   'VARCHAR(255)')
-add_column('users', 'yandex_keys_active', 'BOOLEAN DEFAULT 0')
-add_column('users', 'balance',           'FLOAT DEFAULT 0.0')
+# Core fields
 add_column('users', 'stir',              'VARCHAR(9)')
 add_column('users', 'org_name',          'VARCHAR(255)')
 add_column('users', 'director',          'VARCHAR(255)')
@@ -47,6 +42,14 @@ add_column('users', 'is_verified',       'BOOLEAN DEFAULT 0')
 add_column('users', 'last_ip',           'VARCHAR(45)')
 add_column('users', 'failed_attempts',   'INTEGER DEFAULT 0')
 add_column('users', 'is_blocked',        'BOOLEAN DEFAULT 0')
+add_column('users', 'balance',           'FLOAT DEFAULT 0.0')
+# Yandex Fleet
+add_column('users', 'yandex_park_name', 'VARCHAR(255)')
+add_column('users', 'yandex_park_id',   'VARCHAR(255)')
+add_column('users', 'yandex_client_id', 'VARCHAR(255)')
+add_column('users', 'yandex_api_key',   'VARCHAR(255)')
+add_column('users', 'yandex_keys_active', 'BOOLEAN DEFAULT 0')
+# Payme per-organization
 add_column('users', 'org_slug',          'VARCHAR(100)')
 add_column('users', 'payme_merchant_id', 'VARCHAR(100)')
 add_column('users', 'payme_secret_key',  'VARCHAR(255)')
@@ -67,6 +70,9 @@ CREATE TABLE IF NOT EXISTS payment_settings (
     payme_account_field VARCHAR(50) DEFAULT 'phone'
 )
 """)
+# Also add payme_test_key to payment_settings if missing
+add_column('payment_settings', 'payme_test_key', 'VARCHAR(255)')
+add_column('payment_settings', 'is_test_mode', 'BOOLEAN DEFAULT 0')
 print("  [=] payment_settings jadvali mavjud yoki yaratildi")
 
 
@@ -111,7 +117,6 @@ rows = cursor.fetchall()
 for uid, name in rows:
     if name:
         slug = re.sub(r'[^a-z0-9]', '-', name.lower()).strip('-')
-        # Check uniqueness
         existing = cursor.execute("SELECT id FROM users WHERE org_slug = ?", (slug,)).fetchone()
         if existing:
             import random

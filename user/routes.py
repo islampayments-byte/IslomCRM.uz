@@ -268,17 +268,23 @@ def topup_payme():
     amount = int(amount)
     global_settings = PaymentSettings.query.first()
     
+    # Safely read per-user Payme fields (they may be missing in older DB)
+    user_merchant_id = getattr(current_user, 'payme_merchant_id', None)
+    user_secret_key  = getattr(current_user, 'payme_secret_key', None)
+    user_test_key    = getattr(current_user, 'payme_test_key', None)
+    user_is_test     = getattr(current_user, 'is_payme_test_mode', True)
+
     # 1. Determine which keys to use (Takso Park's own or Global)
-    if current_user.payme_merchant_id and current_user.payme_secret_key:
-        merchant_id = current_user.payme_merchant_id
-        secret_key = current_user.payme_secret_key
-        is_test = current_user.is_payme_test_mode
-        logging.info(f"Topup started using Taksopark's own Payme: {current_user.org_slug}")
+    if user_merchant_id and user_secret_key:
+        merchant_id = user_merchant_id
+        secret_key  = user_secret_key
+        is_test     = user_is_test
+        logging.info(f"Topup: using user's own Payme keys ({current_user.org_slug})")
     elif global_settings and global_settings.payme_merchant_id and global_settings.payme_secret_key:
         merchant_id = global_settings.payme_merchant_id
-        secret_key = global_settings.payme_secret_key
-        is_test = getattr(global_settings, 'is_test_mode', False)
-        logging.info(f"Topup started using Platform (IslomCRM) Payme for user {current_user.phone}")
+        secret_key  = global_settings.payme_secret_key
+        is_test     = getattr(global_settings, 'is_test_mode', False)
+        logging.info(f"Topup: using global Payme keys for user {current_user.phone}")
     else:
         flash("To'lov tizimi hali sozlanmagan. Iltimos, adminga murojaat qiling.", "warning")
         return redirect(url_for('user.finance'))
