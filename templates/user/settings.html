@@ -4,6 +4,18 @@
 {% block page_title %}Tizim Sozlamalari{% endblock %}
 
 {% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert-box alert-{{ category }}" style="max-width: 800px; margin: 0 auto 20px auto; background: {% if category == 'danger' %}rgba(231,76,60,0.1){% elif category == 'success' %}rgba(46,204,113,0.1){% else %}rgba(243,156,18,0.1){% endif %}; border: 1px solid {% if category == 'danger' %}rgba(231,76,60,0.3){% elif category == 'success' %}rgba(46,204,113,0.3){% else %}rgba(243,156,18,0.3){% endif %}; color: {% if category == 'danger' %}#e74c3c{% elif category == 'success' %}#2ecc71{% else %}#f39c12{% endif %};">
+        <i class='bx {% if category == "danger" %}bx-error-circle{% elif category == "success" %}bx-check-circle{% else %}bx-info-circle{% endif %}' style="font-size: 20px;"></i>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <div class="stat-card" style="max-width: 800px; margin: 0 auto; padding: 40px; position: relative; overflow: hidden;">
     <div class="card-glow" style="background: var(--primary-color);"></div>
     <div class="card-header" style="margin-bottom: 32px; position: relative; z-index: 1;">
