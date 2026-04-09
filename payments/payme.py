@@ -3,6 +3,7 @@ from models import User, PaymentSettings, Transaction
 from extensions import db
 import base64
 import datetime
+import time
 import json
 import os
 import logging
@@ -92,7 +93,7 @@ def payme_error(req_id, code, message_obj):
 
 
 def now_ms():
-    return int(datetime.datetime.utcnow().timestamp() * 1000)
+    return int(time.time() * 1000)
 
 
 @payme_bp.route('/callback', methods=['POST'])

@@ -22,7 +22,7 @@ class User(db.Model, UserMixin):
     address = db.Column(db.Text)
     is_verified = db.Column(db.Boolean, default=False) # IPv6 fits in 45 chars
     balance = db.Column(db.Float, default=0.0)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def check_pin(self, pin, bcrypt):
         return bcrypt.check_password_hash(self.pin_hash, pin)
@@ -46,6 +46,6 @@ class Transaction(db.Model):
     type = db.Column(db.String(20)) # topup or payment
     status = db.Column(db.String(20), default='pending') # pending, success, failed
     payme_trans_id = db.Column(db.String(100), unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
