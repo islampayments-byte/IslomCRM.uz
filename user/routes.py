@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import User, PaymentSettings, Transaction
+from models import User, PaymentSettings, Transaction, Driver
 from extensions import db
 import requests
 import base64
