@@ -10,6 +10,31 @@ click_bp = Blueprint('click', __name__)
 def get_global_settings():
     return PaymentSettings.query.first()
 
+def find_user_by_phone(phone_raw, user_id=None):
+    """
+    Find a User or Driver by phone number.
+    Identical logic to payme.py for consistency.
+    """
+    phone = str(phone_raw).strip()
+    digits = phone.lstrip('+').strip()
+    if len(digits) == 9:
+        digits = f"998{digits}"
+    variants = [f"+{digits}", digits]
+
+    if user_id is not None:
+        for v in variants:
+            obj = Driver.query.filter_by(user_id=user_id).filter(
+                (Driver.phone == v) | (Driver.phone == v.replace('+', ''))
+            ).first()
+            if obj: return obj
+    else:
+        for v in variants:
+            obj = User.query.filter(
+                (User.phone == v) | (User.phone == v.replace('+', ''))
+            ).first()
+            if obj: return obj
+    return None
+
 def click_error(error_code, error_note):
     return jsonify({
         "error": error_code,
@@ -84,18 +109,22 @@ def _handle_click_request(org_slug):
     # 3. Handle Actions
     # Action 0: Prepare
     if action == '0':
-        # Check if transaction exists if merchant_trans_id was provided
-        if merchant_trans_id:
-            trans = Transaction.query.get(merchant_trans_id)
-            if not trans:
-                return click_error(-5, "Transaction not found")
+        # Check if transaction exists OR if merchant_trans_id is a phone number
+        trans = Transaction.query.get(merchant_trans_id)
+        if not trans:
+            # Maybe it's a phone number (direct payment from Click app)
+            target = find_user_by_phone(merchant_trans_id, user_id=user_context.id if user_context else None)
+            if not target:
+                logging.warning(f"Click Prepare: Subscriber not found: {merchant_trans_id}")
+                return click_error(-5, "Subscriber not found")
+        else:
             if trans.status != 'pending':
                 return click_error(-4, "Already paid or cancelled")
         
         return jsonify({
             "click_trans_id": click_trans_id,
             "merchant_trans_id": merchant_trans_id,
-            "merchant_prepare_id": merchant_trans_id, # We use our trans ID as prepare ID too
+            "merchant_prepare_id": merchant_trans_id,
             "error": 0,
             "error_note": "Success"
         })
@@ -103,23 +132,57 @@ def _handle_click_request(org_slug):
     # Action 1: Complete
     elif action == '1':
         trans = Transaction.query.get(merchant_trans_id)
-        if not trans:
-            return click_error(-5, "Transaction not found")
         
+        # If no transaction exists (direct payment), create one on the fly
+        if not trans:
+            target = find_user_by_phone(merchant_trans_id, user_id=user_context.id if user_context else None)
+            if not target:
+                return click_error(-5, "Subscriber not found")
+            
+            # SUCCESS case for direct payment
+            if params.get('error') == '0':
+                owner_id = user_context.id if user_context else (target.id if hasattr(target, 'user_id') is False else target.user_id)
+                new_trans = Transaction(
+                    user_id=owner_id,
+                    amount=float(params.get('amount', 0)),
+                    type='driver_payment' if user_context else 'balance_topup',
+                    status='success',
+                    click_trans_id=click_trans_id,
+                    payer_phone=merchant_trans_id
+                )
+                
+                # Update balance only for balance_topup
+                if new_trans.type == 'balance_topup':
+                    owner = User.query.get(new_trans.user_id)
+                    if owner:
+                        owner.balance = (owner.balance or 0.0) + new_trans.amount
+                        logging.info(f"Click Direct: Balance UPDATED for user {owner.id}: {new_trans.amount}")
+                
+                db.session.add(new_trans)
+                db.session.commit()
+                
+                return jsonify({
+                    "click_trans_id": click_trans_id,
+                    "merchant_trans_id": merchant_trans_id,
+                    "merchant_confirm_id": new_trans.id,
+                    "error": 0,
+                    "error_note": "Success"
+                })
+            else:
+                return click_error(-9, "Transaction failed")
+
+        # Existing Transaction (from redirect)
         if trans.status == 'success':
             return click_error(-4, "Already paid")
             
         if params.get('error') == '0':
             # SUCCESS
             if trans.status != 'success':
-                # Update balance only for org topup
                 if trans.type == 'balance_topup':
                     owner = User.query.get(trans.user_id)
                     if owner:
                         owner.balance = (owner.balance or 0.0) + trans.amount
                         logging.info(f"Click: Balance UPDATED for user {owner.id}: {trans.amount}")
-                else:
-                    logging.info(f"Click: Driver payment SUCCESS: {trans.id}")
 
                 trans.status = 'success'
                 db.session.commit()
@@ -135,6 +198,6 @@ def _handle_click_request(org_slug):
             # FAILED
             trans.status = 'failed'
             db.session.commit()
-            return click_error(-9, "Transaction cancelled by user or Click")
+            return click_error(-9, "Transaction cancelled")
 
     return click_error(-3, "Unknown action")

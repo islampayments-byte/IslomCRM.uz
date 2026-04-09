@@ -33,17 +33,17 @@ def find_user_by_phone(phone_raw, user_id=None):
     If user_id given, searches Driver table for that taksopark.
     Otherwise searches User table.
     """
-    phone = phone_raw.strip()
-    # Build list of variants to try
-    digits = phone.lstrip('+')
-    variants = [
-        f'+{digits}',         # +998991476534
-        digits,               # 998991476534
-    ]
-    # If only 9 digits (local format), add UZ prefix
+    phone = str(phone_raw).strip()
+    digits = phone.lstrip('+').strip()
+    
+    # Normalizatsiya: Agar 9 ta raqam bo'lsa 998 qo'shamiz
     if len(digits) == 9:
-        variants.append(f'+998{digits}')
-        variants.append(f'998{digits}')
+        digits = f"998{digits}"
+        
+    variants = [
+        f"+{digits}", # +99899...
+        digits        # 99899...
+    ]
 
     if user_id is not None:
         for v in variants:
