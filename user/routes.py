@@ -297,15 +297,27 @@ def topup_payme():
     # Payme expects amount in tiyin (1 sum = 100 tiyin)
     amount_tiyin = amount * 100
     phone_clean = current_user.phone.replace('+', '').replace(' ', '')
-    account_field = getattr(global_settings, 'payme_account_field', None) or 'phone_number'
+    account_field = getattr(global_settings, 'payme_account_field', None) or 'phone'
     
-    # API URLs
-    api_url = "https://checkout.test.paycom.uz/api" if is_test else "https://checkout.paycom.uz/api"
-    # checkout_url = "https://checkout.test.paycom.uz" if is_test else "https://checkout.payme.uz"
+    # API URLs and auth key — test vs production
+    if is_test:
+        api_url = "https://checkout.test.paycom.uz/api"
+        checkout_base = "https://checkout.test.paycom.uz"
+        # In test mode, use test_key if available
+        if current_user.payme_merchant_id and current_user.payme_test_key:
+            auth_key = current_user.payme_test_key
+        elif global_settings and global_settings.payme_test_key:
+            auth_key = global_settings.payme_test_key
+        else:
+            auth_key = secret_key
+    else:
+        api_url = "https://checkout.paycom.uz/api"
+        checkout_base = "https://checkout.paycom.uz"
+        auth_key = secret_key
 
     # 1. Create a receipt via Payme API
     headers = {
-        "X-Auth": f"{merchant_id}:{secret_key}",
+        "X-Auth": f"{merchant_id}:{auth_key}",
         "Content-Type": "application/json"
     }
     
@@ -318,22 +330,28 @@ def topup_payme():
                 account_field: phone_clean
             }
         },
-        "id": int(os.urandom(4).hex(), 16) # Unique request ID
+        "id": int(os.urandom(4).hex(), 16)
     }
+    logging.info(f"Payme receipts.create | merchant:{merchant_id} | test:{is_test} | url:{api_url}")
 
     try:
         response = requests.post(api_url, json=payload, headers=headers, timeout=10)
         res_data = response.json()
+        logging.info(f"Payme response: {res_data}")
         
         if "error" in res_data:
-            logging.error(f"Payme API Error: {res_data['error']}")
-            flash(f"To'lov tizimida xatolik yuz berdi: {res_data['error'].get('message', 'Noma''lum xato')}", "danger")
+            err = res_data['error']
+            err_msg = err.get('message', {})
+            if isinstance(err_msg, dict):
+                err_msg = err_msg.get('uz') or err_msg.get('ru') or err_msg.get('en') or str(err)
+            logging.error(f"Payme API Error: {err}")
+            flash(f"To'lov tizimida xatolik: {err_msg} (kod: {err.get('code', '?')})", "danger")
             return redirect(url_for('user.finance'))
             
         receipt_id = res_data["result"]["receipt"]["_id"]
         
-        # 2. Construct redirect URL
-        payme_redirect_url = f"https://payme.uz/checkout/{receipt_id}"
+        # 2. Redirect to Payme checkout
+        payme_redirect_url = f"{checkout_base}/{receipt_id}"
 
         # Create pending transaction locally
         new_trans = Transaction(

@@ -72,15 +72,15 @@
 
             <div style="margin-top: 30px; padding: 15px; background: rgba(59, 130, 246, 0.05); border-radius: 12px; border: 1px dashed rgba(59, 130, 246, 0.3);">
                 <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                    <i class='bx bx-link-external'></i> Shaxsiy Endpoint (Payme mutaxassislar uchun)
+                    <i class='bx bx-link-external'></i> Shaxsiy Callback URL (Payme kabineti uchun)
                 </h4>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <code style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/callback</code>
+                    <code id="callbackUrl" style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/payme/callback</code>
                     <button onclick="copyToClipboard()" style="background: var(--accent-color); color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
                         <i class='bx bx-copy'></i>
                     </button>
                 </div>
-                <p style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">Ushbu manzilni Payme xodimlariga berishingiz kerak. U orqali to'lovlar tizimga avtomat ulanadi.</p>
+                <p style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">⬆️ Bu manzilni Payme xodimlariga bering. <strong>Aynan shunday</strong> bo'lishi kerak.</p>
             </div>
             {% endif %}
         </div>
