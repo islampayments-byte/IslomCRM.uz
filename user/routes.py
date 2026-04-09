@@ -52,6 +52,9 @@ def drivers():
                     "id": current_user.yandex_park_id
                 }
             },
+            "fields": {
+                "park": ["name"]
+            },
             "limit": 200 # fetch up to 200 drivers 
         }
         
@@ -136,6 +139,9 @@ def save_yandex_keys():
             "park": {
                 "id": park_id.strip()
             }
+        },
+        "fields": {
+            "park": ["name"]
         },
         "limit": 1
     }
