@@ -185,6 +185,18 @@ def save_yandex_keys():
             current_user.yandex_client_id = client_id.strip()
             current_user.yandex_api_key = api_key.strip()
             current_user.yandex_keys_active = True
+            
+            # Generate org_slug automatically from park name if it doesn't exist
+            if not current_user.org_slug:
+                import re
+                slug = re.sub(r'[^a-z0-9]', '-', park_name.lower()).strip('-')
+                # Check for uniqueness just in case
+                existing = User.query.filter_by(org_slug=slug).first()
+                if existing:
+                    import random
+                    slug = f"{slug}-{random.randint(100, 999)}"
+                current_user.org_slug = slug
+                
             db.session.commit()
             flash(f"Yandex API kalitlari muvaffaqiyatli saqlandi va bog'landi! (Park: {park_name})", "success")
         else:
@@ -200,9 +212,30 @@ def save_yandex_keys():
 def permissions():
     return render_template('user/permissions.html')
 
-@user_bp.route('/settings/payments')
+@user_bp.route('/settings/payments', methods=['GET', 'POST'])
 @login_required
 def payment_settings():
+    if request.method == 'POST':
+        merchant_id = request.form.get('merchant_id')
+        secret_key = request.form.get('secret_key')
+        
+        if not merchant_id or not secret_key:
+            flash("Barcha maydonlarni to'ldiring.", "danger")
+            return redirect(url_for('user.payment_settings'))
+            
+        current_user.payme_merchant_id = merchant_id.strip()
+        current_user.payme_secret_key = secret_key.strip()
+        
+        # Ensure org_slug exists (safety check)
+        if not current_user.org_slug and current_user.yandex_park_name:
+            import re
+            slug = re.sub(r'[^a-z0-9]', '-', current_user.yandex_park_name.lower()).strip('-')
+            current_user.org_slug = slug
+            
+        db.session.commit()
+        flash("Payme sozlamalari muvaffaqiyatli saqlandi!", "success")
+        return redirect(url_for('user.payment_settings'))
+        
     return render_template('user/payment_settings.html')
 
 @user_bp.route('/finance')

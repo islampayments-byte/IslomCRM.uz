@@ -36,6 +36,30 @@ for col in columns_to_add:
             print(f"Xatolik: {e}")
 
 try:
+    cursor.execute("ALTER TABLE users ADD COLUMN org_slug VARCHAR(100)")
+    cursor.execute("ALTER TABLE users ADD COLUMN payme_merchant_id VARCHAR(100)")
+    cursor.execute("ALTER TABLE users ADD COLUMN payme_secret_key VARCHAR(255)")
+    print("Yangi ustunlar (org_slug, payme) muvaffaqiyatli qo'shildi.")
+except Exception as e:
+    if "duplicate column name" in str(e).lower():
+        print("Ustunlar allaqachon mavjud, davom etamiz...")
+    else:
+        print(f"Xatolik: {e}")
+
+# org_slug ni mavjud yandex_park_name dan to'ldirish (agar bo'sh bo'lsa)
+try:
+    cursor.execute("SELECT id, yandex_park_name FROM users WHERE org_slug IS NULL AND yandex_park_name IS NOT NULL")
+    users_to_update = cursor.fetchall()
+    for uid, name in users_to_update:
+        if name:
+            import re
+            slug = re.sub(r'[^a-z0-9]', '-', name.lower()).strip('-')
+            cursor.execute("UPDATE users SET org_slug = ? WHERE id = ?", (slug, uid))
+    print("Mavjud foydalanuvchilar uchun org_slug identifikatorlari yaratildi.")
+except Exception as e:
+    print(f"Slug yaratishda xato: {e}")
+
+try:
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS drivers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

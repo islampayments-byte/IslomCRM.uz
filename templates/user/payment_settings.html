@@ -4,58 +4,99 @@
 {% block page_title %}To'lov tizimlari sozlamalari{% endblock %}
 
 {% block content %}
-<div class="cards-grid">
+<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
     <!-- Payme Settings -->
-    <div class="stat-card">
-        <div class="card-header">
+    <div class="stat-card" style="padding: 0; overflow: hidden;">
+        <div class="card-header" style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(59, 130, 246, 0.03);">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 24px;" alt="Payme">
-                <h3>Payme Business</h3>
+                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 28px;" alt="Payme">
+                <h3 style="margin: 0; font-size: 1.2rem;">Payme Business</h3>
             </div>
-            <label class="switch">
-                <input type="checkbox" checked>
-                <span class="slider round"></span>
-            </label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                {% if current_user.payme_merchant_id %}
+                <span style="font-size: 12px; color: var(--success); background: rgba(46, 204, 113, 0.1); padding: 4px 10px; border-radius: 10px;">BOG'LANGAN</span>
+                {% else %}
+                <span style="font-size: 12px; color: var(--warning); background: rgba(241, 196, 15, 0.1); padding: 4px 10px; border-radius: 10px;">ULANMAGAN</span>
+                {% endif %}
+            </div>
         </div>
-        <div class="card-content">
-            <div style="margin-bottom: 16px;">
-                <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Merchant ID</label>
-                <input type="text" value="65e12...789" readonly style="width: 100%; padding: 10px; border-radius: 8px; background: #000; border: 1px solid var(--border-color); color: var(--text-muted); font-family: monospace;">
+        
+        <div class="card-content" style="padding: 24px;">
+            {% if not current_user.yandex_keys_active %}
+            <div style="text-align: center; padding: 20px;">
+                <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
+                <p style="color: var(--text-muted); font-size: 14px;">Payme'ni ulash uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
+                <a href="{{ url_for('user.settings') }}" class="user-pill" style="margin-top: 15px; background: var(--primary-color); color: #000; border: none;">Yandex sozlamalariga o'tish</a>
             </div>
-            <button class="user-pill" style="width: 100%; justify-content: center; background: rgba(59, 130, 246, 0.1); color: var(--accent-color); border: none;">
-                Kalitlarni yangilash
-            </button>
+            {% else %}
+            <form action="{{ url_for('user.payment_settings') }}" method="POST">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant ID</label>
+                    <input type="text" name="merchant_id" value="{{ current_user.payme_merchant_id or '' }}" placeholder="Masalan: 65e12...789" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Kassa uchun kalit (Secret Key)</label>
+                    <div style="position: relative;">
+                        <input type="password" name="secret_key" id="paymeSecret" value="{{ current_user.payme_secret_key or '' }}" placeholder="Kassa paroli..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
+                        <i class='bx bx-hide' id="toggleSecret" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
+                    Sozlamalarni saqlash
+                </button>
+            </form>
+
+            <div style="margin-top: 30px; padding: 15px; background: rgba(59, 130, 246, 0.05); border-radius: 12px; border: 1px dashed rgba(59, 130, 246, 0.3);">
+                <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i class='bx bx-link-external'></i> Shaxsiy Endpoint (Payme mutaxassislar uchun)
+                </h4>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <code style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/callback</code>
+                    <button onclick="copyToClipboard()" style="background: var(--accent-color); color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
+                        <i class='bx bx-copy'></i>
+                    </button>
+                </div>
+                <p style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">Ushbu manzilni Payme xodimlariga berishingiz kerak. U orqali to'lovlar tizimga avtomat ulanadi.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- CLICK Settings (Placeholder) -->
-    <div class="stat-card">
+    <!-- CLICK Settings (Future) -->
+    <div class="stat-card" style="opacity: 0.7; filter: grayscale(0.5); position: relative;">
         <div class="card-header">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <img src="{{ url_for('static', filename='click.svg') }}" style="height: 20px;" alt="Click">
-                <h3>Click Up</h3>
+                <h3>Click Up Integration</h3>
             </div>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round"></span>
-            </label>
+            <span style="font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;">SOON</span>
         </div>
-        <div class="card-content">
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Click to'lov tizimini ulash uchun shartnoma raqamini kiriting.</p>
-            <button class="user-pill" style="width: 100%; justify-content: center; background: var(--border-color); color: var(--text-muted); border: none; cursor: not-allowed;">
-                Tez orada
-            </button>
+        <div class="card-content" style="padding: 40px 20px; text-align: center;">
+            <i class='bx bx-time-five' style="font-size: 40px; color: var(--text-muted); margin-bottom: 15px;"></i>
+            <p style="color: var(--text-muted); font-size: 14px;">Click to'lov tizimi tez orada ushbu bo'limda faollashadi.</p>
         </div>
     </div>
 </div>
 
-<style>
-/* Toggle Switch Style (Duplicate from settings.html for isolation if needed or move to style.css) */
-.switch { position: relative; display: inline-block; width: 44px; height: 20px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; }
-.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--success); }
-input:checked + .slider:before { transform: translateX(24px); }
-</style>
+<script>
+function copyToClipboard() {
+    const text = document.querySelector('code').innerText;
+    navigator.clipboard.writeText(text);
+    alert('Manzil ko\'chirildi!');
+}
+
+const toggleSecret = document.getElementById('toggleSecret');
+const secretInput = document.getElementById('paymeSecret');
+
+if(toggleSecret) {
+    toggleSecret.addEventListener('click', function() {
+        const type = secretInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        secretInput.setAttribute('type', type);
+        this.classList.toggle('bx-show');
+        this.classList.toggle('bx-hide');
+    });
+}
+</script>
 {% endblock %}

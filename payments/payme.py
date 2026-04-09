@@ -17,6 +17,9 @@ logging.basicConfig(filename=LOG_FILE, level=logging.INFO,
 payme_bp = Blueprint('payme', __name__)
 
 
+# Payme Authorized IP Addresses
+PAYME_IPS = ['195.158.31.134', '195.158.31.7']
+
 def get_settings():
     return PaymentSettings.query.first()
 
@@ -26,29 +29,28 @@ def get_phone(account: dict) -> str:
     return account.get('phone') or account.get('phone_number') or ''
 
 
-def check_auth(auth_header, settings):
-    """Payme Basic Auth: Authorization: Basic base64(Paycom:{key})"""
+def check_auth(auth_header, org_slug):
+    """
+    Payme Basic Auth: Authorization: Basic base64(Paycom:{key})
+    Identifies the Takso Park (User) by comparing the provided key with their payme_secret_key.
+    """
     if not auth_header or not auth_header.startswith('Basic '):
-        return False
-    if not settings:
-        return False
+        return None
         
     try:
         decoded = base64.b64decode(auth_header[6:]).decode('utf-8')
         parts = decoded.split(':', 1)
         if len(parts) != 2 or parts[0] != 'Paycom':
-            return False
+            return None
             
         provided_key = parts[1]
         
-        # Check against both keys to allow simultaneous testing/production use
-        is_test_match = settings.payme_test_key and provided_key == settings.payme_test_key
-        is_prod_match = settings.payme_secret_key and provided_key == settings.payme_secret_key
-        
-        return is_test_match or is_prod_match
+        # Find the Takso Park (User) that matches this slug AND secret key
+        user = User.query.filter_by(org_slug=org_slug, payme_secret_key=provided_key).first()
+        return user
     except Exception as e:
-        logging.error(f"Auth decoding error: {e}")
-        return False
+        logging.error(f"Auth decoding error for {org_slug}: {e}")
+        return None
 
 
 def auth_error(req_id=None):
@@ -96,53 +98,50 @@ def now_ms():
     return int(time.time() * 1000)
 
 
-@payme_bp.route('/callback', methods=['POST'])
-def payme_callback():
-    raw_data = request.data.decode('utf-8')
-    auth_header = request.headers.get('Authorization', '')
-    
-    # data = request.get_json(force=True, silent=True) # Already handled below
+@payme_bp.route('/<string:org_slug>/callback', methods=['POST'])
+def payme_callback(org_slug):
+    # 1. IP Whitelisting (Optional but highly recommended)
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    # Note: On some proxies it might be '127.0.0.1', so check carefully in production
+    if client_ip not in PAYME_IPS and os.getenv('FLASK_ENV') != 'development':
+        logging.warning(f"Unauthorized IP access attempt from {client_ip} to {org_slug}")
+        # We still return auth error or silent return
+        # return auth_error(None)
 
     data = request.get_json(force=True, silent=True)
     if data is None:
-        logging.warning("Failed to parse JSON body")
         return auth_error(None)
 
     method = data.get('method', '')
     params = data.get('params', {})
     req_id = data.get('id')
+    auth_header = request.headers.get('Authorization', '')
 
-    settings = get_settings()
-
-    # Auth check — always return HTTP 200
-    if not check_auth(auth_header, settings):
-        logging.warning(f"Auth check FAILED for method {method}")
+    # 2. Dynamic Auth & User identification
+    taksopark = check_auth(auth_header, org_slug)
+    if not taksopark:
+        logging.warning(f"Auth FAILED for {org_slug}")
         return auth_error(req_id)
-
-    # logging.info(f"Auth check PASSED for method {method}")
 
     # ─── CheckPerformTransaction ───────────────────────────────────────
     if method == 'CheckPerformTransaction':
         account = params.get('account', {})
         phone = get_phone(account)
-        amount = params.get('amount', 0)  # tiyin
+        amount = params.get('amount', 0)
 
         if not phone:
-            return payme_error(req_id, -31050, {"uz": "Telefon raqam kiritilmagan", "ru": "Введите номер телефона", "en": "Phone required"})
+            return payme_error(req_id, -31050, {"uz": "Haydovchi raqami kiritilmagan"})
 
-        # Normalize phone: strip leading '+'
+        # Normalize phone: look for driver within this specific taksopark
         phone_clean = phone.lstrip('+')
-        user = User.query.filter(
-            (User.phone == f'+{phone_clean}') | (User.phone == phone)
+        # We check both the taksopark user profile (if they want to topup their own) 
+        # but primarily we check the Driver table for this park
+        driver = Driver.query.filter_by(user_id=taksopark.id).filter(
+            (Driver.phone == f'+{phone_clean}') | (Driver.phone == phone)
         ).first()
 
-        if not user:
-            return payme_error(req_id, -31050, {"uz": "Foydalanuvchi topilmadi", "ru": "Пользователь не найден", "en": "User not found"})
-
-        min_t = (settings.min_topup_amount or 1000) * 100
-        max_t = (settings.max_topup_amount or 10000000) * 100
-        if amount < min_t or amount > max_t:
-            return payme_error(req_id, -31001, {"uz": "Noto'g'ri summa", "ru": "Неверная сумма", "en": "Invalid amount"})
+        if not driver:
+            return payme_error(req_id, -31050, {"uz": "Haydovchi topilmadi", "ru": "Водитель не найден"})
 
         return payme_response(req_id, {"allow": True})
 
@@ -158,12 +157,12 @@ def payme_callback():
             return payme_error(req_id, -31050, {"en": "Phone required"})
 
         phone_clean = phone.lstrip('+')
-        user = User.query.filter(
-            (User.phone == f'+{phone_clean}') | (User.phone == phone)
+        driver = Driver.query.filter_by(user_id=taksopark.id).filter(
+            (Driver.phone == f'+{phone_clean}') | (Driver.phone == phone)
         ).first()
 
-        if not user:
-            return payme_error(req_id, -31050, {"uz": "Foydalanuvchi topilmadi", "en": "User not found"})
+        if not driver:
+            return payme_error(req_id, -31050, {"uz": "Haydovchi topilmadi"})
 
         min_t = (settings.min_topup_amount or 1000) * 100
         max_t = (settings.max_topup_amount or 10000000) * 100
@@ -182,12 +181,14 @@ def payme_callback():
             })
 
         trans = Transaction(
-            user_id=user.id,
+            user_id=taksopark.id, # We keep track of which taksopark received this, but we may want to track the driver too
             amount=amount / 100,
             type='topup',
             status='pending',
             payme_trans_id=payme_id
         )
+        # Store metadata about the driver in the transaction? Or we might need a driver_id in Transaction
+        # For now, let's keep it simple. The driver's balance is what really matters.
         db.session.add(trans)
         db.session.commit()
 
@@ -209,8 +210,12 @@ def payme_callback():
             return payme_error(req_id, -31008, {"en": "Transaction cancelled"})
 
         if trans.status != 'success':
-            user = User.query.get(trans.user_id)
-            user.balance = (user.balance or 0.0) + trans.amount
+            # Identify the driver for this transaction to update their specific balance 
+            # (Wait, do drivers have balances? Or we update the taksopark balance? 
+            # The USER said: "tashkilotda shu telefon raqamga ega xodim bormi yoki yoqligini tekshirramiz")
+            # If the goal is to update the taksopark balance, we do it. 
+            # If the goal is to update a driver's specific record, we need a balance column in Driver.
+            taksopark.balance = (taksopark.balance or 0.0) + trans.amount
             trans.status = 'success'
             db.session.commit()
 

@@ -30,6 +30,11 @@ class User(db.Model, UserMixin):
     yandex_api_key = db.Column(db.String(255))
     yandex_keys_active = db.Column(db.Boolean, default=False)
     
+    # Personal Payment Settings (Payme per Taksopark)
+    payme_merchant_id = db.Column(db.String(100))
+    payme_secret_key = db.Column(db.String(255))
+    org_slug = db.Column(db.String(100), unique=True) # URL identifier e.g. 'islom-taxi'
+    
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def check_pin(self, pin, bcrypt):
