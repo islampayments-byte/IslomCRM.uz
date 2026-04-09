@@ -3,7 +3,7 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 from extensions import db, login_manager, bcrypt
-from models import User
+from models import User, Transaction
 import datetime
 import traceback
 
@@ -90,10 +90,24 @@ def sync_daemon():
     while True:
         try:
             with app.app_context():
+                # 1. Sync Yandex Drivers
                 users = User.query.filter_by(yandex_keys_active=True).all()
                 for u in users:
                     success, msg = sync_user_drivers(app, u)
                     print(f"Daemon Sync User {u.id}: {msg}")
+                
+                # 2. Cleanup old Pending transactions (Older than 24 hours)
+                threshold = datetime.datetime.now() - datetime.timedelta(hours=24)
+                old_pending = Transaction.query.filter(
+                    Transaction.status == 'pending',
+                    Transaction.created_at < threshold
+                ).all()
+                
+                if old_pending:
+                    for t in old_pending:
+                        t.status = 'failed'
+                        print(f"Daemon: Cancelled old pending transaction {t.id}")
+                    db.session.commit()
         except Exception as e:
             print(f"Daemon Sync Error: {str(e)}")
         
