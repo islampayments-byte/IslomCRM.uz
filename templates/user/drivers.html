@@ -5,8 +5,22 @@
 
 {% block content %}
 <div class="table-container">
-    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color);">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 15px;">
         <h3><i class='bx bx-group' style="color: var(--primary-color);"></i> Yandex Haydovchilar Bazasi</h3>
+        
+        {% if current_user.yandex_keys_active and not error_msg %}
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div style="position: relative;">
+                <i class='bx bx-search' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                <input type="text" id="driverSearch" class="modern-input" placeholder="Ism orqali qidirish..." style="padding-left: 45px; width: 250px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding-top: 10px; padding-bottom: 10px; border-radius: 12px;">
+            </div>
+            <select id="driverFilter" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding: 10px 15px; border-radius: 12px; outline: none; cursor: pointer;">
+                <option value="all">Barchasi</option>
+                <option value="with_phone">Raqami borlar</option>
+                <option value="no_phone">Raqami yo'qlar</option>
+            </select>
+        </div>
+        {% endif %}
     </div>
     
     {% if not current_user.yandex_keys_active %}
@@ -34,17 +48,22 @@
                 </thead>
                 <tbody>
                     {% for driver in drivers %}
-                    <tr style="border-bottom: 1px solid var(--border-color);">
-                        <td style="padding: 16px 24px; font-weight: 600;">
+                    {% set has_phone = driver.phones|length > 0 %}
+                    <tr class="driver-row" data-has-phone="{{ 'true' if has_phone else 'false' }}" style="border-bottom: 1px solid var(--border-color);">
+                        <td class="driver-name" style="padding: 16px 24px; font-weight: 600;">
                             <i class='bx bx-user-circle' style="color: var(--primary-color); margin-right: 8px;"></i>
                             {{ driver.first_name }} {{ driver.last_name }}
                         </td>
                         <td style="padding: 16px 24px; font-family: monospace; color: #a0aec0;">
-                            {% for phone in driver.phones %}
-                                <div><i class='bx bx-phone' style="font-size: 12px; margin-right: 4px;"></i>{{ phone }}</div>
+                            {% if has_phone %}
+                                {% for phone in driver.phones %}
+                                    <div><i class='bx bx-phone' style="font-size: 12px; margin-right: 4px;"></i>{{ phone }}</div>
+                                {% endfor %}
                             {% else %}
-                                -
-                            {% endfor %}
+                                <div onclick="openDismissModal()" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #e74c3c; background: rgba(231, 76, 60, 0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(231, 76, 60, 0.3); transition: all 0.3s;">
+                                    <i class='bx bx-error-circle bx-burst-hover' style="font-size: 16px;"></i> Raqam yo'q
+                                </div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% else %}
@@ -59,5 +78,67 @@
             </table>
         </div>
     {% endif %}
+        </div>
+    {% endif %}
 </div>
+
+<!-- Phone Number Missing Modal Dialog -->
+<div class="modal-overlay" id="dismissModal">
+    <div class="modal-card">
+        <div class="modal-icon" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+            <i class='bx bx-info-circle'></i>
+        </div>
+        <h3 class="modal-title" style="color: #e74c3c; font-size: 22px;">Telefon raqami mavjud emas</h3>
+        <div class="modal-message" style="text-align: left; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px;">
+            <p style="margin-bottom: 10px;"><strong>Statusi:</strong> <span style="color: var(--warning);">Ishdan bo'shatildi</span> holatida turibdi.</p>
+            <p style="color: var(--text-muted); font-size: 13px;">Agarda ushbu haydovchini ishga qaytarsangiz, yandex tizimi bu raqamni olish imkonini taqdim etadi.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="closeDismissModal()" style="width: 100%;">Tushunarli</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openDismissModal() {
+        document.getElementById('dismissModal').classList.add('active');
+    }
+
+    function closeDismissModal() {
+        document.getElementById('dismissModal').classList.remove('active');
+    }
+
+    // Filter and Search Logic
+    const searchInput = document.getElementById('driverSearch');
+    const filterSelect = document.getElementById('driverFilter');
+    
+    function filterDrivers() {
+        if(!searchInput || !filterSelect) return;
+        
+        let searchTerm = searchInput.value.toLowerCase();
+        let filterValue = filterSelect.value;
+        let rows = document.querySelectorAll('.driver-row');
+        
+        rows.forEach(row => {
+            let name = row.querySelector('.driver-name').innerText.toLowerCase();
+            let hasPhone = row.getAttribute('data-has-phone');
+            
+            let matchesSearch = name.includes(searchTerm);
+            let matchesFilter = true;
+            
+            if(filterValue === 'with_phone' && hasPhone === 'false') matchesFilter = false;
+            if(filterValue === 'no_phone' && hasPhone === 'true') matchesFilter = false;
+            
+            if(matchesSearch && matchesFilter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    if(searchInput) searchInput.addEventListener('keyup', filterDrivers);
+    if(filterSelect) filterSelect.addEventListener('change', filterDrivers);
+</script>
+
 {% endblock %}
