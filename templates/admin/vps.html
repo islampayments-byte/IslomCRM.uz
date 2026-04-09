@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}VPS Boshqaruvi{% endblock %}
+{% block page_title %}VPS Boshqaruvi{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 8px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="cards-grid">
+    <!-- CPU Usage -->
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">{{ cpu_percent }}%</div>
+            <div class="card-name">CPU Ishlatilishi</div>
+            <div class="progress-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 10px;">
+                <div style="width: {{ cpu_percent }}%; height: 100%; background: var(--primary-color); border-radius: 4px;"></div>
+            </div>
+        </div>
+        <div class="icon-box">
+            <i class='bx bx-chip'></i>
+        </div>
+    </div>
+
+    <!-- RAM Usage -->
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">{{ memory.percent }}%</div>
+            <div class="card-name">RAM: {{ (memory.used / 1024 / 1024 / 1024)|round(2) }} / {{ (memory.total / 1024 / 1024 / 1024)|round(2) }} GB</div>
+            <div class="progress-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 10px;">
+                <div style="width: {{ memory.percent }}%; height: 100%; background: #2ecc71; border-radius: 4px;"></div>
+            </div>
+        </div>
+        <div class="icon-box" style="color: #2ecc71; background: rgba(46, 204, 113, 0.1);">
+            <i class='bx bx-memory-card'></i>
+        </div>
+    </div>
+
+    <!-- Disk Usage -->
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number">{{ disk.percent }}%</div>
+            <div class="card-name">Disk: {{ (disk.used / 1024 / 1024 / 1024)|round(1) }} / {{ (disk.total / 1024 / 1024 / 1024)|round(1) }} GB</div>
+            <div class="progress-container" style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 10px;">
+                <div style="width: {{ disk.percent }}%; height: 100%; background: #e67e22; border-radius: 4px;"></div>
+            </div>
+        </div>
+        <div class="icon-box" style="color: #e67e22; background: rgba(230, 126, 34, 0.1);">
+            <i class='bx bx-hdd'></i>
+        </div>
+    </div>
+
+    <!-- Uptime -->
+    <div class="stat-card">
+        <div class="card-content">
+            <div class="number" style="font-size: 1.2rem;">{{ system_info.uptime }}</div>
+            <div class="card-name">Tizim Ish vaqti</div>
+        </div>
+        <div class="icon-box" style="color: #9b59b6; background: rgba(155, 89, 182, 0.1);">
+            <i class='bx bx-time-five'></i>
+        </div>
+    </div>
+</div>
+
+<div class="grid-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <!-- System Info -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Tizim Ma'lumotlari</h3>
+        </div>
+        <div style="padding: 20px;">
+            <p><strong>Hostname:</strong> {{ system_info.hostname }}</p>
+            <p><strong>OS:</strong> {{ system_info.os }} {{ system_info.os_release }}</p>
+            <p><strong>IP:</strong> {{ system_info.ip_address }}</p>
+            <p><strong>CPU Yadrolari:</strong> {{ system_info.cpu_count }}</p>
+            <p><strong>Arxitektura:</strong> {{ system_info.machine }}</p>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ url_for('admin.vps_action', action='restart_app') }}" class="btn-submit" style="background: var(--warning); text-decoration: none; font-size: 13px;">
+                    <i class='bx bx-refresh'></i> Ilovani Restart qilish
+                </a>
+                <a href="{{ url_for('admin.vps_action', action='clear_cache') }}" class="btn-submit" style="background: var(--secondary-color); text-decoration: none; font-size: 13px;">
+                    <i class='bx bx-trash'></i> Keshni tozalash
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Python Processes -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Faol Jarayonlar (Python/Gunicorn)</h3>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>PID</th>
+                    <th>Nomi</th>
+                    <th>CPU %</th>
+                    <th>RAM %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proc in processes %}
+                <tr>
+                    <td>#{{ proc.pid }}</td>
+                    <td>{{ proc.name }}</td>
+                    <td>{{ proc.cpu_percent }}%</td>
+                    <td>{{ proc.memory_percent|round(2) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Logs Section -->
+<div class="table-container mt-4">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Tizim Loglari (Oxirgi 20 qator)</h3>
+        <button onclick="location.reload()" class="btn-submit" style="padding: 5px 15px; font-size: 12px; background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);">
+            <i class='bx bx-sync'></i> Yangilash
+        </button>
+    </div>
+    <div style="padding: 15px; background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; font-size: 13px; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; white-space: pre-wrap;">
+{{ logs }}
+    </div>
+</div>
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 992px) {
+        .grid-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% endblock %}

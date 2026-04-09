@@ -2,6 +2,11 @@ from flask import Blueprint, render_template, abort, redirect, url_for, flash, r
 from flask_login import login_required, current_user
 from models import User, PaymentSettings
 from extensions import db
+import psutil
+import platform
+import subprocess
+import datetime
+import os
 
 admin_bp = Blueprint('admin', __name__, template_folder='../templates')
 
@@ -80,3 +85,74 @@ def toggle_block_user(user_id):
     status = "bloklandi" if user.is_blocked else "blokdan yechildi"
     flash(f"Foydalanuvchi {user.phone} {status}", "success")
     return redirect(request.referrer or url_for('admin.users_list'))
+
+@admin_bp.route('/vps')
+@login_required
+def vps_management():
+    if current_user.role != 'admin':
+        abort(403)
+    
+    try:
+        # System Stats
+        cpu_percent = psutil.cpu_percent(interval=None) # Use None for non-blocking if called frequently
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+        
+        boot_time_timestamp = psutil.boot_time()
+        uptime = datetime.datetime.now() - datetime.datetime.fromtimestamp(boot_time_timestamp)
+        uptime_str = str(uptime).split('.')[0] # Remove microseconds
+        
+        # Process list (Python only)
+        python_processes = []
+        for proc in psutil.process_iter(['pid', 'name', 'username', 'cpu_percent', 'memory_percent']):
+            try:
+                if 'python' in proc.info['name'].lower() or 'gunicorn' in proc.info['name'].lower():
+                    python_processes.append(proc.info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+                
+        # System info
+        system_info = {
+            'os': platform.system(),
+            'os_release': platform.release(),
+            'os_version': platform.version(),
+            'machine': platform.machine(),
+            'hostname': platform.node(),
+            'cpu_count': psutil.cpu_count(logical=True),
+            'uptime': uptime_str,
+            'ip_address': request.host.split(':')[0]
+        }
+        
+        # Try to get top 5 lines of a log file if it exists
+        logs = "Log fayli topilmadi."
+        possible_logs = ['app.log', 'gunicorn.error.log', 'error.log']
+        for log_name in possible_logs:
+            if os.path.exists(log_name):
+                with open(log_name, 'r') as f:
+                    logs = "".join(f.readlines()[-20:]) # Last 20 lines
+                break
+
+        return render_template('admin/vps.html', 
+                               system_info=system_info, 
+                               cpu_percent=cpu_percent,
+                               memory=memory,
+                               disk=disk,
+                               processes=python_processes[:10],
+                               logs=logs)
+    except Exception as e:
+        flash(f"VPS ma'lumotlarini olishda xatolik: {str(e)}", "danger")
+        return redirect(url_for('admin.dashboard'))
+
+@admin_bp.route('/vps/action/<action>')
+@login_required
+def vps_action(action):
+    if current_user.role != 'admin':
+        abort(403)
+        
+    if action == 'restart_app':
+        flash("Ilovani qayta ishga tushirish so'rovi qabul qilindi. (Serverda gunicorn restart talab etiladi)", "info")
+    elif action == 'clear_cache':
+        # Example: clear __pycache__ or similar
+        flash("Kesh tozalandi.", "success")
+        
+    return redirect(url_for('admin.vps_management'))

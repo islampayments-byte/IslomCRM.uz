@@ -23,6 +23,12 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin.vps_management') }}" class="{{ 'active' if request.endpoint == 'admin.vps_management' }}">
+                    <i class='bx bx-server'></i>
+                    <span class="link_name">VPS Boshqaruvi</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin.settings') }}" class="{{ 'active' if request.endpoint == 'admin.settings' }}">
                     <i class='bx bx-cog'></i>
                     <span class="link_name">Sozlamalar</span>
