@@ -51,8 +51,19 @@ def sync_user_drivers(app, user):
                 added_count = 0
                 updated_count = 0
                 
-                # Fetch existing drivers from DB into a dict by yandex_driver_id
-                existing_drivers = {d.yandex_driver_id: d for d in Driver.query.filter_by(user_id=user.id).all()}
+                # Fetch existing drivers from DB. 
+                # DEDUPLICATION: If we have multiple records for the same yandex_driver_id, we keep only one.
+                all_raw_drivers = Driver.query.filter_by(user_id=user.id).all()
+                existing_drivers = {}
+                for d in all_raw_drivers:
+                    if d.yandex_driver_id in existing_drivers:
+                        # Duplicate found - delete the extra one
+                        db.session.delete(d)
+                    else:
+                        existing_drivers[d.yandex_driver_id] = d
+                
+                # Commit any deletions before proceeding to avoid conflicts
+                db.session.flush()
 
                 for p in profiles:
                     prof = p.get('driver_profile', {})

@@ -35,7 +35,6 @@ def pricing():
     return render_template('user/pricing.html')
 
 @user_bp.route('/drivers')
-@user_bp.route('/drivers')
 @login_required
 def drivers():
     drivers_data = []
@@ -43,7 +42,17 @@ def drivers():
     
     if current_user.yandex_keys_active:
         try:
-            # Query the local database instead of the live API
+            # CLEANUP DUPLICATES: One-time/Continuous check to ensure database integrity
+            all_drivers = Driver.query.filter_by(user_id=current_user.id).all()
+            unique_ids = set()
+            for dr in all_drivers:
+                if dr.yandex_driver_id in unique_ids:
+                    db.session.delete(dr)
+                else:
+                    unique_ids.add(dr.yandex_driver_id)
+            db.session.commit()
+
+            # Query the local database correctly after cleanup
             local_drivers = Driver.query.filter_by(user_id=current_user.id).order_by(Driver.created_at.desc()).all()
             for dr in local_drivers:
                 drivers_data.append({
@@ -56,24 +65,6 @@ def drivers():
             error_msg = f"Baza bilan bog'lanishda xato: {str(e)}"
             
     return render_template('user/drivers.html', drivers=drivers_data, error_msg=error_msg)
-
-@user_bp.route('/drivers/force_sync', methods=['POST'])
-@login_required
-def force_sync():
-    if not current_user.yandex_keys_active:
-        flash("Sinxronizatsiya uchun avval Yandex kalitlarini bog'lang.", "danger")
-        return redirect(url_for('user.drivers'))
-        
-    from flask import current_app
-    from services import sync_user_drivers
-    success, msg = sync_user_drivers(current_app._get_current_object(), current_user)
-    
-    if success:
-        flash(msg, "success")
-    else:
-        flash(f"Xatolik: {msg}", "danger")
-        
-    return redirect(url_for('user.drivers'))
 
 @user_bp.route('/webhook/driver_add', methods=['POST'])
 def webhook_driver_add():
