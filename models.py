@@ -57,3 +57,19 @@ class Transaction(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
+
+class Driver(db.Model):
+    __tablename__ = 'drivers'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    yandex_driver_id = db.Column(db.String(100), nullable=False) # Important for distinguishing updates
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
+    phone = db.Column(db.String(50))
+    status = db.Column(db.String(50), default='working')
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    last_sync = db.Column(db.DateTime, default=datetime.datetime.now)
+    
+    # We will need the backref on User but for simplicity keeping it as a forward relationship 
+    # to fetch drivers by user_id
+    user = db.relationship('User', backref=db.backref('yandex_drivers', lazy=True))

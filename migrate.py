@@ -35,6 +35,25 @@ for col in columns_to_add:
         else:
             print(f"Xatolik: {e}")
 
+try:
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS drivers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        yandex_driver_id VARCHAR(100) NOT NULL,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        phone VARCHAR(50),
+        status VARCHAR(50) DEFAULT 'working',
+        created_at DATETIME,
+        last_sync DATETIME,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """)
+    print("Drivers jadvali muvaffaqiyatli tekshirildi/yaratildi.")
+except Exception as e:
+    print(f"Xatolik drivers jadvalini tuzishda: {e}")
+
 conn.commit()
 conn.close()
 print("Migratsiya muvaffaqiyatli yakunlandi!")

@@ -61,6 +61,31 @@ app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(payme_bp, url_prefix='/payments/payme')
 
+# -------------------------------------------------------------
+# Background Sync Daemon (Real-time caching architecture)
+# -------------------------------------------------------------
+import threading
+import time
+from services import sync_user_drivers
+
+def sync_daemon():
+    while True:
+        try:
+            with app.app_context():
+                users = User.query.filter_by(yandex_keys_active=True).all()
+                for u in users:
+                    success, msg = sync_user_drivers(app, u)
+                    print(f"Daemon Sync User {u.id}: {msg}")
+        except Exception as e:
+            print(f"Daemon Sync Error: {str(e)}")
+        
+        # Kutish: 15 daqiqa (15 * 60 = 900 soniya)
+        time.sleep(900)
+
+daemon_thread = threading.Thread(target=sync_daemon, daemon=True)
+daemon_thread.start()
+# -------------------------------------------------------------
+
 @app.context_processor
 def override_url_for():
     return dict(url_for=dated_url_for)

@@ -35,58 +35,87 @@ def pricing():
     return render_template('user/pricing.html')
 
 @user_bp.route('/drivers')
+@user_bp.route('/drivers')
 @login_required
 def drivers():
     drivers_data = []
     error_msg = None
     
     if current_user.yandex_keys_active:
-        url = "https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list"
-        headers = {
-            'X-Client-ID': current_user.yandex_client_id,
-            'X-Api-Key': current_user.yandex_api_key
-        }
-        payload = {
-            "query": {
-                "park": {
-                    "id": current_user.yandex_park_id
-                }
-            },
-            "fields": {
-                "park": ["name"]
-            },
-            "limit": 200 # fetch up to 200 drivers 
-        }
-        
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Fetch park name automatically if missing
-                if not current_user.yandex_park_name:
-                    try:
-                        parks_data = data.get('parks', [])
-                        if parks_data and isinstance(parks_data, list):
-                            current_user.yandex_park_name = parks_data[0].get('name')
-                            db.session.commit()
-                    except:
-                        pass
-                
-                profiles = data.get('driver_profiles', [])
-                for p in profiles:
-                    prof = p.get('driver_profile', {})
-                    drivers_data.append({
-                        'first_name': prof.get('first_name', ''),
-                        'last_name': prof.get('last_name', ''),
-                        'phones': prof.get('phones', [])
-                    })
-            else:
-                error_msg = f"Yandex bilan ulanishda xato: {response.status_code}"
+            # Query the local database instead of the live API
+            local_drivers = Driver.query.filter_by(user_id=current_user.id).order_by(Driver.created_at.desc()).all()
+            for dr in local_drivers:
+                drivers_data.append({
+                    'first_name': dr.first_name or '',
+                    'last_name': dr.last_name or '',
+                    'phones': [dr.phone] if dr.phone and dr.phone != "yo'q" else [],
+                    'status': dr.status
+                })
         except Exception as e:
-            error_msg = f"Tarmoq xatosi: {str(e)}"
+            error_msg = f"Baza bilan bog'lanishda xato: {str(e)}"
             
     return render_template('user/drivers.html', drivers=drivers_data, error_msg=error_msg)
+
+@user_bp.route('/drivers/force_sync', methods=['POST'])
+@login_required
+def force_sync():
+    if not current_user.yandex_keys_active:
+        flash("Sinxronizatsiya uchun avval Yandex kalitlarini bog'lang.", "danger")
+        return redirect(url_for('user.drivers'))
+        
+    from flask import current_app
+    from services import sync_user_drivers
+    success, msg = sync_user_drivers(current_app._get_current_object(), current_user)
+    
+    if success:
+        flash(msg, "success")
+    else:
+        flash(f"Xatolik: {msg}", "danger")
+        
+    return redirect(url_for('user.drivers'))
+
+@user_bp.route('/webhook/driver_add', methods=['POST'])
+def webhook_driver_add():
+    """
+    Bot yoki tizim API orqali chaqiriladi.
+    Secret Tokenni tekshirish majburiy.
+    Expected JSON: 
+    {
+        "secret_token": "YOUR_SECRET_TOKEN",
+        "user_id": 1,
+        "first_name": "Eshmat",
+        "last_name": "Toshmatov",
+        "phone": "+998...",
+        "yandex_driver_id": "ab123..."
+    }
+    """
+    from flask import request, jsonify
+    data = request.json
+    
+    if not data or data.get('secret_token') != 'islomcrm_secret_2026':
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    user_id = data.get('user_id')
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+        
+    try:
+        new_driver = Driver(
+            user_id=user_id,
+            yandex_driver_id=data.get('yandex_driver_id'),
+            first_name=data.get('first_name', ''),
+            last_name=data.get('last_name', ''),
+            phone=data.get('phone', ''),
+            status='working'
+        )
+        db.session.add(new_driver)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Driver gracefully added to local DB!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @user_bp.route('/drivers/auto-reg')
 @login_required
