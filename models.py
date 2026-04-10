@@ -40,6 +40,11 @@ class User(db.Model, UserMixin):
     click_service_id = db.Column(db.String(100))
     click_merchant_id = db.Column(db.String(100))
     click_secret_key = db.Column(db.String(255))
+
+    # Yandex Fleet: Haydovchi balansini to'ldirishda ishlatiladigan kategoriya ID.
+    # Har bir park o'z kategoriyasini Yandex kabineti orqali ko'rishi mumkin.
+    # Default: 1 (odatda "Ish haqi" yoki standart kategoriya)
+    yandex_category_id = db.Column(db.String(50), default='1')
     
     org_slug = db.Column(db.String(100), unique=True) # URL identifier e.g. 'islom-taxi'
     
@@ -70,13 +75,23 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    type = db.Column(db.String(20)) # topup or payment
-    status = db.Column(db.String(20), default='pending') # pending, success, failed
+    type = db.Column(db.String(20))    # 'balance_topup' | 'driver_payment'
+    status = db.Column(db.String(20), default='pending')  # pending, success, failed
     payme_trans_id = db.Column(db.String(100), unique=True)
     click_trans_id = db.Column(db.String(100), unique=True)
-    payer_phone = db.Column(db.String(50)) # To distinguish payer (driver vs owner)
+    payer_phone = db.Column(db.String(50))  # Kim to'ladi: haydovchi telefoni
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
-    
+
+    # Yandex Fleet integratsiyasi uchun:
+    # 'driver_payment' tranzaksiyalari uchun pul Yandex'ga ham yuboriladi.
+    # yandex_sync_status: 'pending' | 'success' | 'failed' | 'not_applicable'
+    #   - 'pending'        : Hali yuborilmagan yoki xatolik sabab kutmoqda (retry bo'ladi)
+    #   - 'success'        : Yandex'ga muvaffaqiyatli yuborildi
+    #   - 'failed'         : Bir nechta urinishdan keyin ham xato bo'ldi (admin tekshirsin)
+    #   - 'not_applicable' : balance_topup uchun — Yandex kerak emas
+    yandex_sync_status = db.Column(db.String(20), default='not_applicable')
+    yandex_sync_error = db.Column(db.Text)  # Oxirgi xato matni (debugging uchun)
+
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
 
 class Driver(db.Model):

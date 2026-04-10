@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from models import User, PaymentSettings, Transaction, Driver
 from extensions import db
 import base64
@@ -7,6 +7,7 @@ import time
 import json
 import os
 import logging
+import threading
 
 
 # Set up logging for Payme debugging
@@ -260,7 +261,9 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
             type=trans_type,
             status='pending',
             payme_trans_id=payme_id,
-            payer_phone=phone  # Saqlaymiz: kim to'ladi
+            payer_phone=phone,  # Saqlaymiz: kim to'ladi
+            # driver_payment bo'lsa Yandex'ga yuborishni kutamiz; topup bo'lsa kerak emas
+            yandex_sync_status='pending' if trans_type == 'driver_payment' else 'not_applicable'
         )
         db.session.add(trans)
         db.session.commit()
@@ -283,18 +286,33 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
             return payme_error(req_id, -31008, {"uz": "Tranzaksiya bekor qilingan"})
 
         if trans.status != 'success':
-            # FAQAT balance_topup (user uz balansini tuldirganda) balans oshadi
-            # driver_payment (haydovchi tulovi) bo'lsa, platforma balansi o'zgarmaydi
+            # FAQAT balance_topup (user uz balansini tuldirganda) platforma balansi oshadi.
+            # driver_payment bo'lsa, pul Yandex Fleet orqali haydovchiga yuboriladi.
             if trans.type == 'balance_topup':
                 owner = User.query.get(trans.user_id)
                 if owner:
                     owner.balance = (owner.balance or 0.0) + trans.amount
                     logging.info(f"Balance UPDATED for user {owner.id}: +{trans.amount}")
-            else:
-                logging.info(f"Driver payment SUCCESS (no balance update for org): {trans.payme_trans_id}")
 
             trans.status = 'success'
             db.session.commit()
+
+            # Haydovchi to'lovi bo'lsa — Yandex Fleet'ga balans yuboramiz.
+            # Bu amal alohida threadda ketadi, chunki Payme'dan javob kutilmaydi.
+            if trans.type == 'driver_payment':
+                owner_user = User.query.get(trans.user_id)
+                if owner_user and owner_user.yandex_keys_active:
+                    from services import yandex_topup_driver
+                    app = current_app._get_current_object()
+                    t = threading.Thread(
+                        target=yandex_topup_driver,
+                        args=(app, owner_user, trans.id),
+                        daemon=True
+                    )
+                    t.start()
+                    logging.info(f"[Payme] Yandex topup thread boshlandi: trans #{trans.id}")
+                else:
+                    logging.info(f"[Payme] Driver payment, lekin Yandex aktiv emas. Trans #{trans.id}")
 
         return payme_response(req_id, {
             "transaction": str(trans.id),

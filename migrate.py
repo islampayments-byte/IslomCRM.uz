@@ -59,6 +59,10 @@ add_column('users', 'is_payme_test_mode', 'BOOLEAN DEFAULT 1')
 add_column('users', 'click_service_id',  'VARCHAR(100)')
 add_column('users', 'click_merchant_id', 'VARCHAR(100)')
 add_column('users', 'click_secret_key',   'VARCHAR(255)')
+# Yandex Fleet tranzaksiya kategoriyasi:
+# Har bir park o'z kategoriyasini Yandex kabinetidan olib, shu yerga kiritadi.
+# Default: 1 — odatda standart/ish haqi kategoriyasi
+add_column('users', 'yandex_category_id', 'VARCHAR(50) DEFAULT 1')
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")
@@ -100,6 +104,13 @@ CREATE TABLE IF NOT EXISTS transactions (
 """)
 add_column('transactions', 'payer_phone', 'VARCHAR(50)')
 add_column('transactions', 'click_trans_id', 'VARCHAR(100)')
+# Yandex Fleet balans yuborish holati:
+#   not_applicable = balance_topup, Yandex kerak emas
+#   pending        = hali yuborilmagan (yoki xatodan keyin qayta kuriydi)
+#   success        = muvaffaqiyatli yuborildi
+#   failed         = bir necha marta urinib, baribir bo'lmadi
+add_column('transactions', 'yandex_sync_status', "VARCHAR(20) DEFAULT 'not_applicable'")
+add_column('transactions', 'yandex_sync_error',  'TEXT')
 print("  [=] transactions jadvali mavjud yoki yaratildi")
 
 

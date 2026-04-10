@@ -247,6 +247,13 @@ def payment_settings():
             current_user.click_merchant_id = click_merchant_id.strip()
             current_user.click_secret_key = click_secret_key.strip()
             flash("Click sozlamalari muvaffaqiyatli saqlandi!", "success")
+
+        elif payment_method == 'yandex_category':
+            # Yandex Fleet tranzaksiya kategoriya ID sini saqlaymiz.
+            # Bo'sh yuborilsa — default '1' qoladi (standart "Ish haqi" kategoriyasi).
+            cat_id = request.form.get('yandex_category_id', '').strip()
+            current_user.yandex_category_id = cat_id if cat_id else '1'
+            flash(f"Yandex kategoriyasi saqlandi: #{current_user.yandex_category_id}", "success")
         
         # Ensure org_slug exists (safety check)
         if not current_user.org_slug and current_user.yandex_park_name:

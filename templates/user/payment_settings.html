@@ -148,6 +148,75 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- Yandex Fleet: Kategoriya sozlamalari -->
+    <div class="stat-card" style="padding: 0; overflow: hidden; border: 1px solid rgba(252, 186, 3, 0.2);">
+        <div class="card-header" style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(252, 186, 3, 0.04);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(252,186,3,0.15); display: flex; align-items: center; justify-content: center;">
+                    <i class='bx bx-category' style="font-size: 20px; color: #FCBA03;"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.1rem;">Yandex Tranzaksiya Kategoriyasi</h3>
+                    <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Haydovchi to'lovi uchun Yandex balans kategoriyasi</p>
+                </div>
+            </div>
+            <div>
+                {% if current_user.yandex_category_id %}
+                <span style="font-size: 12px; color: #FCBA03; background: rgba(252,186,3,0.1); padding: 4px 10px; border-radius: 10px;">
+                    Kategoriya #{{ current_user.yandex_category_id }}
+                </span>
+                {% else %}
+                <span style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 10px;">
+                    Default (#1)
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-content" style="padding: 24px;">
+            {% if not current_user.yandex_keys_active %}
+            <div style="text-align: center; padding: 20px;">
+                <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
+                <p style="color: var(--text-muted); font-size: 14px;">Bu sozlama uchun avval <strong>Yandex API</strong> kalitlarini ulab tastiqlaganingiz kerak.</p>
+                <a href="{{ url_for('user.settings') }}" class="user-pill" style="margin-top: 15px; background: var(--primary-color); color: #000; border: none;">Yandex sozlamalariga o'tish</a>
+            </div>
+            {% else %}
+            <!-- Izoh bloki -->
+            <div style="background: rgba(252, 186, 3, 0.06); border-left: 3px solid #FCBA03; border-radius: 0 10px 10px 0; padding: 14px 16px; margin-bottom: 24px;">
+                <p style="margin: 0 0 8px; font-size: 13px; font-weight: 700; color: #FCBA03;">
+                    <i class='bx bx-info-circle'></i> Bu nima?
+                </p>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.7;">
+                    Haydovchi Click yoki Payme orqali to'lov qilganda, tizim avtomatik ravishda <strong style="color:#fff">Yandex Fleet</strong> orqali haydovchining balansiga pul o'tkazadi.
+                    Yandex kabi har bir park uchun pul o'tkazish <strong style="color:#fff">kategoriyasi (ID)</strong> turlicha bo'lishi mumkin.
+                </p>
+                <p style="margin: 10px 0 0; font-size: 13px; color: var(--text-muted); line-height: 1.7;">
+                    Kategoriya ID'sini Yandex Pro Kabinet → <em>Moliya → Kategoriyalar</em> bo'limidan topishingiz mumkin.
+                    <strong style="color: #FCBA03;">Bo'sh qoldirsangiz, tizim avtomatik <code>1</code>-kategoriyadan foydalanadi</strong> (aksariyat parklarda bu standart "Ish haqi" kategoriyasi).
+                </p>
+            </div>
+
+            <form action="{{ url_for('user.payment_settings') }}" method="POST">
+                <input type="hidden" name="payment_method" value="yandex_category">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                        Yandex Kategoriya ID
+                        <span style="color: var(--text-muted); font-weight: normal;">(bo'sh qoldirsangiz <code>1</code> ishlatiladi)</span>
+                    </label>
+                    <input type="text" name="yandex_category_id"
+                           value="{{ current_user.yandex_category_id or '' }}"
+                           placeholder="Masalan: 1"
+                           style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(252,186,3,0.3); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 16px; letter-spacing: 2px;">
+                </div>
+
+                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: #FCBA03; color: #000; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
+                    <i class='bx bx-save' style="margin-right: 6px;"></i> Kategoriyani saqlash
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <style>

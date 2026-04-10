@@ -1,9 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from models import User, PaymentSettings, Transaction, Driver
 from extensions import db
 import hashlib
 import logging
 import datetime
+import threading
 
 click_bp = Blueprint('click', __name__)
 
@@ -142,16 +143,19 @@ def _handle_click_request(org_slug):
             # SUCCESS case for direct payment
             if params.get('error') == '0':
                 owner_id = user_context.id if user_context else (target.id if hasattr(target, 'user_id') is False else target.user_id)
+                trans_type = 'driver_payment' if user_context else 'balance_topup'
                 new_trans = Transaction(
                     user_id=owner_id,
                     amount=float(params.get('amount', 0)),
-                    type='driver_payment' if user_context else 'balance_topup',
+                    type=trans_type,
                     status='success',
                     click_trans_id=click_trans_id,
-                    payer_phone=merchant_trans_id
+                    payer_phone=merchant_trans_id,
+                    # Yandex'ga yuborishni kutamiz (driver_payment)
+                    yandex_sync_status='pending' if trans_type == 'driver_payment' else 'not_applicable'
                 )
                 
-                # Update balance only for balance_topup
+                # Platforma balansi faqat balance_topup uchun oshadi
                 if new_trans.type == 'balance_topup':
                     owner = User.query.get(new_trans.user_id)
                     if owner:
@@ -160,6 +164,18 @@ def _handle_click_request(org_slug):
                 
                 db.session.add(new_trans)
                 db.session.commit()
+
+                # Yandex Fleet'ga balans yuborish (agar haydovchi to'lovi bo'lsa)
+                if new_trans.type == 'driver_payment' and user_context and user_context.yandex_keys_active:
+                    from services import yandex_topup_driver
+                    app = current_app._get_current_object()
+                    t = threading.Thread(
+                        target=yandex_topup_driver,
+                        args=(app, user_context, new_trans.id),
+                        daemon=True
+                    )
+                    t.start()
+                    logging.info(f"[Click Direct] Yandex topup thread boshlandi: trans #{new_trans.id}")
                 
                 return jsonify({
                     "click_trans_id": click_trans_id,
@@ -185,7 +201,25 @@ def _handle_click_request(org_slug):
                         logging.info(f"Click: Balance UPDATED for user {owner.id}: {trans.amount}")
 
                 trans.status = 'success'
+                # Yandex Fleet'ga balans yuborish (agar haydovchi to'lovi bo'lsa)
+                if trans.type == 'driver_payment':
+                    trans.yandex_sync_status = 'pending'
                 db.session.commit()
+
+                if trans.type == 'driver_payment':
+                    owner_user = User.query.get(trans.user_id)
+                    if owner_user and owner_user.yandex_keys_active:
+                        from services import yandex_topup_driver
+                        app = current_app._get_current_object()
+                        t = threading.Thread(
+                            target=yandex_topup_driver,
+                            args=(app, owner_user, trans.id),
+                            daemon=True
+                        )
+                        t.start()
+                        logging.info(f"[Click] Yandex topup thread boshlandi: trans #{trans.id}")
+                    else:
+                        logging.info(f"[Click] Driver payment, lekin Yandex aktiv emas. Trans #{trans.id}")
             
             return jsonify({
                 "click_trans_id": click_trans_id,
