@@ -55,7 +55,27 @@
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
             font-size: 12px; font-weight: 700; color: var(--primary);
             text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 30px;
         }
+        .action-buttons-v2 {
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .landing-btn-v2 {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 16px; border-radius: 16px;
+            text-decoration: none; font-weight: 800; font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .primary-btn {
+            background: var(--primary); color: #fff;
+            box-shadow: 0 10px 20px rgba(142,45,226,0.3);
+        }
+        .primary-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(142,45,226,0.5); }
+        .secondary-btn {
+            background: rgba(255,255,255,0.05); color: #fff;
+            border: 1px solid var(--border);
+        }
+        .secondary-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -73,6 +93,15 @@
         </div>
 
         <div class="status-tag">Yaqin kunda</div>
+
+        <div class="action-buttons-v2">
+            <a href="{{ url_for('auth.login') }}" class="landing-btn-v2 primary-btn">
+                <i class='bx bx-log-in-circle'></i> Kirish
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="landing-btn-v2 secondary-btn">
+                <i class='bx bx-user-plus'></i> Ro'yxatdan o'tish
+            </a>
+        </div>
     </div>
 </body>
 </html>
