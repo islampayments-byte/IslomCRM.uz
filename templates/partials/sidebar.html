@@ -150,7 +150,7 @@
             </li>
 
             {# SETTINGS SUB-MENU (Conditional) #}
-            {% if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] %}
+            {% if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings', 'user.telegram_bot', 'user.mini_app'] %}
             <li class="submenu-container" style="margin-bottom: 12px; margin-top: 10px;">
                 <ul class="submenu-links" style="border-left-color: rgba(255,255,255,0.1);">
                     <li>
@@ -165,12 +165,24 @@
                             <span class="link_name">To'lov tizimlari</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url_for('user.telegram_bot') }}" class="{{ 'active' if request.endpoint == 'user.telegram_bot' }}">
+                            <i class='bx bxl-telegram'></i>
+                            <span class="link_name">Telegram Bot</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('user.mini_app') }}" class="{{ 'active' if request.endpoint == 'user.mini_app' }}">
+                            <i class='bx bx-mobile-alt'></i>
+                            <span class="link_name">Mini App</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             {% endif %}
 
             <li>
-                <a href="{{ url_for('user.settings') }}" class="{{ 'active' if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings'] }}">
+                <a href="{{ url_for('user.settings') }}" class="{{ 'active' if request.endpoint in ['user.settings', 'user.permissions', 'user.payment_settings', 'user.telegram_bot', 'user.mini_app'] }}">
                     <i class='bx bx-cog'></i>
                     <span class="link_name">Sozlamalar</span>
                 </a>

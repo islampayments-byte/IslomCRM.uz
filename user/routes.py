@@ -547,3 +547,12 @@ def cancel_transaction(transaction_id):
     
     flash(f"#{transaction_id} raqamli to'lov bekor qilindi.", "info")
     return redirect(url_for('user.finance'))
+@user_bp.route('/settings/telegram-bot')
+@login_required
+def telegram_bot():
+    return render_template('user/telegram_bot.html')
+
+@user_bp.route('/settings/mini-app')
+@login_required
+def mini_app():
+    return render_template('user/mini_app.html')

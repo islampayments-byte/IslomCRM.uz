@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Telegram Mini App Sozlamalari{% endblock %}
+{% block page_title %}Telegram Mini App{% endblock %}
+
+{% block content %}
+<div class="stat-card glass-panel-premium" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header-premium">
+        <div class="header-brand-box">
+            <div class="icon-box-premium blue-icon">
+                <i class='bx bx-mobile-alt'></i>
+            </div>
+            <div class="brand-text">
+                <h3 class="brand-title">Mini App Sozlamalari</h3>
+                <p class="brand-subtitle">Telegram ichidagi mobil ilova interfeysi</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-content-premium spacious">
+        <div class="professional-banner-premium blue-theme">
+            <div class="banner-icon-box"><i class='bx bx-info-circle'></i></div>
+            <div class="banner-content">
+                <h5>TEZKOR MA'LUMOT</h5>
+                <p>Telegram Mini App tizimi hozirda ishlab chiqilmoqda. Tez orada bu yerda o'z ilovangizni ulash imkoniyati yaratiladi.</p>
+            </div>
+        </div>
+
+        <div class="locked-state-premium centered">
+            <div class="lock-icon-wrapper blue-lock large"><i class='bx bx-devices'></i></div>
+            <h4>Tez kunda...</h4>
+            <p>Mini App boshqaruvi yaqin o'rtada faollashadi.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Reusing the same premium styles from payment settings */
+.glass-panel-premium {
+    background: rgba(20, 21, 24, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+.card-header-premium {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.header-brand-box { display: flex; align-items: center; gap: 15px; }
+.icon-box-premium {
+    width: 45px; height: 45px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.blue-icon { background: rgba(0, 123, 255, 0.1); color: #007bff; }
+.brand-title { margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff; }
+.brand-subtitle { margin: 2px 0 0; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight: 700; }
+
+.card-content-premium.spacious { padding: 32px; }
+.professional-banner-premium {
+    display: flex; gap: 20px; background: rgba(255,255,255,0.03);
+    padding: 24px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 32px; align-items: center;
+}
+.blue-theme { border-color: rgba(0, 123, 255, 0.1); }
+.blue-theme .banner-icon-box { color: #007bff; }
+
+.locked-state-premium { text-align: center; padding: 40px 20px; }
+.lock-icon-wrapper {
+    width: 80px; height: 80px; border-radius: 24px; background: rgba(0, 123, 255, 0.05);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;
+    font-size: 40px; color: #007bff;
+}
+</style>
+{% endblock %}
