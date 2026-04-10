@@ -41,13 +41,18 @@
                 <label for="tg_bot_token">HTTP API Token</label>
                 <div class="auth-input-container">
                     <i class='bx bx-key input-prefix-icon'></i>
+                    {% if current_user.tg_bot_token %}
+                    <input type="text" id="tg_bot_token" name="tg_bot_token" 
+                           value="{{ current_user.tg_bot_token[:10] }}••••••••••••••••••••••••"
+                           readonly style="opacity: 0.6; letter-spacing: 2px;">
+                    {% else %}
                     <input type="password" id="tg_bot_token" name="tg_bot_token" 
                            placeholder="Tokenni kiriting..." 
-                           value="{{ current_user.tg_bot_token or '' }}"
-                           {{ 'readonly style=opacity:0.6;' if current_user.tg_bot_token else '' }}>
+                           value="">
                     <button type="button" class="visibility-toggle" onclick="toggleToken()">
                         <i class='bx bx-show'></i>
                     </button>
+                    {% endif %}
                     <!-- Glowing Border Effect -->
                     <div class="focus-glow"></div>
                 </div>
