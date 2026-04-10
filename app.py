@@ -144,7 +144,7 @@ def mini_app_landing(slug):
     # Public route for Mini App entry (Root level)
     from flask import render_template
     org = User.query.filter_by(org_slug=slug).first_or_404()
-    return render_template('user/mini_app_landing.html', org=org)
+    return render_template('mini_app/landing.html', org=org)
 
 @app.route('/')
 def index():

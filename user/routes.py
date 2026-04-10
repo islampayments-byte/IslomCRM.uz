@@ -587,4 +587,4 @@ def telegram_bot():
 @user_bp.route('/settings/mini-app')
 @login_required
 def mini_app():
-    return render_template('user/mini_app.html')
+    return render_template('mini_app/settings.html')
