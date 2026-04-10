@@ -8,94 +8,133 @@
     <!-- Top Accent Gradient Bar -->
     <div class="card-accent-bar purple-gradient"></div>
 
-        <!-- SMS Service Section: Redesigned for Clarity -->
-        <div class="link-section-v2 anim-fade-in" style="margin-bottom: 30px; border-color: rgba(241, 196, 15, 0.2); padding: 0; overflow: hidden; border: none;">
-            <div class="section-tag-v2" style="color: #f1c40f; padding: 24px 24px 0;">SMS XIZMATI & MONITORING</div>
+        <!-- SMS Service Section: Professional & Perfect Overhaul -->
+        <div class="pro-dashboard-section anim-staggered">
+            <div class="pro-section-header">
+                <div class="title-wrap">
+                    <span class="pro-tag">Premium Module</span>
+                    <h2 class="pro-title">SMS Xizmati & Monitoring</h2>
+                </div>
+                <div class="pro-status-chip">
+                    <span class="pulse-dot"></span> Live Monitoring
+                </div>
+            </div>
             
-            <!-- Unified Stats Dashboard -->
-            <div class="sms-stats-dashboard">
-                <div class="stat-unit">
-                    <span class="unit-label">SMS Narxi</span>
-                    <span class="unit-value">{{ sms_price|int }} <small>UZS</small></span>
+            <!-- Glass 2.0 Stat Cards Grid -->
+            <div class="pro-stats-grid">
+                <div class="pro-stat-card glass-2-0 st-1" style="--delay: 1">
+                    <div class="card-inner">
+                        <div class="icon-wrap"><i class='bx bx-purchase-tag-alt'></i></div>
+                        <div class="stat-content">
+                            <span class="stat-label">SMS Narxi</span>
+                            <span class="stat-value">{{ sms_price|int }} <small>UZS</small></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-unit">
-                    <span class="unit-label">Balansingiz</span>
-                    <span class="unit-value {% if current_user.balance < 1000 %}low-balance{% endif %}">{{ current_user.balance|int }} <small>UZS</small></span>
+                <div class="pro-stat-card glass-2-0 st-2" style="--delay: 2">
+                    <div class="card-inner">
+                        <div class="icon-wrap"><i class='bx bx-wallet-alt'></i></div>
+                        <div class="stat-content">
+                            <span class="stat-label">Balansingiz</span>
+                            <span class="stat-value {% if current_user.balance < 1000 %}low-balance{% endif %}">{{ current_user.balance|int }} <small>UZS</small></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-unit">
-                    <span class="unit-label">Platforma SMS</span>
-                    <span class="unit-value">{{ current_user.sms_count_platform or 0 }}</span>
+                <div class="pro-stat-card glass-2-0 st-3" style="--delay: 3">
+                    <div class="card-inner">
+                        <div class="icon-wrap"><i class='bx bx-cube-alt'></i></div>
+                        <div class="stat-content">
+                            <span class="stat-label">Platforma SMS</span>
+                            <span class="stat-value">{{ current_user.sms_count_platform or 0 }}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-unit accent">
-                    <span class="unit-label">Maxsus SMS</span>
-                    <span class="unit-value bubble">{{ current_user.sms_count_custom or 0 }}</span>
+                <div class="pro-stat-card glass-2-0 st-4" style="--delay: 4">
+                    <div class="card-inner">
+                        <div class="icon-wrap"><i class='bx bx-star'></i></div>
+                        <div class="stat-content">
+                            <span class="stat-label">Maxsus SMS</span>
+                            <span class="stat-value purple-glow">{{ current_user.sms_count_custom or 0 }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div style="padding: 0 24px 24px;">
-                <!-- Consolidated Management Card -->
-                <div class="branding-management-card {% if current_user.sms_status == 'pending' %}pending-state{% endif %}">
-                    <div class="card-main">
-                        <div class="branding-info">
-                            <h4>Maxsus SMS Branding</h4>
-                            <p>Xabarlarda tashkilotingiz nomi chiqishini xohlaysizmi?</p>
+            <div class="pro-main-content">
+                <!-- Smart Branding Module -->
+                <div class="pro-branding-module glass-2-0 st-5" style="--delay: 5">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <div class="module-icon-box"><i class='bx bxs-badge-check'></i></div>
+                            <div>
+                                <h3>Maxsus SMS Branding</h3>
+                                <p>Tashkilot nomidan professional xabarlar</p>
+                            </div>
                         </div>
                         
-                        <div class="action-box">
+                        <div class="module-action">
                             {% if current_user.sms_status == 'none' or current_user.sms_status == 'rejected' %}
                             <form action="{{ url_for('user.request_sms_activation') }}" method="POST">
-                                <button type="submit" class="cta-btn gold">
+                                <button type="submit" class="pro-btn gold-glow">
                                     <i class='bx bx-bolt-circle'></i> Faollashtirish
                                 </button>
                             </form>
                             {% elif current_user.sms_status == 'pending' %}
-                            <div class="state-badge pending">
+                            <div class="pro-badge pending">
                                 <i class='bx bx-time-five'></i> Kutilmoqda
                             </div>
                             {% elif current_user.sms_status == 'approved' %}
-                            <div class="state-badge active">
-                                <i class='bx bx-check-shield'></i> Faol
+                            <div class="pro-badge active">
+                                <i class='bx bxs-shield-check'></i> Faol
                             </div>
                             {% endif %}
                         </div>
                     </div>
 
                     {% if current_user.sms_status == 'pending' %}
-                    <div class="moderation-context">
-                        <div class="context-inner">
-                            <i class='bx bx-calendar-check'></i>
-                            <p>Moderatsiya: <strong>10:00 - 16:00</strong> (Har 3 soatda). Dam olish kunlarisiz.</p>
+                    <div class="pro-moderation-banner">
+                        <i class='bx bx-calendar-event'></i>
+                        <div class="banner-text">
+                            <strong>Moderatsiya:</strong> 10:00 - 16:00 oralig'ida har 3 soatda tasdiqlanadi.
                         </div>
                     </div>
                     {% endif %}
                 </div>
 
-                <!-- Live Previews: Smartphone Style -->
-                <div class="preview-showcase">
-                    <div class="preview-header">
-                        <i class='bx bx-show-alt'></i> Xabarlar namunasi
-                    </div>
+                <!-- High-Fidelity OS Previews -->
+                <div class="pro-preview-module glass-2-0 st-6" style="--delay: 6">
+                    <div class="preview-header-mini">XABARLAR NAMUNASI</div>
                     
-                    <div class="phone-previews">
-                        <!-- Default Message -->
-                        <div class="message-bubble-wrapper">
-                            <div class="bubble-tag">Umumiy SMS</div>
-                            <div class="message-bubble">
-                                <div class="bubble-text">
-                                    IslomCRM web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi : <strong>123456</strong> IslomCRM.uz
+                    <div class="os-messages">
+                        <div class="os-bubble-wrap">
+                            <div class="os-sender">
+                                <div class="os-avatar default">I</div>
+                                <span>Platforma</span>
+                            </div>
+                            <div class="os-bubble">
+                                <div class="os-text">
+                                    IslomCRM web ilovasidan ro'yxatdan o'tish kodi: <strong>123456</strong> IslomCRM.uz
                                 </div>
-                                <div class="bubble-meta">Hozir · IslomCRM</div>
+                                <span class="os-time">Hozir</span>
                             </div>
                         </div>
 
-                        <!-- Brand Message -->
-                        <div class="message-bubble-wrapper brand">
-                            <div class="bubble-tag">Brend SMS</div>
-                            <div class="message-bubble">
-                                <div class="bubble-text">
-                                    <strong>{{ current_user.yandex_park_name or current_user.org_name or 'TASHKILOT' }}</strong> web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi : <strong>123456</strong>
+                        <div class="os-bubble-wrap brand">
+                            <div class="os-sender">
+                                <div class="os-avatar brand">
+                                    {% if current_user.org_logo %}
+                                        <img src="{{ url_for('static', filename=current_user.org_logo) }}" alt="">
+                                    {% else %}
+                                        {{ current_user.org_name[0]|upper if current_user.org_name else 'O' }}
+                                    {% endif %}
                                 </div>
-                                <div class="bubble-meta">Hozir · {{ current_user.yandex_park_name or current_user.org_name or 'Tashkilot' }}</div>
+                                <span>{{ current_user.yandex_park_name or current_user.org_name or 'Tashkilot' }}</span>
+                            </div>
+                            <div class="os-bubble">
+                                <div class="os-text">
+                                    <strong>{{ current_user.yandex_park_name or current_user.org_name or 'TASHKILOT' }}</strong> web ilovasidan ro'yxatdan o'tish kodi: <strong>123456</strong>
+                                </div>
+                                <span class="os-time">Hozir</span>
                             </div>
                         </div>
                     </div>
@@ -338,123 +377,148 @@ function copyMiniAppLink() {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-/* SMS Section: Premium Redesign */
-.sms-stats-dashboard {
+/* SMS Section: Professional & Perfect (Glass 2.0) */
+.pro-dashboard-section { margin-top: 10px; }
+
+.pro-section-header {
+    padding: 30px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.pro-tag {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--purple);
+    background: rgba(142, 45, 226, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+.pro-title { margin: 0; font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.pro-status-chip {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.pulse-dot {
+    width: 6px; height: 6px; background: #10b981; border-radius: 50%;
+    box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+.pro-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid var(--border-color);
-    margin-top: 15px;
+    gap: 16px;
+    padding: 0 24px 30px;
 }
-.stat-unit {
+
+.glass-2-0 {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 15px 35px rgba(0,0,0,0.3);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.pro-stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+
+.pro-stat-card .card-inner {
     padding: 24px;
-    background: var(--card-bg);
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    text-align: center;
+    gap: 15px;
+    height: 100%;
 }
-.stat-unit.accent { background: rgba(142, 45, 226, 0.02); }
-.unit-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1.5px; }
-.unit-value { font-size: 20px; font-weight: 800; color: #fff; }
-.unit-value small { font-size: 12px; opacity: 0.5; margin-left: 2px; }
-.unit-value.low-balance { color: #ef4444; }
-.unit-value.bubble { color: var(--purple); text-shadow: 0 0 15px rgba(142,45,226,0.3); }
-
-.branding-management-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    margin-top: 24px;
-    overflow: hidden;
-    transition: all 0.3s ease;
+.icon-wrap {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center; font-size: 20px; color: rgba(255,255,255,0.4);
 }
-.branding-management-card.pending-state { border-color: rgba(241, 196, 15, 0.2); background: rgba(241, 196, 15, 0.02); }
+.st-4 .icon-wrap { color: var(--purple); background: rgba(142,45,226,0.05); }
 
-.card-main {
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+.stat-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; display: block; }
+.stat-value { font-size: 22px; font-weight: 800; color: #fff; display: block; }
+.stat-value small { font-size: 11px; opacity: 0.4; margin-left: 2px; }
+.stat-value.low-balance { color: #f87171; }
+.purple-glow { text-shadow: 0 0 20px rgba(142,45,226,0.5); color: var(--purple); }
+
+.pro-main-content { padding: 0 24px 40px; }
+
+.pro-branding-module { padding: 24px; margin-bottom: 24px; }
+.module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; }
+.module-title { display: flex; align-items: center; gap: 16px; }
+.module-icon-box {
+    width: 48px; height: 48px; border-radius: 14px; background: rgba(241, 196, 15, 0.05);
+    border: 1px solid rgba(241, 196, 15, 0.1); display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #f1c40f;
 }
-.branding-info h4 { margin: 0 0 4px; font-size: 16px; font-weight: 800; color: #fff; }
-.branding-info p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.4); }
+.module-title h3 { margin: 0 0 2px; font-size: 17px; font-weight: 800; color: #fff; }
+.module-title p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.4); }
 
-.cta-btn {
-    border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
+.pro-btn {
+    border: none; padding: 12px 28px; border-radius: 14px; font-size: 14px; font-weight: 800;
+    cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease;
 }
-.cta-btn.gold { background: #f1c40f; color: #000; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2); }
-.cta-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+.pro-btn.gold-glow { background: #f1c40f; color: #000; box-shadow: 0 10px 20px rgba(241, 196, 15, 0.2); }
+.pro-btn:hover { transform: scale(1.02); opacity: 0.9; }
 
-.state-badge {
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.pro-badge { padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.pro-badge.pending { background: rgba(241, 196, 15, 0.08); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.1); }
+.pro-badge.active { background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.1); }
+
+.pro-moderation-banner {
+    margin-top: 24px; padding: 16px 20px; background: rgba(0,0,0,0.2); border-radius: 14px;
+    display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.03);
 }
-.state-badge.pending { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
-.state-badge.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.pro-moderation-banner i { font-size: 20px; color: #f1c40f; opacity: 0.8; }
+.banner-text { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+.banner-text strong { color: #f1c40f; }
 
-.moderation-context {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 15px 24px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+.pro-preview-module { padding: 30px; }
+.preview-header-mini { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.2); letter-spacing: 2px; margin-bottom: 24px; }
+
+.os-messages { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+@media (max-width: 768px) { .os-messages { grid-template-columns: 1fr; } }
+
+.os-bubble-wrap { display: flex; flex-direction: column; gap: 12px; }
+.os-sender { display: flex; align-items: center; gap: 10px; }
+.os-sender span { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.4); }
+.os-avatar {
+    width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: #fff; border: 1px solid rgba(255,255,255,0.1);
 }
-.context-inner { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #f1c40f; opacity: 0.8; }
-.context-inner i { font-size: 18px; }
-.context-inner p { margin: 0; }
+.os-avatar.default { background: linear-gradient(135deg, #606c88 0%, #3f4c6b 100%); }
+.os-avatar.brand { background: var(--purple-gradient); overflow: hidden; }
+.os-avatar.brand img { width: 100%; height: 100%; object-fit: cover; }
 
-.preview-showcase { margin-top: 32px; }
-.preview-header { 
-    font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.2); 
-    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px;
-    display: flex; align-items: center; gap: 8px;
+.os-bubble {
+    background: rgba(255,255,255,0.05); border-radius: 4px 18px 18px 18px; padding: 16px 20px;
+    position: relative; border: 1px solid rgba(255,255,255,0.05);
 }
-
-.phone-previews {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+.os-bubble-wrap.brand .os-bubble {
+    background: rgba(142, 45, 226, 0.05); border-color: rgba(142, 45, 226, 0.15);
 }
-@media (max-width: 600px) { .phone-previews { grid-template-columns: 1fr; } }
+.os-text { font-size: 13px; color: #fff; line-height: 1.6; }
+.os-text strong { color: var(--purple); font-weight: 800; }
+.os-time { font-size: 10px; color: rgba(255,255,255,0.2); display: block; margin-top: 10px; text-align: right; font-weight: 700; }
 
-.message-bubble-wrapper { display: flex; flex-direction: column; gap: 10px; }
-.bubble-tag { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); margin-left: 12px; }
+/* Cinematic Staggered Animation */
+.anim-staggered > * { opacity: 0; transform: translateY(20px); animation: fadeInUp Pro 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.st-1 { animation-delay: 0.1s !important; }
+.st-2 { animation-delay: 0.2s !important; }
+.st-3 { animation-delay: 0.3s !important; }
+.st-4 { animation-delay: 0.4s !important; }
+.st-5 { animation-delay: 0.5s !important; }
+.st-6 { animation-delay: 0.6s !important; }
 
-.message-bubble {
-    background: #262626;
-    border-radius: 18px 18px 18px 4px;
-    padding: 14px 18px;
-    position: relative;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.05);
-}
-.message-bubble-wrapper.brand .message-bubble {
-    background: rgba(142, 45, 226, 0.08);
-    border-color: rgba(142, 45, 226, 0.2);
-}
-.bubble-text { font-size: 13px; color: #fff; line-height: 1.6; font-family: 'Plus Jakarta Sans', sans-serif; }
-.bubble-text strong { color: var(--purple); font-weight: 700; }
-.bubble-meta { font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 8px; font-weight: 600; }
-
-.anim-slide-up { animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes fadeInUpPro {
+    from { opacity: 0; transform: translateY(25px); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 </style>
