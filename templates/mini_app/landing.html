@@ -9,16 +9,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --accent: #8e2de2;
-            --accent-light: #4a00e0;
-            --accent-gradient: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
-            --bg-deep: #08090a;
+            /* Dynamic variables using Telegram Theme or defaults */
+            --accent: var(--tg-theme-button-color, #8e2de2);
+            --accent-light: var(--tg-theme-button-color, #4a00e0);
+            --accent-gradient: linear-gradient(135deg, var(--accent) 0%, var(--tg-theme-link-color, #4a00e0) 100%);
+            --bg-deep: var(--tg-theme-bg-color, #08090a);
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.07);
-            --text-main: #ffffff;
-            --text-dim: rgba(255, 255, 255, 0.5);
+            --text-main: var(--tg-theme-text-color, #ffffff);
+            --text-dim: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.5));
         }
 
         * {
@@ -261,11 +263,11 @@
 
         <!-- Actions -->
         <div class="actions-grid anim-slide-up delay-2">
-            <a href="{{ url_for('auth.login') }}" class="btn-premium btn-primary">
+            <a href="{{ url_for('auth.login') }}" class="btn-premium btn-primary" onclick="haptic()">
                 <i class='bx bx-log-in-circle'></i>
                 <span>Tizimga kirish</span>
             </a>
-            <a href="{{ url_for('auth.register') }}" class="btn-premium btn-secondary">
+            <a href="{{ url_for('auth.register') }}" class="btn-premium btn-secondary" onclick="haptic()">
                 <i class='bx bx-user-plus'></i>
                 <span>Ro'yxatdan o'tish</span>
             </a>
@@ -277,6 +279,16 @@
         </div>
     </div>
 
-    <!-- Haptic Feedback emulation or interaction enhancements could go here -->
+    <script>
+        const webApp = window.Telegram.WebApp;
+        webApp.expand(); // Full height
+        webApp.ready();
+
+        function haptic() {
+            if (webApp.HapticFeedback) {
+                webApp.HapticFeedback.impactOccurred('medium');
+            }
+        }
+    </script>
 </body>
 </html>

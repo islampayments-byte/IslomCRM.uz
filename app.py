@@ -141,10 +141,23 @@ def make_session_permanent():
 
 @app.route('/m/<code>/<slug>')
 def mini_app_landing(code, slug):
-    # Public route for Mini App entry (Secured with 4-char code)
-    from flask import render_template
-    org = User.query.filter_by(org_link_code=code, org_slug=slug).first_or_404()
-    return render_template('mini_app/landing.html', org=org)
+    # Public route for Mini App entry (Secured and Robust)
+    from flask import render_template, abort
+    import re
+    
+    # 1. Basic format validation to prevent SQL injection or weird characters
+    if not re.match(r'^[A-Z0-9]{4}$', code) or not re.match(r'^[a-z0-9\-]{1,100}$', slug):
+        abort(404)
+        
+    try:
+        org = User.query.filter_by(org_link_code=code, org_slug=slug).first_or_404()
+        return render_template('mini_app/landing.html', org=org)
+    except Exception as e:
+        print(f"Mini App Error: {e}")
+        # Log to error.log
+        with open('error.log', 'a') as f:
+            f.write(f"\n{datetime.datetime.now()} - Mini App Error: {str(e)}\n")
+        abort(404) # Shov generic 404 for security
 
 @app.route('/')
 def index():
