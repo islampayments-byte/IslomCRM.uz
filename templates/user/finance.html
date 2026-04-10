@@ -110,6 +110,9 @@
                                 {% endif %}
                             {% elif t.type == 'sms_fee' %}
                                 <span style="color: var(--warning);">SMS jo'natish uchun to'lov</span>
+                                <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px;">
+                                    <i class='bx bx-mobile-alt' style="font-size: 8px;"></i> Raqam: {{ t.payer_phone }}
+                                </div>
                             {% elif t.type == 'driver_payment' %}
                                 Haydovchi to'lovi
                             {% else %}
