@@ -4,7 +4,7 @@
 {% block page_title %}To'lov tizimlari sozlamalari{% endblock %}
 
 {% block content %}
-<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 32px;">
+<div class="cards-grid settings-3-column" style="gap: 24px;">
     <!-- Payme Settings -->
     <div class="stat-card glass-panel-premium payment-card-professional">
         <div class="card-header-premium payme-header">
@@ -17,9 +17,9 @@
             </div>
             <div class="status-indicator-box">
                 {% if current_user.payme_merchant_id %}
-                <span class="status-badge connected"><i class='bx bxs-check-shield'></i> BOG'LANGAN</span>
+                <span class="premium-status-pill connected"><i class='bx bx-check'></i> BOG'LANGAN</span>
                 {% else %}
-                <span class="status-badge disconnected">ULANMAGAN</span>
+                <span class="premium-status-pill disconnected">ULANMAGAN</span>
                 {% endif %}
             </div>
         </div>
@@ -107,9 +107,9 @@
             </div>
             <div class="status-indicator-box">
                 {% if current_user.click_merchant_id %}
-                <span class="status-badge connected blue-badge"><i class='bx bxs-check-shield'></i> BOG'LANGAN</span>
+                <span class="premium-status-pill connected blue-pill"><i class='bx bx-check'></i> BOG'LANGAN</span>
                 {% else %}
-                <span class="status-badge disconnected">ULANMAGAN</span>
+                <span class="premium-status-pill disconnected">ULANMAGAN</span>
                 {% endif %}
             </div>
         </div>
@@ -172,7 +172,7 @@
     </div>
 
     <!-- Yandex Fleet Categories -->
-    <div class="stat-card glass-panel-premium yandex-card-professional full-width-card">
+    <div class="stat-card glass-panel-premium yandex-card-professional">
         <div class="card-header-premium yandex-header">
             <div class="header-brand-box">
                 <div class="icon-box-premium gold-icon">
@@ -277,16 +277,19 @@
     transition: all 0.3s ease;
 }
 
-.full-width-card { grid-column: 1 / -1; }
+.settings-3-column {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
 
-.payment-card-professional {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+@media (max-width: 1400px) {
+    .settings-3-column {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
 }
 
 .card-header-premium {
-    padding: 24px 28px;
+    padding: 20px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -297,31 +300,45 @@
 .click-header { background: rgba(0, 123, 255, 0.03); }
 .yandex-header { background: rgba(255, 204, 0, 0.03); }
 
-.header-brand-box { display: flex; align-items: center; gap: 16px; }
-.brand-logo-lg { height: 32px; filter: drop-shadow(0 0 5px rgba(252,186,3,0.3)); }
-.brand-logo-md { height: 24px; }
+.header-brand-box { display: flex; align-items: center; gap: 12px; }
+.brand-logo-lg { height: 28px; filter: drop-shadow(0 0 5px rgba(252,186,3,0.3)); }
+.brand-logo-md { height: 20px; }
 
-.brand-title { margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
-.brand-subtitle { margin: 2px 0 0; font-size: 13px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.brand-title { margin: 0; font-size: 1.2rem; font-weight: 800; color: #fff; }
+.brand-subtitle { margin: 2px 0 0; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
 
-.status-badge {
-    font-size: 11px;
+.premium-status-pill {
+    font-size: 10px;
     font-weight: 800;
-    padding: 6px 14px;
-    border-radius: 30px;
-    letter-spacing: 0.02em;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
-.status-badge.connected { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
-.status-badge.disconnected { background: rgba(255,255,255,0.08); color: var(--text-muted); }
-.blue-badge { background: rgba(0, 123, 255, 0.15) !important; color: #3498db !important; border-color: rgba(0,123,255,0.3) !important; }
+.premium-status-pill.connected { 
+    background: rgba(46, 204, 113, 0.1); 
+    color: #2ecc71; 
+    border: 1px solid rgba(46, 204, 113, 0.2); 
+}
+.premium-status-pill.disconnected { 
+    background: rgba(255, 255, 255, 0.05); 
+    color: var(--text-muted); 
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.blue-pill { 
+    background: rgba(0, 123, 255, 0.1) !important; 
+    color: #3498db !important; 
+    border-color: rgba(0, 123, 255, 0.2) !important; 
+}
 
-.card-content-premium { padding: 32px; }
-.card-content-premium.spacious { padding: 40px; }
+.card-content-premium { padding: 24px; }
+.card-content-premium.spacious { padding: 28px; }
 
 /* FORM ELEMENTS */
-.premium-form { display: flex; flex-direction: column; gap: 24px; }
+.premium-form { display: flex; flex-direction: column; gap: 18px; }
 
-.premium-label { color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 700; margin-bottom: 10px; display: block; }
+.premium-label { color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; }
 
 .input-wrapper-premium {
     position: relative;
@@ -452,7 +469,7 @@ input:checked + .premium-slider:before { transform: translateX(20px); }
 .banner-content h5 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: 0.02em; }
 .banner-content p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
-.category-selectors-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.category-selectors-grid { display: flex; flex-direction: column; gap: 24px; }
 .selection-card-premium {
     background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
     padding: 24px; border-radius: 20px; transition: border-color 0.2s;
