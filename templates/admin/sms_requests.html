@@ -11,56 +11,87 @@
     </div>
 </div>
 
-<div class="glass-panel">
+<div class="glass-panel" style="padding: 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
     <div class="table-container">
-        <table class="modern-table">
-            <thead>
+        <table class="modern-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+            <thead style="background: rgba(255,255,255,0.02);">
                 <tr>
-                    <th>Tashkilot</th>
-                    <th>Telefon</th>
-                    <th>Holat</th>
-                    <th>Statistika (P/C)</th>
-                    <th>Amallar</th>
+                    <th style="padding: 20px 24px;">Tashkilot</th>
+                    <th>Brend & Shablon (Eskiz uchun)</th>
+                    <th>Status</th>
+                    <th>Balans/SMS</th>
+                    <th style="text-align: right; padding-right: 24px;">Amallar</th>
                 </tr>
             </thead>
             <tbody>
                 {% for req in sms_requests %}
-                <tr>
-                    <td>
-                        <div style="font-weight: 700;">{{ req.org_name or 'Nomsiz' }}</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">{{ req.stir }}</div>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                    <td style="padding: 20px 24px;">
+                        <div style="font-weight: 800; color: #fff; font-size: 15px;">{{ req.org_name or 'Nomsiz' }}</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; letter-spacing: 0.5px;">STIR: {{ req.stir }}</div>
                     </td>
-                    <td>{{ req.phone }}</td>
+                    <td>
+                        <div class="moderation-kit" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Alpha Name Row -->
+                            <div class="kit-item" style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 10px; font-weight: 800; color: #f1c40f; text-transform: uppercase; background: rgba(241, 196, 15, 0.1); padding: 2px 6px; border-radius: 4px;">Alpha</span>
+                                <code id="alpha_{{ req.id }}" style="color: #fff; font-weight: 700;">{{ req.yandex_park_name or req.org_name }}</code>
+                                <button class="copy-mini-btn" onclick="copyToClipboard('alpha_{{ req.id }}')" title="Alpha ni nusxalash">
+                                    <i class='bx bx-copy'></i>
+                                </button>
+                            </div>
+                            <!-- Template Row -->
+                            <div class="kit-item" style="display: flex; align-items: flex-start; gap: 10px;">
+                                <span style="font-size: 10px; font-weight: 800; color: #8e2de2; text-transform: uppercase; background: rgba(142, 45, 226, 0.1); padding: 2px 6px; border-radius: 4px;">SMS</span>
+                                <div style="position: relative; max-width: 250px;">
+                                    <div id="msg_{{ req.id }}" style="font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.4; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px;">
+                                        {{ req.yandex_park_name or req.org_name }} web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi: 123456
+                                    </div>
+                                    <button class="copy-mini-btn" style="position: absolute; top: 5px; right: 5px;" onclick="copyToClipboard('msg_{{ req.id }}')" title="SMS ni nusxalash">
+                                        <i class='bx bx-copy'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
                     <td>
                         {% if req.sms_status == 'pending' %}
-                            <span class="badge-glow" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">Kutilmoqda</span>
+                            <div class="pro-badge-mini pending">
+                                <span class="pulse-dot-gold"></span> Moderatsiyada
+                            </div>
                         {% elif req.sms_status == 'approved' %}
-                            <span class="status-indicator active">Tasdiqlangan</span>
+                            <div class="pro-badge-mini active">
+                                <i class='bx bxs-check-shield'></i> Tasdiqlangan
+                            </div>
                         {% elif req.sms_status == 'rejected' %}
-                            <span class="status-indicator" style="background: rgba(231, 76, 60, 0.2); color: #e74c3c;">Bekor qilingan</span>
+                            <div class="pro-badge-mini rejected">
+                                <i class='bx bx-x-circle'></i> Rad etilgan
+                            </div>
                         {% endif %}
                     </td>
                     <td>
-                        <span title="Platforma SMSlari">{{ req.sms_count_platform }}</span> / 
-                        <span title="Maxsus SMSlar" style="color: var(--primary-color);">{{ req.sms_count_custom }}</span>
+                        <div style="font-size: 13px; font-weight: 700; color: #fff;">{{ "{:,.0f}".format(req.balance or 0).replace(',', ' ') }} <small style="opacity: 0.4;">UZS</small></div>
+                        <div style="font-size: 11px; color: #8e2de2; margin-top: 4px;">{{ req.sms_count_custom or 0 }} maxsus SMS</div>
                     </td>
-                    <td>
-                        <div style="display: flex; gap: 8px;">
+                    <td style="padding-right: 24px;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
                             <a href="{{ url_for('admin.sms_action', user_id=req.id, action='approve') }}" 
-                               class="btn-glow primary" style="padding: 8px 12px; font-size: 0.8rem; background: #2ecc71;">
-                                <i class='bx bx-check'></i> Tasdiqlash
+                               class="action-btn-pro approve">
+                                <i class='bx bx-check-circle'></i>
+                                <span>Tasdiqlash</span>
                             </a>
                             <a href="{{ url_for('admin.sms_action', user_id=req.id, action='reject') }}" 
-                               class="btn-glow secondary" style="padding: 8px 12px; font-size: 0.8rem; background: #e74c3c; color: #fff; border:none;">
-                                <i class='bx bx-x'></i> Bekor qilish
+                               class="action-btn-pro reject">
+                                <i class='bx bx-block'></i>
                             </a>
                         </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                        Hozircha so'rovlar yo'q
+                    <td colspan="5" style="text-align: center; padding: 60px;">
+                        <div style="opacity: 0.2; font-size: 48px; margin-bottom: 10px;"><i class='bx bx-file-blank'></i></div>
+                        <div style="color: rgba(255,255,255,0.3); font-size: 14px; font-weight: 600;">Hozircha faollashtirish so'rovlari mavjud emas</div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -68,4 +99,61 @@
         </table>
     </div>
 </div>
+
+<style>
+.pro-badge-mini {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800;
+}
+.pro-badge-mini.pending { background: rgba(241, 196, 15, 0.08); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.1); }
+.pro-badge-mini.active { background: rgba(16, 185, 129, 0.08); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.1); }
+.pro-badge-mini.rejected { background: rgba(231, 76, 60, 0.08); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.1); }
+
+.pulse-dot-gold {
+    width: 6px; height: 6px; background: #f1c40f; border-radius: 50%;
+    box-shadow: 0 0 8px #f1c40f; animation: pulseGold 2s infinite;
+}
+@keyframes pulseGold { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+.copy-mini-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.4); width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.2s ease;
+}
+.copy-mini-btn:hover { background: #8e2de2; color: #fff; transform: scale(1.1); }
+
+.action-btn-pro {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    border-radius: 10px; font-size: 13px; font-weight: 800; transition: all 0.3s ease;
+    text-decoration: none; border: 1px solid transparent;
+}
+.action-btn-pro.approve { background: #10b981; color: #fff; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); }
+.action-btn-pro.reject { background: rgba(255,255,255,0.03); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.1); }
+.action-btn-pro:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+.modern-table th { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1.5px; }
+
+</style>
+
+<script>
+function copyToClipboard(elementId) {
+    const el = document.getElementById(elementId);
+    const textToCopy = el.innerText || el.textContent;
+    
+    const tempInput = document.createElement('textarea');
+    tempInput.value = textToCopy;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    
+    try {
+        document.execCommand('copy');
+        islomAlert('Nusxa olindi!', 'success');
+    } catch (err) {
+        islomAlert('Xatolik yuz berdi', 'danger');
+    } finally {
+        document.body.removeChild(tempInput);
+    }
+}
+</script>
 {% endblock %}

@@ -302,10 +302,10 @@ def finance():
     min_amount = settings.min_topup_amount if settings else 1000
     max_amount = settings.max_topup_amount if settings else 10000000
     
-    # Fetch user's system balance transactions (most recent first)
-    transactions = Transaction.query.filter_by(
-        user_id=current_user.id, 
-        type='balance_topup'
+    # Fetch user's system balance transactions (Topups + SMS Fees)
+    transactions = Transaction.query.filter(
+        Transaction.user_id == current_user.id,
+        Transaction.type.in_(['balance_topup', 'sms_fee'])
     ).order_by(Transaction.id.desc()).all()
     
     return render_template('user/finance.html', 

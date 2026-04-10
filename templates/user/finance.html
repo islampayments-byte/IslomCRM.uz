@@ -108,6 +108,8 @@
                                 {% else %}
                                     Click orqali to'ldirish
                                 {% endif %}
+                            {% elif t.type == 'sms_fee' %}
+                                <span style="color: var(--warning);">SMS jo'natish uchun to'lov</span>
                             {% elif t.type == 'driver_payment' %}
                                 Haydovchi to'lovi
                             {% else %}
@@ -115,7 +117,7 @@
                             {% endif %}
                         </td>
                         <td style="color: {% if t.type == 'balance_topup' %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ "+" if t.type == 'balance_topup' else "-" }} {{ "{:,.0f}".format(t.amount).replace(',', ' ') }} UZS
+                            {{ "+" if t.type == 'balance_topup' else "-" }} {{ "{:,.0f}".format(t.amount|abs).replace(',', ' ') }} UZS
                         </td>
                         <td>
                             {% if t.status == 'success' %}
