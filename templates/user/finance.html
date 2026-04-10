@@ -114,8 +114,8 @@
                                 To'lov (Eski)
                             {% endif %}
                         </td>
-                        <td style="color: {% if t.type == 'topup' %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
-                            {{ "+" if t.type == 'topup' else "-" }} {{ "{:,.0f}".format(t.amount).replace(',', ' ') }} UZS
+                        <td style="color: {% if t.type == 'balance_topup' %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                            {{ "+" if t.type == 'balance_topup' else "-" }} {{ "{:,.0f}".format(t.amount).replace(',', ' ') }} UZS
                         </td>
                         <td>
                             {% if t.status == 'success' %}
