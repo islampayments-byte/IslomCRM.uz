@@ -436,12 +436,26 @@
 
     <script>
         const webApp = window.Telegram.WebApp;
-        webApp.expand(); // Full height
+        if (webApp.expand) webApp.expand(); // Full height
         webApp.ready();
 
         function haptic(type = 'medium') {
-            if (webApp.HapticFeedback) {
-                webApp.HapticFeedback.impactOccurred(type);
+            try {
+                if (webApp.HapticFeedback) {
+                    webApp.HapticFeedback.impactOccurred(type);
+                }
+            } catch(e) {}
+        }
+
+        function safeAlert(msg) {
+            try {
+                if (webApp.showAlert) {
+                    webApp.showAlert(msg);
+                } else {
+                    alert(msg);
+                }
+            } catch(e) {
+                alert(msg);
             }
         }
 
@@ -490,12 +504,12 @@
                     btn.disabled = false;
                     btn.innerHTML = "<span>Davom etish</span>";
                 } else {
-                    webApp.showAlert(data.message);
+                    safeAlert(data.message);
                     btn.disabled = false;
                     btn.innerHTML = "<span>Davom etish</span>";
                 }
             } catch (err) {
-                webApp.showAlert('Xatolik yuz berdi');
+                safeAlert('Xatolik yuz berdi');
                 btn.disabled = false;
                 btn.innerHTML = "<span>Davom etish</span>";
             }
@@ -506,7 +520,7 @@
             const code = document.getElementById('smsCode').value;
             const phone = document.getElementById('driverPhone').value;
             if (code.length < 6) {
-                webApp.showAlert('Tasdiqlash kodini kiriting');
+                safeAlert('Tasdiqlash kodini kiriting');
                 return;
             }
 
@@ -523,15 +537,15 @@
                 const data = await res.json();
 
                 if (data.status === 'success') {
-                    webApp.showAlert('Kirish muvaffaqiyatli!');
+                    safeAlert('Kirish muvaffaqiyatli!');
                     window.location.href = data.redirect;
                 } else {
-                    webApp.showAlert(data.message);
+                    safeAlert(data.message);
                     btn.disabled = false;
                     btn.innerHTML = "<span>Tasdiqlash</span>";
                 }
             } catch (err) {
-                webApp.showAlert('Xatolik yuz berdi');
+                safeAlert('Xatolik yuz berdi');
                 btn.disabled = false;
                 btn.innerHTML = "<span>Tasdiqlash</span>";
             }

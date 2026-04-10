@@ -66,7 +66,7 @@ def handle_500(e):
     error_msg = traceback.format_exc()
     with open('error.log', 'a') as f:
         f.write(f"\n{'-'*50}\n{datetime.datetime.now()}\n{error_msg}\n")
-    return "Internal Server Error. Please check error.log on server.", 500
+    return f"Internal Server Error:<br><pre>{error_msg}</pre>", 500
 
 @app.route('/debug-errors')
 def debug_errors():
