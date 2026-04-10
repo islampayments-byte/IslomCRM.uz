@@ -154,7 +154,14 @@ def fetch_yandex_categories(user):
         'Content-Type': 'application/json',
     }
     # V2 categories/list odatda bo'sh {} bilan ham ishlayveradi
-    payload = {}
+    # V2 categories/list requires query.park.id
+    payload = {
+        "query": {
+            "park": {
+                "id": user.yandex_park_id.strip()
+            }
+        }
+    }
     
     try:
         resp = requests.post(YANDEX_CATEGORIES_URL, headers=headers, json=payload, timeout=10)
