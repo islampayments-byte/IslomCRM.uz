@@ -588,3 +588,8 @@ def telegram_bot():
 @login_required
 def mini_app():
     return render_template('user/mini_app.html')
+@user_bp.route('/m/<slug>')
+def mini_app_landing(slug):
+    # Public route for Mini App entry
+    org = User.query.filter_by(org_slug=slug).first_or_404()
+    return render_template('user/mini_app_landing.html', org=org)
