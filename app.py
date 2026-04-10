@@ -3,7 +3,9 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 from extensions import db, login_manager, bcrypt
-from models import User, Transaction
+from models import User, Transaction, Driver, PaymentSettings
+import random
+import requests
 import datetime
 import traceback
 
@@ -157,7 +159,111 @@ def mini_app_landing(code, slug):
         # Log to error.log
         with open('error.log', 'a') as f:
             f.write(f"\n{datetime.datetime.now()} - Mini App Error: {str(e)}\n")
-        abort(404) # Shov generic 404 for security
+        abort(404) # Show generic 404 for security
+
+# --- Mini App API Endpoints ---
+from flask import request, jsonify
+
+def get_eskiz_token():
+    email = os.getenv('ESKIZ_EMAIL', 'info@islomcrm.uz')
+    password = os.getenv('ESKIZ_PASSWORD', 'K283HAGS738HS')
+    try:
+        res = requests.post('https://notify.eskiz.uz/api/auth/login', data={'email': email, 'password': password}, timeout=5)
+        return res.json().get('data', {}).get('token')
+    except: return None
+
+@app.route('/m/<code>/<slug>/check-driver', methods=['POST'])
+def m_check_driver(code, slug):
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+    
+    org = User.query.filter_by(org_link_code=code, org_slug=slug).first()
+    if not org:
+        return jsonify({'status': 'error', 'message': 'Tashkilot topilmadi'}), 404
+        
+    # 1. Driver existence check
+    # We check in the Driver model linked to this Org
+    from services import _find_driver_by_phone
+    driver = _find_driver_by_phone(phone, org.id)
+    if not driver:
+        return jsonify({'status': 'error', 'message': 'Haydovchi topilmadi. Avval ro\'yxatdan o\'ting'}), 404
+
+    # 2. Balance check
+    settings = PaymentSettings.query.first()
+    sms_price = settings.sms_price if settings else 100.0
+    
+    if org.balance < sms_price:
+        return jsonify({'status': 'error', 'message': 'Xatolik yuz berdi, tashkilotingiz bilan bog\'laning'}), 402
+
+    # 3. All good - Deduct balance and Log Transaction
+    try:
+        org.balance -= sms_price
+        new_trans = Transaction(
+            user_id=org.id,
+            amount=-sms_price, # Negative as it's a deduction
+            type='sms_fee',
+            status='success',
+            payer_phone=phone,
+            created_at=datetime.datetime.now()
+        )
+        db.session.add(new_trans)
+        
+        # 4. Generate Code
+        verify_code = str(random.randint(100000, 999999))
+        session[f'm_code_{phone}'] = verify_code
+        
+        # 5. Send SMS
+        token = get_eskiz_token()
+        if not token:
+            # Rollback deduction on internal error
+            db.session.rollback()
+            return jsonify({'status': 'error', 'message': 'SMS tizimida muammo. Keyinroq uruning'}), 500
+            
+        # Determine Template
+        if org.sms_status == 'approved':
+            message = f"{org.yandex_park_name or org.org_name} web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi: {verify_code}"
+            org.sms_count_custom = (org.sms_count_custom or 0) + 1
+        else:
+            message = f"IslomCRM web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi: {verify_code} IslomCRM.uz"
+            org.sms_count_platform = (org.sms_count_platform or 0) + 1
+            
+        requests.post('https://notify.eskiz.uz/api/message/sms/send', 
+            headers={'Authorization': f'Bearer {token}'},
+            data={
+                'mobile_phone': phone.replace('+', ''),
+                'message': message,
+                'from': os.getenv('ESKIZ_ALPHA_NAME', '4546')
+            }, timeout=10)
+            
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'SMS yuborildi'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': f'Tizimda xatolik: {str(e)}'}), 500
+
+@app.route('/m/<code>/<slug>/verify-code', methods=['POST'])
+def m_verify_code(code, slug):
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+    user_code = data.get('code', '').strip()
+    
+    if user_code == session.get(f'm_code_{phone}'):
+        # Login successful
+        session[f'm_driver_phone'] = phone
+        session[f'm_org_id'] = code
+        # Clear code
+        session.pop(f'm_code_{phone}', None)
+        return jsonify({'status': 'success', 'redirect': f'/m/{code}/{slug}/dashboard'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Tasdiqlash kodi noto\'g\'ri'})
+
+@app.route('/m/<code>/<slug>/dashboard')
+def m_driver_dashboard(code, slug):
+    # Dummy dashboard for now
+    phone = session.get('m_driver_phone')
+    if not phone: return redirect(f'/m/{code}/{slug}')
+    return f"<h1>Salom, {phone}! Siz tizimga kirdingiz.</h1><p>Tez kunda bu yerda sizning balansingiz ko'rinadi.</p>"
 
 @app.route('/')
 def index():

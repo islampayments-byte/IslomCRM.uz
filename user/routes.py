@@ -614,4 +614,17 @@ def mini_app():
                     flash("Xato: Faqat rasm fayllari (png, jpg, jpeg, webp) ruxsat etiladi.", "danger")
         return redirect(url_for('user.mini_app'))
         
-    return render_template('mini_app/settings.html')
+    settings = PaymentSettings.query.first()
+    sms_price = settings.sms_price if settings else 100.0
+    return render_template('mini_app/settings.html', sms_price=sms_price)
+
+@user_bp.route('/mini-app/request-sms', methods=['POST'])
+@login_required
+def request_sms_activation():
+    if current_user.sms_status == 'none' or current_user.sms_status == 'rejected':
+        current_user.sms_status = 'pending'
+        db.session.commit()
+        flash("SMS faollashtirish so'rovi yuborildi. Admin tasdiqlashini kuting.", "success")
+    else:
+        flash("So'rov allaqachon yuborilgan yoki tasdiqlangan.", "info")
+    return redirect(url_for('user.mini_app'))

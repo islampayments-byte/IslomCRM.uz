@@ -8,62 +8,54 @@
     <!-- Top Accent Gradient Bar -->
     <div class="card-accent-bar purple-gradient"></div>
 
-    <div class="card-header-premium-v2">
-        <div class="header-brand-box">
-            <div class="icon-box-premium-v2 purple-glow">
-                <i class='bx bx-mobile-alt'></i>
-            </div>
-            <div class="brand-text">
-                <h3 class="brand-title">Mini App Interfeysi</h3>
-                <p class="brand-subtitle">Smartfonlar uchun mobil tajriba</p>
-            </div>
-        </div>
-        <div class="status-indicator development">
-            <span class="status-dot warning"></span>
-            <span class="status-label">Ishlab chiqishda</span>
-        </div>
-    </div>
-    
-    <div class="card-content-premium-v2">
-        <!-- Visual Preview / Showcase -->
-        <div class="showcase-container">
-            <div class="showcase-visual animate-float">
-                <div class="mockup-phone">
-                    <div class="mockup-screen">
-                        <div class="mockup-header"></div>
-                        <div class="mockup-body">
-                            <div class="mockup-line long"></div>
-                            <div class="mockup-line"></div>
-                            <div class="mockup-line med"></div>
-                            <div class="mockup-btn"></div>
-                        </div>
-                    </div>
+        <!-- SMS Service Section -->
+        <div class="link-section-v2 anim-fade-in" style="margin-bottom: 30px; border-color: rgba(241, 196, 15, 0.2);">
+            <div class="section-tag-v2" style="color: #f1c40f;">SMS XIZMATI & MONITORING</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="info-pill">
+                    <span class="pill-label">SMS Narxi</span>
+                    <span class="pill-value">{{ sms_price|int }} UZS</span>
                 </div>
-                <!-- Decorative Particles -->
-                <div class="particle p1"></div>
-                <div class="particle p2"></div>
-                <div class="particle p3"></div>
+                <div class="info-pill">
+                    <span class="pill-label">Balansingiz</span>
+                    <span class="pill-value {% if current_user.balance < 1000 %}low-balance{% endif %}">{{ current_user.balance|int }} UZS</span>
+                </div>
             </div>
 
-            <div class="showcase-content">
-                <h3>Yangi mobil tajriba</h3>
-                <p>Telegram Mini App tizimi yordamida haydovchilar CRM tizimidan to'g'ridan-to'g'ri Telegram ichida foydalanishlari mumkin bo'ladi.</p>
+            <div class="sms-branding-box">
+                <div class="branding-info">
+                    <h4>Maxsus SMS Branding</h4>
+                    <p>SMS xabarlarda tashkilotingiz nomi chiqishi uchun tasdiqlashdan o`ting.</p>
+                </div>
                 
-                <ul class="feature-pills">
-                    <li><i class='bx bx-check'></i> Tezkor kirish</li>
-                    <li><i class='bx bx-check'></i> Push-bildirishnomalar</li>
-                    <li><i class='bx bx-check'></i> Offline rejim</li>
-                </ul>
+                {% if current_user.sms_status == 'none' or current_user.sms_status == 'rejected' %}
+                <form action="{{ url_for('user.request_sms_activation') }}" method="POST">
+                    <button type="submit" class="copy-link-btn" style="background: #f1c40f; color: #000;">
+                        <i class='bx bx-bolt-circle'></i> Faollashtirish
+                    </button>
+                </form>
+                {% elif current_user.sms_status == 'pending' %}
+                <div class="status-badge-v2 pending">
+                    <i class='bx bx-time'></i> Kutilmoqda...
+                </div>
+                {% elif current_user.sms_status == 'approved' %}
+                <div class="status-badge-v2 approved">
+                    <i class='bx bx-check-double'></i> Tasdiqlangan
+                </div>
+                {% endif %}
             </div>
-        </div>
 
-        <div class="locked-section-v2">
-            <div class="lock-v2-icon"><i class='bx bx-lock-alt'></i></div>
-            <p>Ushbu bo'lim hozirda yopiq. Funktsional tez kunda qo'shiladi.</p>
-            <div class="progress-bar-v2">
-                <div class="progress-fill" style="width: 65%;"></div>
+            <div class="sms-stats-grid">
+                <div class="stat-mini">
+                    <span class="stat-count">{{ current_user.sms_count_platform or 0 }}</span>
+                    <span class="stat-label">Platforma SMS</span>
+                </div>
+                <div class="stat-mini highlighted">
+                    <span class="stat-count">{{ current_user.sms_count_custom or 0 }}</span>
+                    <span class="stat-label">Maxsus SMS</span>
+                </div>
             </div>
-            <span class="progress-tag">Tayyorlik: 65%</span>
         </div>
 
         <!-- Logo Upload Section -->
@@ -301,5 +293,62 @@ function copyMiniAppLink() {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* SMS Section Specific Mods */
+.info-pill {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.pill-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px; }
+.pill-value { font-size: 18px; font-weight: 800; color: #fff; }
+.pill-value.low-balance { color: #ef4444; }
+
+.sms-branding-box {
+    background: rgba(241, 196, 15, 0.03);
+    border: 1px solid rgba(241, 196, 15, 0.1);
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+.branding-info h4 { margin: 0 0 5px; font-size: 15px; font-weight: 800; color: #f1c40f; }
+.branding-info p { margin: 0; font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+
+.status-badge-v2 {
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.status-badge-v2.pending { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+.status-badge-v2.approved { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.sms-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.stat-mini {
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    border-radius: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+.stat-mini.highlighted { border: 1px solid rgba(142, 45, 226, 0.2); background: rgba(142, 45, 226, 0.03); }
+.stat-count { font-size: 20px; font-weight: 800; color: #fff; }
+.stat-label { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+
 </style>
 {% endblock %}
