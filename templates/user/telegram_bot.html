@@ -21,21 +21,119 @@
         <div class="professional-banner-premium">
             <div class="banner-icon-box"><i class='bx bx-info-circle'></i></div>
             <div class="banner-content">
-                <h5>TEZKOR MA'LUMOT</h5>
-                <p>Ushbu bo'lim hozirda ishlab chiqilmoqda. Tez orada bu yerda botingizni ulash va sozlash imkoniyati paydo bo'ladi.</p>
+                <h5>BOTNI SOZLASH</h5>
+                <p>BotFather orqali yaratilgan API Tokenni kiriting. Tizim avtomatik ravishda botingizni tekshiradi va ulaydi.</p>
             </div>
         </div>
 
-        <div class="locked-state-premium centered">
-            <div class="lock-icon-wrapper gold-lock large"><i class='bx bx-code-block'></i></div>
-            <h4>Tez kunda...</h4>
-            <p>Telegram bot sozlamalari yaqin o'rtada faollashadi.</p>
-        </div>
+        <form method="POST" class="premium-form">
+            <div class="form-group-premium">
+                <label for="tg_bot_token">Telegram Bot Token</label>
+                <div class="input-with-icon">
+                    <i class='bx bx-key'></i>
+                    <input type="password" id="tg_bot_token" name="tg_bot_token" 
+                           placeholder="Masalan: 123456789:ABCdefGHIjkl..." 
+                           value="{{ current_user.tg_bot_token or '' }}">
+                    <button type="button" class="toggle-password" onclick="toggleToken()">
+                        <i class='bx bx-show'></i>
+                    </button>
+                </div>
+                <small class="input-hint">Buni <a href="https://t.me/BotFather" target="_blank" style="color: var(--primary-color);">@BotFather</a> orqali olishingiz mumkin.</small>
+            </div>
+
+            {% if current_user.tg_bot_username %}
+            <div class="bot-info-card">
+                <div class="bot-avatar">
+                    <i class='bx bxl-telegram'></i>
+                </div>
+                <div class="bot-details">
+                    <span class="status-badge pulse">Faol</span>
+                    <h4 class="bot-name">@{{ current_user.tg_bot_username }}</h4>
+                    <p class="bot-desc">Bot hozirda IslomCRM tizimiga bog'langan.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-actions-premium">
+                <button type="submit" class="save-btn-premium">
+                    <i class='bx bx-check-shield'></i> Saqlash va Ulanish
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
+<script>
+function toggleToken() {
+    const input = document.getElementById('tg_bot_token');
+    const icon = document.querySelector('.toggle-password i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bx bx-hide';
+    } else {
+        input.type = 'password';
+        icon.className = 'bx bx-show';
+    }
+}
+</script>
+
 <style>
-/* Reusing the same premium styles from payment settings */
+/* Additional Premium Styles for Forms */
+.premium-form { display: flex; flex-direction: column; gap: 24px; }
+.form-group-premium label {
+    display: block; margin-bottom: 10px; font-size: 14px;
+    font-weight: 700; color: rgba(255,255,255,0.7);
+}
+.input-with-icon { position: relative; display: flex; align-items: center; }
+.input-with-icon i { position: absolute; left: 15px; color: rgba(255,255,255,0.3); font-size: 18px; }
+.input-with-icon input {
+    width: 100%; padding: 14px 15px 14px 45px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px; color: #fff; font-family: 'Courier New', Courier, monospace;
+    font-size: 14px; transition: all 0.3s ease;
+}
+.input-with-icon input:focus {
+    border-color: #ffcc00; background: rgba(255, 204, 0, 0.05); outline: none;
+}
+.toggle-password {
+    position: absolute; right: 10px; background: none; border: none;
+    color: rgba(255,255,255,0.3); cursor: pointer; padding: 5px; font-size: 18px;
+}
+.input-hint { display: block; margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.4); }
+
+.bot-info-card {
+    display: flex; gap: 20px; background: rgba(16, 185, 129, 0.05);
+    padding: 24px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.2);
+    align-items: center; margin-top: 10px;
+}
+.bot-avatar {
+    width: 60px; height: 60px; border-radius: 18px; background: rgba(16, 185, 129, 0.1);
+    display: flex; align-items: center; justify-content: center; font-size: 32px; color: #10b981;
+}
+.bot-details .bot-name { margin: 0; color: #fff; font-size: 18px; font-weight: 800; }
+.bot-details .bot-desc { margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.5); }
+.status-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px;
+    text-transform: uppercase; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981;
+    margin-bottom: 8px;
+}
+
+.pulse { animation: pulse-animation 2s infinite; }
+@keyframes pulse-animation {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.save-btn-premium {
+    width: 100%; padding: 16px; border-radius: 16px; border: none;
+    background: #ffcc00; color: #000; font-weight: 800; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; transition: all 0.3s ease;
+}
+.save-btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3); }
+
+/* Glass Panel Re-re-definitions to ensure consistency */
 .glass-panel-premium {
     background: rgba(20, 21, 24, 0.7);
     backdrop-filter: blur(12px);
@@ -55,7 +153,6 @@
 .gold-icon { background: rgba(255, 204, 0, 0.1); color: #ffcc00; }
 .brand-title { margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff; }
 .brand-subtitle { margin: 2px 0 0; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight: 700; }
-
 .card-content-premium.spacious { padding: 32px; }
 .professional-banner-premium {
     display: flex; gap: 20px; background: rgba(255,255,255,0.03);
@@ -65,12 +162,5 @@
 .banner-icon-box { font-size: 32px; color: #ffcc00; }
 .banner-content h5 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #fff; }
 .banner-content p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); }
-
-.locked-state-premium { text-align: center; padding: 40px 20px; }
-.lock-icon-wrapper {
-    width: 80px; height: 80px; border-radius: 24px; background: rgba(255, 204, 0, 0.05);
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;
-    font-size: 40px; color: #ffcc00;
-}
 </style>
 {% endblock %}

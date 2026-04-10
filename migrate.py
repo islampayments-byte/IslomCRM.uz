@@ -64,6 +64,10 @@ add_column('users', 'click_secret_key',   'VARCHAR(255)')
 # Default: '1' — aksariyat parklarda standart "Ish haqi" kategoriyasi.
 add_column('users', 'yandex_payme_category_id', "VARCHAR(50) DEFAULT '1'")  # Payme uchun
 add_column('users', 'yandex_click_category_id', "VARCHAR(50) DEFAULT '1'")  # Click uchun
+# Telegram Integration
+add_column('users', 'tg_bot_token',      'VARCHAR(255)')
+add_column('users', 'tg_bot_username',   'VARCHAR(100)')
+add_column('users', 'tg_mini_app_url',   'VARCHAR(512)')
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")

@@ -50,6 +50,11 @@ class User(db.Model, UserMixin):
     
     org_slug = db.Column(db.String(100), unique=True) # URL identifier e.g. 'islom-taxi'
     
+    # Telegram Bot Integration
+    tg_bot_token = db.Column(db.String(255))
+    tg_bot_username = db.Column(db.String(100))
+    tg_mini_app_url = db.Column(db.String(512))
+    
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def check_pin(self, pin, bcrypt):

@@ -516,7 +516,6 @@ def topup_click():
     db.session.commit()
 
     # Click Redirect URL construction
-    # https://my.click.uz/services/pay?service_id=ID&merchant_id=ID&amount=AMOUNT&transaction_param=TRANS_ID
     # Click expects amount as float (e.g. 1000.00)
     click_url = (
         f"https://my.click.uz/services/pay?"
@@ -547,9 +546,37 @@ def cancel_transaction(transaction_id):
     
     flash(f"#{transaction_id} raqamli to'lov bekor qilindi.", "info")
     return redirect(url_for('user.finance'))
-@user_bp.route('/settings/telegram-bot')
+
+@user_bp.route('/settings/telegram-bot', methods=['GET', 'POST'])
 @login_required
 def telegram_bot():
+    if request.method == 'POST':
+        token = request.form.get('tg_bot_token', '').strip()
+        if not token:
+            current_user.tg_bot_token = None
+            current_user.tg_bot_username = None
+            db.session.commit()
+            flash("Telegram Bot tokeni o'chirildi", "info")
+            return redirect(url_for('user.telegram_bot'))
+            
+        # Verify Token via Telegram API
+        api_url = f"https://api.telegram.org/bot{token}/getMe"
+        try:
+            resp = requests.get(api_url, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                bot_info = data.get('result', {})
+                current_user.tg_bot_token = token
+                current_user.tg_bot_username = bot_info.get('username')
+                db.session.commit()
+                flash(f"Bot muvaffaqiyatli bog'landi: @{current_user.tg_bot_username}", "success")
+            else:
+                flash("Xato: Telegram Bot tokeni noto'g'ri yoki bot o'chirilgan.", "danger")
+        except Exception as e:
+            flash(f"Telegram API bilan bog'lanishda xato: {str(e)}", "danger")
+            
+        return redirect(url_for('user.telegram_bot'))
+
     return render_template('user/telegram_bot.html')
 
 @user_bp.route('/settings/mini-app')
