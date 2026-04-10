@@ -4,69 +4,251 @@
 {% block page_title %}Telegram Bot{% endblock %}
 
 {% block content %}
-<div class="stat-card glass-panel-premium" style="max-width: 800px; margin: 0 auto;">
-    <div class="card-header-premium">
+<div class="stat-card premium-glass-card" style="max-width: 800px; margin: 0 auto; overflow: hidden; border: none;">
+    <!-- Top Accent Gradient Bar -->
+    <div class="card-accent-bar blue-gradient"></div>
+
+    <div class="card-header-premium-v2">
         <div class="header-brand-box">
-            <div class="icon-box-premium gold-icon">
+            <div class="icon-box-premium-v2 tg-blue-glow">
                 <i class='bx bxl-telegram'></i>
             </div>
             <div class="brand-text">
-                <h3 class="brand-title">Telegram Bot Sozlamalari</h3>
-                <p class="brand-subtitle">Bot orqali boshqaruv va bildirishnomalar</p>
+                <h3 class="brand-title">Bot Boshqaruvi</h3>
+                <p class="brand-subtitle">Platforma va Telegram integratsiyasi</p>
             </div>
         </div>
+        {% if current_user.tg_bot_username %}
+        <div class="status-indicator">
+            <span class="status-dot online"></span>
+            <span class="status-label">Bog'langan</span>
+        </div>
+        {% endif %}
     </div>
     
-    <div class="card-content-premium spacious">
-        <div class="professional-banner-premium">
-            <div class="banner-icon-box"><i class='bx bx-info-circle'></i></div>
-            <div class="banner-content">
-                <h5>BOTNI SOZLASH</h5>
-                <p>BotFather orqali yaratilgan API Tokenni kiriting. Tizim avtomatik ravishda botingizni tekshiradi va ulaydi.</p>
+    <div class="card-content-premium-v2">
+        <!-- Info Banner -->
+        <div class="info-banner-v2">
+            <div class="banner-icon"><i class='bx bx-sheild-quarter'></i></div>
+            <div class="banner-body">
+                <h5>Xavfsizlik va Nazorat</h5>
+                <p>Botingiz orqali haydovchilar bilan muloqot qilish va hisobotlarni avtomatik yuborishni tashkil qiling.</p>
             </div>
         </div>
 
-        <form method="POST" class="premium-form">
-            <div class="form-group-premium">
-                <label for="tg_bot_token">Telegram Bot Token</label>
-                <div class="input-with-icon">
-                    <i class='bx bx-key'></i>
+        <form method="POST" class="auth-form-v2">
+            <div class="input-group-v2">
+                <label for="tg_bot_token">HTTP API Token</label>
+                <div class="auth-input-container">
+                    <i class='bx bx-key input-prefix-icon'></i>
                     <input type="password" id="tg_bot_token" name="tg_bot_token" 
-                           placeholder="Masalan: 123456789:ABCdefGHIjkl..." 
+                           placeholder="Tokenni kiriting..." 
                            value="{{ current_user.tg_bot_token or '' }}">
-                    <button type="button" class="toggle-password" onclick="toggleToken()">
+                    <button type="button" class="visibility-toggle" onclick="toggleToken()">
                         <i class='bx bx-show'></i>
                     </button>
+                    <!-- Glowing Border Effect -->
+                    <div class="focus-glow"></div>
                 </div>
-                <small class="input-hint">Buni <a href="https://t.me/BotFather" target="_blank" style="color: var(--primary-color);">@BotFather</a> orqali olishingiz mumkin.</small>
+                <div class="input-helper">
+                    <span>Tokenni <a href="https://t.me/BotFather" target="_blank">@BotFather</a> dan olishingiz mumkin.</span>
+                </div>
             </div>
 
             {% if current_user.tg_bot_username %}
-            <div class="bot-info-card">
-                <div class="bot-avatar">
-                    <i class='bx bxl-telegram'></i>
-                </div>
-                <div class="bot-details">
-                    <span class="status-badge pulse">Faol</span>
-                    <h4 class="bot-name">@{{ current_user.tg_bot_username }}</h4>
-                    <p class="bot-desc">Bot hozirda IslomCRM tizimiga bog'langan.</p>
+            <div class="active-bot-card anim-fade-in">
+                <div class="bot-card-inner">
+                    <div class="bot-avatar-large">
+                        <img src="{{ url_for('static', filename='favicon.png') }}" alt="Bot">
+                        <div class="avatar-ring"></div>
+                    </div>
+                    <div class="bot-identity">
+                        <div class="identity-top">
+                            <h4>@{{ current_user.tg_bot_username }}</h4>
+                            <span class="badge-active">Online</span>
+                        </div>
+                        <p class="bot-stats">Sizning asosiy ishchi botingiz faol holatda</p>
+                    </div>
+                    <div class="bot-action-check">
+                        <i class='bx bxs-check-circle'></i>
+                    </div>
                 </div>
             </div>
             {% endif %}
 
-            <div class="form-actions-premium">
-                <button type="submit" class="save-btn-premium">
-                    <i class='bx bx-check-shield'></i> Saqlash va Ulanish
+            <div class="form-actions-v2">
+                <button type="submit" class="submit-btn-v2 blue-glow-btn">
+                    <span>Saqlash va Tasdiqlash</span>
+                    <i class='bx bx-right-arrow-alt'></i>
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+<style>
+:root {
+    --tg-blue: #0088cc;
+    --tg-blue-light: #24A1DE;
+    --tg-gradient: linear-gradient(135deg, #0088cc 0%, #24A1DE 100%);
+    --card-bg: rgba(15, 16, 20, 0.85);
+    --input-bg: rgba(255, 255, 255, 0.03);
+    --border-color: rgba(255, 255, 255, 0.08);
+}
+
+.premium-glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 28px;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.card-accent-bar {
+    height: 4px;
+    width: 100%;
+}
+.blue-gradient { background: var(--tg-gradient); }
+
+.card-header-premium-v2 {
+    padding: 30px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-brand-box { display: flex; align-items: center; gap: 18px; }
+
+.icon-box-premium-v2 {
+    width: 52px; height: 52px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: #fff;
+    background: var(--tg-gradient);
+}
+.tg-blue-glow { box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3); }
+
+.brand-title { margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.brand-subtitle { margin: 4px 0 0; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+.status-indicator {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(16, 185, 129, 0.08); padding: 6px 14px;
+    border-radius: 30px; border: 1px solid rgba(16, 185, 129, 0.15);
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.status-dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
+.status-label { font-size: 12px; font-weight: 700; color: #10b981; }
+
+.card-content-premium-v2 { padding: 32px; }
+
+.info-banner-v2 {
+    display: flex; gap: 20px; background: rgba(0, 136, 204, 0.04);
+    padding: 24px; border-radius: 20px; border: 1px solid rgba(0, 136, 204, 0.1);
+    margin-bottom: 35px; align-items: center;
+}
+.banner-icon { font-size: 32px; color: var(--tg-blue-light); }
+.banner-body h5 { margin: 0 0 4px; font-size: 16px; font-weight: 800; color: #fff; }
+.banner-body p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+.auth-form-v2 { display: flex; flex-direction: column; gap: 30px; }
+
+.input-group-v2 label {
+    display: block; margin-bottom: 12px; font-size: 14px;
+    font-weight: 700; color: rgba(255,255,255,0.73);
+}
+
+.auth-input-container {
+    position: relative; display: flex; align-items: center;
+}
+.input-prefix-icon {
+    position: absolute; left: 18px; color: rgba(255,255,255,0.25); font-size: 20px; transition: color 0.3s ease;
+}
+.auth-input-container input {
+    width: 100%; padding: 18px 55px 18px 55px;
+    background: var(--input-bg); border: 1px solid var(--border-color);
+    border-radius: 18px; color: #fff; font-family: 'Inter', sans-serif;
+    font-size: 15px; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.auth-input-container input:focus {
+    border-color: var(--tg-blue); outline: none; background: rgba(255, 255, 255, 0.05);
+}
+.auth-input-container input:focus ~ .input-prefix-icon { color: var(--tg-blue-light); }
+
+.visibility-toggle {
+    position: absolute; right: 15px; background: none; border: none;
+    color: rgba(255,255,255,0.25); cursor: pointer; padding: 10px; font-size: 20px;
+    transition: color 0.3s ease;
+}
+.visibility-toggle:hover { color: #fff; }
+
+.input-helper { margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.35); }
+.input-helper a { color: var(--tg-blue-light); text-decoration: none; font-weight: 600; }
+.input-helper a:hover { text-decoration: underline; }
+
+/* Bot Info Card V2 */
+.active-bot-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border-radius: 22px; border: 1px solid rgba(255,255,255,0.1);
+    position: relative; overflow: hidden;
+}
+.bot-card-inner {
+    padding: 24px; display: flex; align-items: center; gap: 20px;
+}
+.bot-avatar-large {
+    width: 70px; height: 70px; position: relative;
+}
+.bot-avatar-large img {
+    width: 100%; height: 100%; border-radius: 20px; object-fit: cover;
+}
+.avatar-ring {
+    position: absolute; inset: -4px; border: 2px solid var(--tg-blue);
+    border-radius: 24px; opacity: 0.3;
+}
+
+.bot-identity { flex: 1; }
+.identity-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.identity-top h4 { margin: 0; color: #fff; font-size: 19px; font-weight: 800; }
+.badge-active {
+    background: #10b981; color: #fff; font-size: 10px; font-weight: 800;
+    padding: 2px 8px; border-radius: 6px; text-transform: uppercase;
+}
+.bot-stats { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); }
+
+.bot-action-check { font-size: 28px; color: #10b981; }
+
+.form-actions-v2 { margin-top: 10px; }
+
+.submit-btn-v2 {
+    width: 100%; padding: 20px; border-radius: 18px; border: none;
+    background: var(--tg-blue); color: #fff; font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    cursor: pointer; transition: all 0.3s ease; position: relative;
+}
+.submit-btn-v2 i { font-size: 20px; transition: transform 0.3s ease; }
+.submit-btn-v2:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 15px 30px rgba(0, 136, 204, 0.4); 
+    background: var(--tg-blue-light);
+}
+.submit-btn-v2:hover i { transform: translateX(5px); }
+
+/* Animation */
+.anim-fade-in {
+    animation: fadeIn 0.6s ease forwards;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
 <script>
 function toggleToken() {
     const input = document.getElementById('tg_bot_token');
-    const icon = document.querySelector('.toggle-password i');
+    const icon = document.querySelector('.visibility-toggle i');
     if (input.type === 'password') {
         input.type = 'text';
         icon.className = 'bx bx-hide';
@@ -76,91 +258,4 @@ function toggleToken() {
     }
 }
 </script>
-
-<style>
-/* Additional Premium Styles for Forms */
-.premium-form { display: flex; flex-direction: column; gap: 24px; }
-.form-group-premium label {
-    display: block; margin-bottom: 10px; font-size: 14px;
-    font-weight: 700; color: rgba(255,255,255,0.7);
-}
-.input-with-icon { position: relative; display: flex; align-items: center; }
-.input-with-icon i { position: absolute; left: 15px; color: rgba(255,255,255,0.3); font-size: 18px; }
-.input-with-icon input {
-    width: 100%; padding: 14px 15px 14px 45px;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px; color: #fff; font-family: 'Courier New', Courier, monospace;
-    font-size: 14px; transition: all 0.3s ease;
-}
-.input-with-icon input:focus {
-    border-color: #ffcc00; background: rgba(255, 204, 0, 0.05); outline: none;
-}
-.toggle-password {
-    position: absolute; right: 10px; background: none; border: none;
-    color: rgba(255,255,255,0.3); cursor: pointer; padding: 5px; font-size: 18px;
-}
-.input-hint { display: block; margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.4); }
-
-.bot-info-card {
-    display: flex; gap: 20px; background: rgba(16, 185, 129, 0.05);
-    padding: 24px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.2);
-    align-items: center; margin-top: 10px;
-}
-.bot-avatar {
-    width: 60px; height: 60px; border-radius: 18px; background: rgba(16, 185, 129, 0.1);
-    display: flex; align-items: center; justify-content: center; font-size: 32px; color: #10b981;
-}
-.bot-details .bot-name { margin: 0; color: #fff; font-size: 18px; font-weight: 800; }
-.bot-details .bot-desc { margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.5); }
-.status-badge {
-    display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px;
-    text-transform: uppercase; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981;
-    margin-bottom: 8px;
-}
-
-.pulse { animation: pulse-animation 2s infinite; }
-@keyframes pulse-animation {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.8; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.save-btn-premium {
-    width: 100%; padding: 16px; border-radius: 16px; border: none;
-    background: #ffcc00; color: #000; font-weight: 800; font-size: 15px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    cursor: pointer; transition: all 0.3s ease;
-}
-.save-btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3); }
-
-/* Glass Panel Re-re-definitions to ensure consistency */
-.glass-panel-premium {
-    background: rgba(20, 21, 24, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-}
-.card-header-premium {
-    padding: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-.header-brand-box { display: flex; align-items: center; gap: 15px; }
-.icon-box-premium {
-    width: 45px; height: 45px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center; font-size: 24px;
-}
-.gold-icon { background: rgba(255, 204, 0, 0.1); color: #ffcc00; }
-.brand-title { margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff; }
-.brand-subtitle { margin: 2px 0 0; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; font-weight: 700; }
-.card-content-premium.spacious { padding: 32px; }
-.professional-banner-premium {
-    display: flex; gap: 20px; background: rgba(255,255,255,0.03);
-    padding: 24px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 32px; align-items: center;
-}
-.banner-icon-box { font-size: 32px; color: #ffcc00; }
-.banner-content h5 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #fff; }
-.banner-content p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); }
-</style>
 {% endblock %}
