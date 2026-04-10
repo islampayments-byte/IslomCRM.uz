@@ -23,7 +23,7 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
 # Initialize extensions
 db.init_app(app)
@@ -153,6 +153,11 @@ def mini_app_landing(code, slug):
         
     try:
         org = User.query.filter_by(org_link_code=code, org_slug=slug).first_or_404()
+        
+        # Check for existing session
+        if session.get('m_driver_phone') and session.get('m_org_id') == code:
+            return redirect(url_for('m_driver_dashboard', code=code, slug=slug))
+            
         return render_template('mini_app/landing.html', org=org)
     except Exception as e:
         print(f"Mini App Error: {e}")
