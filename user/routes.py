@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import User, PaymentSettings, Transaction, Driver
 from extensions import db
@@ -248,12 +248,19 @@ def payment_settings():
             current_user.click_secret_key = click_secret_key.strip()
             flash("Click sozlamalari muvaffaqiyatli saqlandi!", "success")
 
-        elif payment_method == 'yandex_category':
-            # Yandex Fleet tranzaksiya kategoriya ID sini saqlaymiz.
-            # Bo'sh yuborilsa — default '1' qoladi (standart "Ish haqi" kategoriyasi).
-            cat_id = request.form.get('yandex_category_id', '').strip()
-            current_user.yandex_category_id = cat_id if cat_id else '1'
-            flash(f"Yandex kategoriyasi saqlandi: #{current_user.yandex_category_id}", "success")
+        elif payment_method == 'yandex_payme_category':
+            # Payme orqali haydovchi to'lovi uchun Yandex kategoriya IDsini saqlaymiz.
+            # Bo'sh yuborilsa — default '1' (standart kategoriya).
+            cat_id = request.form.get('yandex_payme_category_id', '').strip()
+            current_user.yandex_payme_category_id = cat_id if cat_id else '1'
+            flash(f"Payme uchun Yandex kategoriyasi saqlandi: #{current_user.yandex_payme_category_id}", "success")
+
+        elif payment_method == 'yandex_click_category':
+            # Click orqali haydovchi to'lovi uchun alohida Yandex kategoriya IDsini saqlaymiz.
+            # Bo'sh yuborilsa — default '1' (standart kategoriya).
+            cat_id = request.form.get('yandex_click_category_id', '').strip()
+            current_user.yandex_click_category_id = cat_id if cat_id else '1'
+            flash(f"Click uchun Yandex kategoriyasi saqlandi: #{current_user.yandex_click_category_id}", "success")
         
         # Ensure org_slug exists (safety check)
         if not current_user.org_slug and current_user.yandex_park_name:
@@ -265,6 +272,21 @@ def payment_settings():
         return redirect(url_for('user.payment_settings'))
         
     return render_template('user/payment_settings.html')
+
+
+@user_bp.route('/ajax/yandex-categories')
+@login_required
+def ajax_yandex_categories():
+    """
+    AJAX endpoint — Yandex Fleet API dan kategoriyalar ro'yxatini qaytaradi.
+    JavaScript bu endpointga murojaat qilib, dropdownni to'ldiradi.
+    Natija: [{"id": "1", "name": "Ish haqi"}, ...]
+    """
+    from services import fetch_yandex_categories
+    if not current_user.yandex_keys_active:
+        return jsonify({'error': 'Yandex kalitlari aktiv emas', 'categories': []}), 400
+    categories = fetch_yandex_categories(current_user)
+    return jsonify({'categories': categories})
 
 @user_bp.route('/finance')
 @login_required

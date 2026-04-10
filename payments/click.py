@@ -171,7 +171,7 @@ def _handle_click_request(org_slug):
                     app = current_app._get_current_object()
                     t = threading.Thread(
                         target=yandex_topup_driver,
-                        args=(app, user_context, new_trans.id),
+                        args=(app, user_context, new_trans.id, 'click'),
                         daemon=True
                     )
                     t.start()
@@ -213,7 +213,7 @@ def _handle_click_request(org_slug):
                         app = current_app._get_current_object()
                         t = threading.Thread(
                             target=yandex_topup_driver,
-                            args=(app, owner_user, trans.id),
+                            args=(app, owner_user, trans.id, 'click'),
                             daemon=True
                         )
                         t.start()

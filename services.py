@@ -125,32 +125,86 @@ def sync_user_drivers(app, user):
 
 # ─── Yandex Fleet: Haydovchi balansini to'ldirish ─────────────────────────────
 
-YANDEX_TOPUP_URL = "https://fleet-api.taxi.yandex.net/v2/parks/driver-profiles/transactions"
+YANDEX_BASE = "https://fleet-api.taxi.yandex.net"
+YANDEX_TOPUP_URL = f"{YANDEX_BASE}/v2/parks/driver-profiles/transactions"
+YANDEX_CATEGORIES_URL = f"{YANDEX_BASE}/v1/parks/transactions/categories"
 
-# Qayta urinish soni: API vaqtincha ishlamasa shuncha marta uranamiz
+# Qayta urinish soni: API vaqtincha ishlamasa shuncha marta urinamiz
 YANDEX_MAX_RETRIES = 5
 # Har bir urinish orasidagi kutish (soniyada)
 YANDEX_RETRY_DELAY = 3  # sekund
 
 
-def yandex_topup_driver(app, owner_user, transaction_id):
+def fetch_yandex_categories(user):
+    """
+    Yandex Fleet API dan ushbu park uchun barcha tranzaksiya kategoriyalarini oladi.
+    Bu kategoriyalar haydovchi balansi to'ldirishda qaysi sarlavha ostida ko'rinishini belgilaydi.
+
+    Endpoint: GET/POST /v1/parks/transactions/categories
+    Headers : X-Client-ID, X-Api-Key
+    Body    : {"query": {"park": {"id": park_id}}}
+
+    Qaytaradi: list of {"id": "...", "name": "..."}  yoki bo'sh list []
+    """
+    if not user or not user.yandex_keys_active:
+        return []
+    headers = {
+        'X-Client-ID': user.yandex_client_id.strip(),
+        'X-Api-Key':   user.yandex_api_key.strip(),
+        'Content-Type': 'application/json',
+    }
+    payload = {
+        "query": {
+            "park": {
+                "id": user.yandex_park_id.strip()
+            }
+        }
+    }
+    try:
+        resp = requests.post(YANDEX_CATEGORIES_URL, headers=headers, json=payload, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            # Response formatlar turlicha bo'lishi mumkin: list yoki {"categories": [...]}
+            if isinstance(data, list):
+                categories = data
+            else:
+                categories = data.get('categories', data.get('items', []))
+            # Har bir kategoriyadan faqat id va name ni olamiz
+            result = []
+            for cat in categories:
+                if isinstance(cat, dict):
+                    result.append({
+                        'id':   str(cat.get('id',   cat.get('category_id', ''))),
+                        'name': cat.get('name', cat.get('title', f"Kategoriya {cat.get('id', '?')}"))
+                    })
+            logging.info(f"[Yandex Categories] User {user.id} uchun {len(result)} ta kategoriya olindi")
+            return result
+        else:
+            logging.warning(f"[Yandex Categories] User {user.id}: HTTP {resp.status_code} | {resp.text[:200]}")
+            return []
+    except Exception as e:
+        logging.error(f"[Yandex Categories] User {user.id}: {e}")
+        return []
+
+
+def yandex_topup_driver(app, owner_user, transaction_id, payment_method='payme'):
     """
     Muvaffaqiyatli to'lovdan keyin haydovchining Yandex Fleet balansi to'ldiriladi.
 
     Xavfsizlik kafolatlari:
       1. IDEMPOTENTLIK: Transaction.id Yandex'ga idempotency_key sifatida yuboriladi.
-         Ya'ni bir xil tranzaksiya Yandex tomonida ikki marta qayta ishlanmaydi,
-         hatto biz xato sabab bir nechta marta yuborsak ham.
+         Bir xil tranzaksiya Yandex tomonida ikki marta qayta ishlanmaydi,
+         hatto biz xato sababi bir nechta marta yuborsak ham.
       2. DUPLICATE PROTECTION: yandex_sync_status == 'success' bo'lsa, funksiya
-         darhol qaytadi va Yandex'ga hech qanday so'rov yuborilmaydi.
+         darhol qaytadi — Yandex'ga hech qanday so'rov yuborilmaydi.
       3. RETRY: Yandex API vaqtincha ishlamasa (500/504/timeout), tizim
-         YANDEX_MAX_RETRIES marta qayta urinadi. Hammasi muvaffaqiyatsiz bo'lsa,
-         yandex_sync_status = 'failed' va xato matni bazaga yoziladi.
-         Admin panelida bu tranzaksiyani keyinchalik topib qayta yuborish mumkin.
+         YANDEX_MAX_RETRIES marta qayta urinadi. Muvaffaqiyatsiz bo'lsa,
+         yandex_sync_status='failed' va xato matni bazaga yoziladi.
 
-    :param app:          Flask app (app_context uchun)
-    :param owner_user:   Taksopark User obyekti (yandex kalitlari shu userlarda)
+    :param app:            Flask app (app_context uchun)
+    :param owner_user:     Taksopark User obyekti (yandex kalitlari shu userlarda)
     :param transaction_id: Bizning Transaction.id raqami
+    :param payment_method: 'payme' | 'click' — qaysi kategoriyadan foydalanish
     """
     with app.app_context():
         # 1. Tranzaksiyani topamiz
@@ -189,8 +243,13 @@ def yandex_topup_driver(app, owner_user, transaction_id):
             db.session.commit()
             return False, "Haydovchi topilmadi"
 
-        # 5. Kategoriya ID: user belgilamagan bo'lsa default = '1'
-        category_id = (owner_user.yandex_category_id or '1').strip()
+        # 5. To'lov turiga qarab tegishli kategoriya IDsini tanlaymiz
+        # Payme to'lovi uchun alohida, Click to'lovi uchun alohida Yandex kategoriyasi
+        if payment_method == 'click':
+            category_id = (owner_user.yandex_click_category_id or '1').strip()
+        else:  # payme (va boshqa holatlar)
+            category_id = (owner_user.yandex_payme_category_id or '1').strip()
+        logging.info(f"[Yandex Topup] Trans #{transaction_id} | payment_method={payment_method} | category_id={category_id}")
 
         # 6. So'rov tayyorlaymiz
         headers = {

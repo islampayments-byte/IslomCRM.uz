@@ -41,10 +41,12 @@ class User(db.Model, UserMixin):
     click_merchant_id = db.Column(db.String(100))
     click_secret_key = db.Column(db.String(255))
 
-    # Yandex Fleet: Haydovchi balansini to'ldirishda ishlatiladigan kategoriya ID.
-    # Har bir park o'z kategoriyasini Yandex kabineti orqali ko'rishi mumkin.
-    # Default: 1 (odatda "Ish haqi" yoki standart kategoriya)
-    yandex_category_id = db.Column(db.String(50), default='1')
+    # Yandex Fleet: Haydovchi balansini to'ldirishda ishlatiladigan kategoriya IDlari.
+    # Payme va Click uchun alohida-alohida kategoriya bo'lishi mumkin.
+    # Kategoriyalar Yandex kabineti → Moliya → Kategoriyalar bo'limida ko'rinadi.
+    # Default: '1' (aksariyat parklarda standart "Ish haqi" kategoriyasi)
+    yandex_payme_category_id = db.Column(db.String(50), default='1')  # Payme orqali to'lovlar uchun
+    yandex_click_category_id = db.Column(db.String(50), default='1')  # Click orqali to'lovlar uchun
     
     org_slug = db.Column(db.String(100), unique=True) # URL identifier e.g. 'islom-taxi'
     

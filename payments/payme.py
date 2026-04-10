@@ -306,7 +306,7 @@ def _handle_payme_methods(method, params, req_id, settings, user_context):
                     app = current_app._get_current_object()
                     t = threading.Thread(
                         target=yandex_topup_driver,
-                        args=(app, owner_user, trans.id),
+                        args=(app, owner_user, trans.id, 'payme'),
                         daemon=True
                     )
                     t.start()

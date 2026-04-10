@@ -59,10 +59,11 @@ add_column('users', 'is_payme_test_mode', 'BOOLEAN DEFAULT 1')
 add_column('users', 'click_service_id',  'VARCHAR(100)')
 add_column('users', 'click_merchant_id', 'VARCHAR(100)')
 add_column('users', 'click_secret_key',   'VARCHAR(255)')
-# Yandex Fleet tranzaksiya kategoriyasi:
-# Har bir park o'z kategoriyasini Yandex kabinetidan olib, shu yerga kiritadi.
-# Default: 1 — odatda standart/ish haqi kategoriyasi
-add_column('users', 'yandex_category_id', 'VARCHAR(50) DEFAULT 1')
+# Yandex Fleet tranzaksiya kategoriyalari (Payme va Click uchun alohida):
+# Kategoriyalar Yandex kabineti → Moliya → Kategoriyalar bo'limidan olinadi.
+# Default: '1' — aksariyat parklarda standart "Ish haqi" kategoriyasi.
+add_column('users', 'yandex_payme_category_id', "VARCHAR(50) DEFAULT '1'")  # Payme uchun
+add_column('users', 'yandex_click_category_id', "VARCHAR(50) DEFAULT '1'")  # Click uchun
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")
