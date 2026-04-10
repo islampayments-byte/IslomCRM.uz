@@ -551,6 +551,11 @@ def cancel_transaction(transaction_id):
 @login_required
 def telegram_bot():
     if request.method == 'POST':
+        # Agar token allaqachon mavjud bo'lsa, uni o'zgartirishni bloklaymiz
+        if current_user.tg_bot_token:
+            flash("Telegram Bot tokeni allaqachon sozlangan va xavfsizlik yuzasidan uni o'zgartirib bo'lmaydi.", "warning")
+            return redirect(url_for('user.telegram_bot'))
+
         token = request.form.get('tg_bot_token', '').strip()
         if not token:
             current_user.tg_bot_token = None
