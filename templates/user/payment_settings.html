@@ -517,16 +517,34 @@ document.querySelectorAll('.hide-toggle').forEach(btn => {
 
 function copyToClipboard(elementId) {
     const text = document.getElementById(elementId).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = event.currentTarget;
-        const originalIcon = btn.innerHTML;
+    const btn = event.currentTarget;
+    const originalIcon = btn.innerHTML;
+
+    function success() {
         btn.innerHTML = "<i class='bx bx-check'></i>";
         btn.style.background = "#2ecc71";
         setTimeout(() => {
             btn.innerHTML = originalIcon;
             btn.style.background = "";
         }, 2000);
-    });
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(success);
+    } else {
+        // Fallback for non-secure contexts (HTTP)
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            success();
+        } catch (err) {
+            console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textArea);
+    }
 }
 
 function loadYandexCategories() {
