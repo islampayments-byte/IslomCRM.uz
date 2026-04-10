@@ -123,7 +123,8 @@ def sync_user_drivers(app, user):
         return False, str(e)
 
 
-# ─── Yandex Fleet: Haydovchi balansini to'ldirish ────────YANDEX_BASE = "https://fleet-api.taxi.yandex.net"
+# Yandex Fleet: Haydovchi balansini to'ldirish
+YANDEX_BASE = "https://fleet-api.taxi.yandex.net"
 YANDEX_TOPUP_URL = f"{YANDEX_BASE}/v2/parks/driver-profiles/transactions"
 YANDEX_CATEGORIES_URL = f"{YANDEX_BASE}/v2/parks/transactions/categories/list"
 
