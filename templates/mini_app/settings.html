@@ -66,6 +66,29 @@
             <span class="progress-tag">Tayyorlik: 65%</span>
         </div>
 
+        <!-- Logo Upload Section -->
+        <div class="link-section-v2 anim-fade-in" style="margin-top: 40px; border-style: solid; border-color: rgba(142,45,226,0.3);">
+            <div class="section-tag-v2">TASHKILOT LOGOTIPI</div>
+            <div class="logo-upload-container">
+                <div class="current-logo-box">
+                    {% if current_user.org_logo %}
+                        <img src="{{ url_for('static', filename=current_user.org_logo) }}" alt="Logo" id="logoPreview">
+                    {% else %}
+                        <div class="logo-placeholder"><i class='bx bx-image-add'></i></div>
+                    {% endif %}
+                </div>
+                <div class="upload-controls">
+                    <p class="link-instruction" style="margin-top: 0; margin-bottom: 15px;">Tavsiya etiladi: 512x512px, PNG yoki JPG formatida.</p>
+                    <form action="{{ url_for('user.mini_app') }}" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="org_logo" id="logoInput" hidden accept="image/*" onchange="this.form.submit()">
+                        <button type="button" class="copy-link-btn" onclick="document.getElementById('logoInput').click()">
+                            <i class='bx bx-cloud-upload'></i> Logo yuklash
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Dynamic Link Section -->
         <div class="link-section-v2 anim-fade-in" style="margin-top: 40px;">
             <div class="section-tag-v2">SIZNING MINI APP LINKINGIZ</div>
@@ -258,6 +281,21 @@ function copyMiniAppLink() {
 .link-instruction {
     margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.4;
 }
+
+/* Logo Upload Custom Styles */
+.logo-upload-container {
+    display: flex; align-items: center; gap: 20px;
+}
+.current-logo-box {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+}
+.current-logo-box img { width: 100%; height: 100%; object-fit: cover; }
+.logo-placeholder { font-size: 24px; color: rgba(255,255,255,0.1); }
+.upload-controls { flex: 1; }
+
 .anim-fade-in { animation: fadeIn 0.8s ease forwards; }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

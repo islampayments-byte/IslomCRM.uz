@@ -6,6 +6,8 @@ import requests
 import base64
 import logging
 import os
+import time
+from werkzeug.utils import secure_filename
 
 # Use the same log file as payme callback
 LOG_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'payme_debug.log')
@@ -584,7 +586,32 @@ def telegram_bot():
 
     return render_template('user/telegram_bot.html')
 
-@user_bp.route('/settings/mini-app')
+@user_bp.route('/settings/mini-app', methods=['GET', 'POST'])
 @login_required
 def mini_app():
+    if request.method == 'POST':
+        if 'org_logo' in request.files:
+            file = request.files['org_logo']
+            if file and file.filename != '':
+                ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+                if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+                    ext = file.filename.rsplit('.', 1)[1].lower()
+                    filename = secure_filename(f"logo_{current_user.id}_{int(time.time())}.{ext}")
+                    
+                    # Ensure directory exists
+                    upload_folder = os.path.join('static', 'uploads', 'logos')
+                    if not os.path.exists(upload_folder):
+                        os.makedirs(upload_folder)
+                    
+                    file_path = os.path.join(upload_folder, filename)
+                    file.save(file_path)
+                    
+                    # Update DB (relative path from static/)
+                    current_user.org_logo = f"uploads/logos/{filename}"
+                    db.session.commit()
+                    flash("Tashkilot logotipi muvaffaqiyatli yuklandi!", "success")
+                else:
+                    flash("Xato: Faqat rasm fayllari (png, jpg, jpeg, webp) ruxsat etiladi.", "danger")
+        return redirect(url_for('user.mini_app'))
+        
     return render_template('mini_app/settings.html')

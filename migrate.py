@@ -68,6 +68,7 @@ add_column('users', 'yandex_click_category_id', "VARCHAR(50) DEFAULT '1'")  # Cl
 add_column('users', 'tg_bot_token',      'VARCHAR(255)')
 add_column('users', 'tg_bot_username',   'VARCHAR(100)')
 add_column('users', 'tg_mini_app_url',   'VARCHAR(512)')
+add_column('users', 'org_logo',          'VARCHAR(255)')
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")

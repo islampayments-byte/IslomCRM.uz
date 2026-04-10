@@ -55,6 +55,8 @@ class User(db.Model, UserMixin):
     tg_bot_username = db.Column(db.String(100))
     tg_mini_app_url = db.Column(db.String(512))
     
+    org_logo = db.Column(db.String(255)) # Path to uploaded logo
+    
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def check_pin(self, pin, bcrypt):
