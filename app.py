@@ -23,7 +23,7 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
 
 # Initialize extensions
 db.init_app(app)
@@ -138,8 +138,21 @@ def dated_url_for(endpoint, **values):
     return url_for(endpoint, **values)
 
 @app.before_request
-def make_session_permanent():
+def manage_sessions():
     session.permanent = True
+    # Mini App path is /m/..., everything else is Main Site
+    if not request.path.startswith('/m/') and not request.path.startswith('/static/'):
+        now = datetime.datetime.now()
+        last_active_str = session.get('_portal_last_active')
+        if last_active_str:
+            try:
+                last_active = datetime.datetime.fromisoformat(last_active_str)
+                if (now - last_active).total_seconds() > 1800: # 30 minutes
+                    # Clear session if inactive on main site
+                    session.clear()
+                    session.permanent = True
+            except: pass
+        session['_portal_last_active'] = now.isoformat()
 
 @app.route('/m/<code>/<slug>')
 def mini_app_landing(code, slug):
