@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="uz">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>{{ org.org_name }} - IslomCRM Mini App</title>
     <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +18,8 @@
             --accent: #8e2de2;
             --accent-light: #4a00e0;
             --accent-gradient: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
-            --bg-deep: #0f1014; /* Deep, rich dark */
+            --bg-deep: #0f1014;
+            /* Deep, rich dark */
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff;
@@ -30,7 +33,7 @@
 
         body {
             background-color: var(--bg-deep);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 50% -20%, rgba(142, 45, 226, 0.15), transparent),
                 radial-gradient(circle at 0% 100%, rgba(74, 0, 224, 0.05), transparent);
             color: var(--text-main);
@@ -40,7 +43,8 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* No scroll on landing */
+            overflow: hidden;
+            /* No scroll on landing */
         }
 
         .container {
@@ -95,9 +99,20 @@
         }
 
         @keyframes morph {
-            0%, 100% { border-radius: 35% 65% 70% 30% / 30% 30% 70% 70%; transform: rotate(0deg); }
-            33% { border-radius: 65% 35% 30% 70% / 70% 70% 30% 30%; }
-            66% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+
+            0%,
+            100% {
+                border-radius: 35% 65% 70% 30% / 30% 30% 70% 70%;
+                transform: rotate(0deg);
+            }
+
+            33% {
+                border-radius: 65% 35% 30% 70% / 70% 70% 30% 30%;
+            }
+
+            66% {
+                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            }
         }
 
         h1 {
@@ -139,12 +154,27 @@
             opacity: 0.2;
             animation: dot-pulse 1.4s infinite;
         }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
 
         @keyframes dot-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.2; }
-            50% { transform: scale(1.5); opacity: 1; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
         }
 
         .status-badge {
@@ -202,19 +232,25 @@
         }
 
         .btn-secondary:active {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             transform: scale(0.97);
         }
 
-        .btn-premium i { font-size: 22px; }
+        .btn-premium i {
+            font-size: 22px;
+        }
 
         /* Footer Branding */
         .footer-logo {
-            padding: 30px 0;
-            opacity: 0.3;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 2px;
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            opacity: 0.2;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 3px;
             text-transform: uppercase;
         }
 
@@ -223,16 +259,33 @@
             opacity: 0;
             animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
-        .delay-1 { animation-delay: 0.2s; }
-        .delay-2 { animation-delay: 0.4s; }
-        .delay-3 { animation-delay: 0.6s; }
+
+        .delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.6s;
+        }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Hero Section -->
@@ -241,9 +294,10 @@
                 <div class="logo-ring"></div>
                 <div class="logo-box">
                     {% if org.org_logo %}
-                        <img src="{{ url_for('static', filename=org.org_logo) }}" alt="Logo" style="width: 100%; height: 100%; border-radius: 30px; object-fit: cover;">
+                    <img src="{{ url_for('static', filename=org.org_logo) }}" alt="Logo"
+                        style="width: 100%; height: 100%; border-radius: 30px; object-fit: cover;">
                     {% else %}
-                        <i class='bx bx-mobile-alt'></i>
+                    <i class='bx bx-mobile-alt'></i>
                     {% endif %}
                 </div>
             </div>
@@ -264,7 +318,7 @@
 
         <!-- Footer -->
         <div class="footer-logo anim-slide-up delay-3">
-            IslomCRM &copy; 2026
+            ISLAM PAYMENTS &copy; 2026
         </div>
     </div>
 
@@ -280,4 +334,5 @@
         }
     </script>
 </body>
+
 </html>
