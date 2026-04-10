@@ -479,25 +479,13 @@
     </style>
 
     <script>
-        const webApp = window.Telegram ? window.Telegram.WebApp : null;
-        if (webApp) {
-            webApp.expand(); // Full height
-            webApp.ready();
-        }
+        const webApp = window.Telegram.WebApp;
+        webApp.expand(); // Full height
+        webApp.ready();
 
         function haptic(type = 'medium') {
-            if (webApp && webApp.HapticFeedback) {
-                try {
-                    webApp.HapticFeedback.impactOccurred(type);
-                } catch(e) {}
-            }
-        }
-
-        function showAlert(msg) {
-            if (webApp && typeof webApp.showAlert === 'function') {
-                webApp.showAlert(msg);
-            } else {
-                alert(msg);
+            if (webApp.HapticFeedback) {
+                webApp.HapticFeedback.impactOccurred(type);
             }
         }
 
@@ -523,7 +511,7 @@
             haptic();
             const phone = document.getElementById('driverPhone').value;
             if (phone.length < 9) {
-                showAlert('Telefon raqamini to\'liq kiriting');
+                webApp.showAlert('Telefon raqamini to\'liq kiriting');
                 return;
             }
 
@@ -537,24 +525,21 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: '+998' + phone })
                 });
-                
-                let data;
-                try {
-                    data = await res.json();
-                } catch (e) {
-                    data = { status: 'error', message: 'Server bilan bog\'lanishda xatolik' };
-                }
+                const data = await res.json();
 
-                if (res.ok && data.status === 'success') {
+                if (data.status === 'success') {
                     // Switch to SMS step
                     document.getElementById('step-phone').classList.remove('active');
                     document.getElementById('step-sms').classList.add('active');
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>Davom etish</span>";
                 } else {
-                    showAlert(data.message || 'Xatolik yuz berdi');
+                    webApp.showAlert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>Davom etish</span>";
                 }
             } catch (err) {
-                showAlert('Internet ulanishini tekshiring');
-            } finally {
+                webApp.showAlert('Xatolik yuz berdi');
                 btn.disabled = false;
                 btn.innerHTML = "<span>Davom etish</span>";
             }
@@ -565,7 +550,7 @@
             const code = document.getElementById('smsCode').value;
             const phone = document.getElementById('driverPhone').value;
             if (code.length < 6) {
-                showAlert('Tasdiqlash kodini kiriting');
+                webApp.showAlert('Tasdiqlash kodini kiriting');
                 return;
             }
 
@@ -579,24 +564,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: '+998' + phone, code: code })
                 });
-                
-                let data;
-                try {
-                    data = await res.json();
-                } catch (e) {
-                    data = { status: 'error', message: 'Server bilan bog\'lanishda xatolik' };
-                }
+                const data = await res.json();
 
-                if (res.ok && data.status === 'success') {
-                    showAlert('Kirish muvaffaqiyatli!');
+                if (data.status === 'success') {
+                    webApp.showAlert('Kirish muvaffaqiyatli!');
                     window.location.href = data.redirect;
                 } else {
-                    showAlert(data.message || 'Tasdiqlash kodi noto\'g\'ri');
+                    webApp.showAlert(data.message);
                     btn.disabled = false;
                     btn.innerHTML = "<span>Tasdiqlash</span>";
                 }
             } catch (err) {
-                showAlert('Internet ulanishini tekshiring');
+                webApp.showAlert('Xatolik yuz berdi');
                 btn.disabled = false;
                 btn.innerHTML = "<span>Tasdiqlash</span>";
             }
