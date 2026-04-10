@@ -245,13 +245,19 @@ def m_check_driver(code, slug):
             message = f"IslomCRM web ilovasidan ro'yxatdan o'tish uchun tasdiqlash kodi: {verify_code} IslomCRM.uz"
             org.sms_count_platform = (org.sms_count_platform or 0) + 1
             
-        requests.post('https://notify.eskiz.uz/api/message/sms/send', 
+        sms_res = requests.post('https://notify.eskiz.uz/api/message/sms/send', 
             headers={'Authorization': f'Bearer {token}'},
             data={
                 'mobile_phone': phone.replace('+', ''),
                 'message': message,
                 'from': os.getenv('ESKIZ_ALPHA_NAME', '4546')
             }, timeout=10)
+            
+        sms_data = sms_res.json()
+        if sms_res.status_code != 200 or sms_data.get('status') == 'error':
+            db.session.rollback()
+            logging.error(f"Eskiz SMS xatosi: {sms_data}")
+            return jsonify({'status': 'error', 'message': 'SMS yuborishda xatolik yuz berdi. Keyinroq uruning'}), 500
             
         db.session.commit()
         return jsonify({'status': 'success', 'message': 'SMS yuborildi'})
