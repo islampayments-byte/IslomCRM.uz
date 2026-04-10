@@ -285,7 +285,12 @@ def ajax_yandex_categories():
     from services import fetch_yandex_categories
     if not current_user.yandex_keys_active:
         return jsonify({'error': 'Yandex kalitlari aktiv emas', 'categories': []}), 400
-    categories = fetch_yandex_categories(current_user)
+    
+    categories, error_msg = fetch_yandex_categories(current_user)
+    
+    if error_msg:
+        return jsonify({'error': f"Yandex API xatosi: {error_msg}", 'categories': []}), 500
+        
     return jsonify({'categories': categories})
 
 @user_bp.route('/finance')

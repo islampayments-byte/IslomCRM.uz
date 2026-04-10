@@ -123,13 +123,11 @@ def sync_user_drivers(app, user):
         return False, str(e)
 
 
-# ─── Yandex Fleet: Haydovchi balansini to'ldirish ─────────────────────────────
-
-YANDEX_BASE = "https://fleet-api.taxi.yandex.net"
+# ─── Yandex Fleet: Haydovchi balansini to'ldirish ────────YANDEX_BASE = "https://fleet-api.taxi.yandex.net"
 YANDEX_TOPUP_URL = f"{YANDEX_BASE}/v2/parks/driver-profiles/transactions"
-YANDEX_CATEGORIES_URL = f"{YANDEX_BASE}/v1/parks/transactions/categories"
+YANDEX_CATEGORIES_URL = f"{YANDEX_BASE}/v2/parks/transactions/categories/list"
 
-# Qayta urinish soni: API vaqtincha ishlamasa shuncha marta urinamiz
+# Qayta urinish soni: API vaqtincha ishlamasa shuncha marta uranamiz
 YANDEX_MAX_RETRIES = 5
 # Har bir urinish orasidagi kutish (soniyada)
 YANDEX_RETRY_DELAY = 3  # sekund
@@ -140,9 +138,9 @@ def fetch_yandex_categories(user):
     Yandex Fleet API dan ushbu park uchun barcha tranzaksiya kategoriyalarini oladi.
     Bu kategoriyalar haydovchi balansi to'ldirishda qaysi sarlavha ostida ko'rinishini belgilaydi.
 
-    Endpoint: GET/POST /v1/parks/transactions/categories
-    Headers : X-Client-ID, X-Api-Key
-    Body    : {"query": {"park": {"id": park_id}}}
+    Endpoint: POST /v2/parks/transactions/categories/list
+    Headers : X-Client-ID, X-Api-Key, X-Park-ID
+    Body    : {} (empty or optional filters)
 
     Qaytaradi: list of {"id": "...", "name": "..."}  yoki bo'sh list []
     """
@@ -151,40 +149,36 @@ def fetch_yandex_categories(user):
     headers = {
         'X-Client-ID': user.yandex_client_id.strip(),
         'X-Api-Key':   user.yandex_api_key.strip(),
+        'X-Park-ID':   user.yandex_park_id.strip(),
         'Content-Type': 'application/json',
     }
-    payload = {
-        "query": {
-            "park": {
-                "id": user.yandex_park_id.strip()
-            }
-        }
-    }
+    # V2 categories/list odatda bo'sh {} bilan ham ishlayveradi
+    payload = {}
+    
     try:
         resp = requests.post(YANDEX_CATEGORIES_URL, headers=headers, json=payload, timeout=10)
         if resp.status_code == 200:
             data = resp.json()
-            # Response formatlar turlicha bo'lishi mumkin: list yoki {"categories": [...]}
-            if isinstance(data, list):
-                categories = data
-            else:
-                categories = data.get('categories', data.get('items', []))
-            # Har bir kategoriyadan faqat id va name ni olamiz
+            # Response format: {"categories": [{"id": "...", "name": "...", ...}]}
+            categories = data.get('categories', [])
+            
             result = []
             for cat in categories:
                 if isinstance(cat, dict):
                     result.append({
-                        'id':   str(cat.get('id',   cat.get('category_id', ''))),
-                        'name': cat.get('name', cat.get('title', f"Kategoriya {cat.get('id', '?')}"))
+                        'id':   str(cat.get('id', '')),
+                        'name': cat.get('name', f"Kategoriya {cat.get('id', '?')}")
                     })
             logging.info(f"[Yandex Categories] User {user.id} uchun {len(result)} ta kategoriya olindi")
-            return result
+            return result, None
         else:
-            logging.warning(f"[Yandex Categories] User {user.id}: HTTP {resp.status_code} | {resp.text[:200]}")
-            return []
+            err_msg = f"HTTP {resp.status_code}: {resp.text[:100]}"
+            logging.error(f"[Yandex Categories] API Xatosi (User {user.id}): {err_msg}")
+            return [], err_msg
     except Exception as e:
-        logging.error(f"[Yandex Categories] User {user.id}: {e}")
-        return []
+        err_msg = str(e)
+        logging.error(f"[Yandex Categories] Exception (User {user.id}): {err_msg}")
+        return [], err_msg
 
 
 def yandex_topup_driver(app, owner_user, transaction_id, payment_method='payme'):
@@ -255,6 +249,8 @@ def yandex_topup_driver(app, owner_user, transaction_id, payment_method='payme')
         headers = {
             'X-Client-ID': owner_user.yandex_client_id.strip(),
             'X-Api-Key':   owner_user.yandex_api_key.strip(),
+            'X-Park-ID':   owner_user.yandex_park_id.strip(),
+            'Content-Type': 'application/json',
         }
         payload = {
             "park_id":           owner_user.yandex_park_id.strip(),
