@@ -4,252 +4,252 @@
 {% block page_title %}To'lov tizimlari sozlamalari{% endblock %}
 
 {% block content %}
-<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
     <!-- Payme Settings -->
-    <div class="stat-card" style="padding: 0; overflow: hidden;">
-        <div class="card-header" style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(59, 130, 246, 0.03);">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 28px;" alt="Payme">
-                <h3 style="margin: 0; font-size: 1.2rem;">Payme Business</h3>
+    <div class="stat-card glass-panel-premium payment-card-professional">
+        <div class="card-header-premium payme-header">
+            <div class="header-brand-box">
+                <img src="{{ url_for('static', filename='payme.svg') }}" class="brand-logo-lg" alt="Payme">
+                <div class="brand-text">
+                    <h3 class="brand-title">Payme Business</h3>
+                    <p class="brand-subtitle">To'lovlarni qabul qilish tizimi</p>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="status-indicator-box">
                 {% if current_user.payme_merchant_id %}
-                <span style="font-size: 12px; color: var(--success); background: rgba(46, 204, 113, 0.1); padding: 4px 10px; border-radius: 10px;">BOG'LANGAN</span>
+                <span class="status-badge connected"><i class='bx bxs-check-shield'></i> BOG'LANGAN</span>
                 {% else %}
-                <span style="font-size: 12px; color: var(--warning); background: rgba(241, 196, 15, 0.1); padding: 4px 10px; border-radius: 10px;">ULANMAGAN</span>
+                <span class="status-badge disconnected">ULANMAGAN</span>
                 {% endif %}
             </div>
         </div>
         
-        <div class="card-content" style="padding: 24px;">
+        <div class="card-content-premium">
             {% if not current_user.yandex_keys_active %}
-            <div style="text-align: center; padding: 20px;">
-                <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
-                <p style="color: var(--text-muted); font-size: 14px;">Payme'ni ulash uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
-                <a href="{{ url_for('user.settings') }}" class="user-pill" style="margin-top: 15px; background: var(--primary-color); color: #000; border: none;">Yandex sozlamalariga o'tish</a>
+            <div class="locked-state-premium">
+                <div class="lock-icon-wrapper"><i class='bx bx-lock-alt'></i></div>
+                <p>Payme'ni faollashtirish uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
+                <a href="{{ url_for('user.settings') }}" class="btn-premium-action gold-btn">Yandex sozlamalariga o'tish</a>
             </div>
             {% else %}
-            <form action="{{ url_for('user.payment_settings') }}" method="POST">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant ID</label>
-                    <input type="text" name="merchant_id" value="{{ current_user.payme_merchant_id or '' }}" placeholder="Masalan: 65e12...789" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+            <form action="{{ url_for('user.payment_settings') }}" method="POST" class="premium-form">
+                <input type="hidden" name="payment_method" value="payme">
+                
+                <div class="form-group-premium">
+                    <label class="premium-label">Merchant ID</label>
+                    <div class="input-wrapper-premium">
+                        <i class='bx bx-id-card input-icon'></i>
+                        <input type="text" name="merchant_id" value="{{ current_user.payme_merchant_id or '' }}" 
+                               placeholder="Masalan: 65e12...789" class="premium-input mono-font">
+                    </div>
                 </div>
                 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Kassa uchun kalit (Secret Key)</label>
-                    <div style="position: relative;">
-                        <input type="password" name="secret_key" id="paymeSecret" value="{{ current_user.payme_secret_key or '' }}" placeholder="Kassa paroli..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
-                        <i class='bx bx-hide hide-toggle' data-target="paymeSecret" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                <div class="form-group-premium">
+                    <label class="premium-label">Kassa uchun kalit (Secret Key)</label>
+                    <div class="input-wrapper-premium">
+                        <i class='bx bx-key input-icon'></i>
+                        <input type="password" name="secret_key" id="paymeSecret" value="{{ current_user.payme_secret_key or '' }}" 
+                               placeholder="Kassa paroli..." class="premium-input">
+                        <i class='bx bx-hide hide-toggle' data-target="paymeSecret"></i>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Test rejimi uchun kalit (Test Key)</label>
-                    <div style="position: relative;">
-                        <input type="password" name="test_key" id="paymeTestKey" value="{{ current_user.payme_test_key or '' }}" placeholder="Test kassa paroli..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
-                        <i class='bx bx-hide hide-toggle' data-target="paymeTestKey" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                <div class="form-group-premium">
+                    <label class="premium-label">Test rejimi uchun kalit (Test Key)</label>
+                    <div class="input-wrapper-premium">
+                        <i class='bx bx-flask input-icon'></i>
+                        <input type="password" name="test_key" id="paymeTestKey" value="{{ current_user.payme_test_key or '' }}" 
+                               placeholder="Test kassa paroli..." class="premium-input">
+                        <i class='bx bx-hide hide-toggle' data-target="paymeTestKey"></i>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class='bx bx-flask' style="color: var(--warning); font-size: 20px;"></i>
-                        <div>
-                            <p style="margin: 0; font-size: 14px; color: #fff;">Test Rejimi</p>
-                            <p style="margin: 0; font-size: 11px; color: var(--text-muted);">To'lovlarni sinovdan o'tkazish uchun</p>
-                        </div>
+                <div class="switch-card-premium">
+                    <div class="switch-info">
+                        <h4 class="switch-title">Test Rejimi</h4>
+                        <p class="switch-desc">To'lovlarni sinovdan o'tkazish uchun</p>
                     </div>
-                    <label class="switch-mini">
+                    <label class="premium-switch">
                         <input type="checkbox" name="test_mode" {% if current_user.is_payme_test_mode %}checked{% endif %}>
-                        <span class="slider-mini round"></span>
+                        <span class="premium-slider"></span>
                     </label>
                 </div>
 
-                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
-                    Sozlamalarni saqlash
+                <button type="submit" class="btn-premium-save payme-btn-theme">
+                    <i class='bx bx-save'></i> Sozlamalarni saqlash
                 </button>
             </form>
 
-            <div style="margin-top: 30px; padding: 15px; background: rgba(59, 130, 246, 0.05); border-radius: 12px; border: 1px dashed rgba(59, 130, 246, 0.3);">
-                <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                    <i class='bx bx-link-external'></i> Shaxsiy Callback URL (Payme kabineti uchun)
-                </h4>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <code id="callbackUrl" style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/payme/callback</code>
-                    <button onclick="copyToClipboard()" style="background: var(--accent-color); color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
-                        <i class='bx bx-copy'></i>
-                    </button>
+            <div class="callback-section-premium">
+                <div class="callback-header">
+                    <i class='bx bx-link-external'></i>
+                    <span>Shaxsiy Callback URL (Payme)</span>
                 </div>
-                <p style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">⬆️ Bu manzilni Payme xodimlariga bering. <strong>Aynan shunday</strong> bo'lishi kerak.</p>
+                <div class="callback-copy-box">
+                    <code id="callbackUrl">https://islomcrm.uz/payments/{{ current_user.org_slug }}/payme/callback</code>
+                    <button class="copy-btn-premium" onclick="copyToClipboard('callbackUrl')"><i class='bx bx-copy'></i></button>
+                </div>
+                <p class="callback-hint">Ushbu manzilni Payme kabineti orqali sozlang.</p>
             </div>
             {% endif %}
         </div>
     </div>
 
     <!-- Click Settings -->
-    <div class="stat-card" style="padding: 0; overflow: hidden;">
-        <div class="card-header" style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0, 123, 255, 0.03);">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="{{ url_for('static', filename='click.svg') }}" style="height: 20px;" alt="Click">
-                <h3 style="margin: 0; font-size: 1.2rem;">Click Merchant</h3>
+    <div class="stat-card glass-panel-premium payment-card-professional">
+        <div class="card-header-premium click-header">
+            <div class="header-brand-box">
+                <img src="{{ url_for('static', filename='click.svg') }}" class="brand-logo-md" alt="Click">
+                <div class="brand-text">
+                    <h3 class="brand-title">Click Merchant</h3>
+                    <p class="brand-subtitle">Internet-ekvayring xizmati</p>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="status-indicator-box">
                 {% if current_user.click_merchant_id %}
-                <span style="font-size: 12px; color: #3498db; background: rgba(52, 152, 219, 0.1); padding: 4px 10px; border-radius: 10px;">BOG'LANGAN</span>
+                <span class="status-badge connected blue-badge"><i class='bx bxs-check-shield'></i> BOG'LANGAN</span>
                 {% else %}
-                <span style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 10px;">ULANMAGAN</span>
+                <span class="status-badge disconnected">ULANMAGAN</span>
                 {% endif %}
             </div>
         </div>
         
-        <div class="card-content" style="padding: 24px;">
+        <div class="card-content-premium">
             {% if not current_user.yandex_keys_active %}
-            <div style="text-align: center; padding: 20px;">
-                <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
-                <p style="color: var(--text-muted); font-size: 14px;">Click'ni ulash uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
+            <div class="locked-state-premium">
+                <div class="lock-icon-wrapper blue-lock"><i class='bx bx-lock-alt'></i></div>
+                <p>Click'ni faollashtirish uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
             </div>
             {% else %}
-            <form action="{{ url_for('user.payment_settings') }}" method="POST">
+            <form action="{{ url_for('user.payment_settings') }}" method="POST" class="premium-form">
                 <input type="hidden" name="payment_method" value="click">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Service ID</label>
-                    <input type="text" name="click_service_id" value="{{ current_user.click_service_id or '' }}" placeholder="Masalan: 12345" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant ID</label>
-                    <input type="text" name="click_merchant_id" value="{{ current_user.click_merchant_id or '' }}" placeholder="Masalan: 67890" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
-                </div>
                 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant Key (Secret Key)</label>
-                    <div style="position: relative;">
-                        <input type="password" name="click_secret_key" id="clickSecret" value="{{ current_user.click_secret_key or '' }}" placeholder="Click maxfiy kaliti..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
-                        <i class='bx bx-hide hide-toggle' data-target="clickSecret" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                <div class="form-group-premium">
+                    <label class="premium-label">Service ID</label>
+                    <div class="input-wrapper-premium">
+                        <i class='bx bx-cog input-icon'></i>
+                        <input type="text" name="click_service_id" value="{{ current_user.click_service_id or '' }}" 
+                               placeholder="Masalan: 12345" class="premium-input mono-font">
                     </div>
                 </div>
 
-                <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: #007bff; color: #fff; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
-                    Click sozlamalarini saqlash
+                <div class="form-group-premium">
+                    <label class="premium-label">Merchant ID</label>
+                    <div class="input-wrapper-premium">
+                        <i class='bx bx-id-card input-icon'></i>
+                        <input type="text" name="click_merchant_id" value="{{ current_user.click_merchant_id or '' }}" 
+                               placeholder="Masalan: 67890" class="premium-input mono-font">
+                    </div>
+                </div>
+                
+                <div class="form-group-premium">
+                    <label class="premium-label">Merchant Key (Secret Key)</label>
+                    <div class="input-wrapper-premium">
+                        <i class='bx bx-key input-icon'></i>
+                        <input type="password" name="click_secret_key" id="clickSecret" value="{{ current_user.click_secret_key or '' }}" 
+                               placeholder="Click maxfiy kaliti..." class="premium-input">
+                        <i class='bx bx-hide hide-toggle' data-target="clickSecret"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-premium-save click-btn-theme">
+                    <i class='bx bx-save'></i> Click sozlamalarini saqlash
                 </button>
             </form>
 
-            <div style="margin-top: 30px; padding: 15px; background: rgba(0, 123, 255, 0.05); border-radius: 12px; border: 1px dashed rgba(0, 123, 255, 0.3);">
-                <h4 style="color: #3498db; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                    <i class='bx bx-link-external'></i> Shaxsiy Callback URL (Click uchun)
-                </h4>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <code id="clickCallbackUrl" style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 11px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/click/callback</code>
-                    <button onclick="copyLink('clickCallbackUrl')" style="background: #3498db; color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
-                        <i class='bx bx-copy'></i>
-                    </button>
+            <div class="callback-section-premium blue-theme">
+                <div class="callback-header">
+                    <i class='bx bx-link-external'></i>
+                    <span>Shaxsiy Callback URL (Click)</span>
+                </div>
+                <div class="callback-copy-box">
+                    <code id="clickCallbackUrl">https://islomcrm.uz/payments/{{ current_user.org_slug }}/click/callback</code>
+                    <button class="copy-btn-premium" onclick="copyToClipboard('clickCallbackUrl')"><i class='bx bx-copy'></i></button>
                 </div>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Yandex Fleet: Kategoriya sozlamalari -->
-    <div class="stat-card glass-panel-premium" style="padding: 0; overflow: hidden; grid-column: 1 / -1;">
-        <div class="card-header" style="padding: 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(252, 186, 3, 0.04); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div class="icon-box-gold">
-                    <i class='bx bx-category-alt' style="font-size: 24px; color: #FCBA03;"></i>
+    <!-- Yandex Fleet Categories -->
+    <div class="stat-card glass-panel-premium yandex-card-professional full-width-card">
+        <div class="card-header-premium yandex-header">
+            <div class="header-brand-box">
+                <div class="icon-box-premium gold-icon">
+                    <i class='bx bx-category-alt'></i>
                 </div>
-                <div>
-                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;">Yandex Fleet Balans Kategoriyalari</h3>
-                    <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-                        <span class="status-pulse-gold"></span> Avtomatik haydovchi balansini to'ldirish sozlamalari
-                    </p>
+                <div class="brand-text">
+                    <h3 class="brand-title">Yandex Fleet Balans Kategoriyalari</h3>
+                    <p class="brand-subtitle"><span class="pulse-dot"></span> Avtomatik hisob-kitoblar logikasi</p>
                 </div>
             </div>
             {% if current_user.yandex_keys_active %}
-            <button type="button" id="loadCategoriesBtn" onclick="loadYandexCategories()" class="btn-premium-outline">
+            <button type="button" id="loadCategoriesBtn" onclick="loadYandexCategories()" class="btn-refresh-premium">
                 <i class='bx bx-refresh' id="refreshIcon"></i> API dan yuklash
             </button>
             {% endif %}
         </div>
 
-        <div class="card-content" style="padding: 32px;">
+        <div class="card-content-premium spacious">
             {% if not current_user.yandex_keys_active %}
-            <div style="text-align: center; padding: 40px;">
-                <div class="lock-icon-container">
-                    <i class='bx bxs-lock-alt'></i>
-                </div>
-                <h4 style="margin-bottom: 10px; font-weight: 700;">Kirish Cheklangan</h4>
-                <p style="color: var(--text-muted); font-size: 14px; max-width: 320px; margin: 0 auto 20px;">Bu bo'limdan foydalanish uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
-                <a href="{{ url_for('user.settings') }}" class="btn-premium-gold" style="text-decoration: none; padding: 12px 24px;">Yandex sozlamalariga o'tish</a>
+            <div class="locked-state-premium centered">
+                <div class="lock-icon-wrapper gold-lock large"><i class='bx bxs-lock-alt'></i></div>
+                <h4>Kirish Cheklangan</h4>
+                <p>Ushbu bo'limdan foydalanish uchun avval Yandex API ulanishini sozlang.</p>
+                <a href="{{ url_for('user.settings') }}" class="btn-premium-action gold-btn">Ulash</a>
             </div>
             {% else %}
+            <div class="professional-banner-premium">
+                <div class="banner-icon-box"><i class='bx bx-shield-quarter'></i></div>
+                <div class="banner-content">
+                    <h5>PROFESIONAL SOZLAMALAR</h5>
+                    <p>Har bir tizim uchun alohida kategoriyani tanlang. Bu haydovchi o'z balansini to'ldirganda Yandex Fleet'da qaysi nom bilan ko'rinishini belgilaydi.</p>
+                </div>
+            </div>
 
-            <div class="category-grid-improved">
-                
-                <!-- Info Section -->
-                <div class="info-banner-premium">
-                    <div style="display: flex; gap: 16px;">
-                        <div class="info-icon-gold"><i class='bx bx-info-circle'></i></div>
-                        <div>
-                            <h5 style="margin: 0 0 6px; font-size: 14px; color: #FCBA03; font-weight: 800;">PROFESIONAL SOZLAMALAR</h5>
-                            <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-                                Haydovchi <strong>Payme</strong> yoki <strong>Click</strong> orqali to'lov qilganda balans avtomat tushadi. 
-                                Har bir tizim uchun alohida kategoriyani tanlang (masalan, Payme -> "Arenda", Click -> "Bonus").
-                            </p>
+            <div id="catStatusMsg" class="premium-alert-box"></div>
+
+            <div class="category-selectors-grid">
+                <!-- Payme Category -->
+                <div class="selection-card-premium">
+                    <div class="selection-header">
+                        <div class="selection-title-box">
+                            <img src="{{ url_for('static', filename='payme.svg') }}" height="14">
+                            <span>Payme Kategoriyasi</span>
                         </div>
+                        <span class="current-id-badge">ID: {{ current_user.yandex_payme_category_id or '1' }}</span>
                     </div>
+                    <form action="{{ url_for('user.payment_settings') }}" method="POST">
+                        <input type="hidden" name="payment_method" value="yandex_payme_category">
+                        <div class="premium-select-wrapper">
+                            <select name="yandex_payme_category_id" id="paymeCatSelect" class="premium-styled-select">
+                                <option value="{{ current_user.yandex_payme_category_id or '1' }}">Yuklanmoqda...</option>
+                            </select>
+                            <i class='bx bx-chevron-down select-arrow'></i>
+                        </div>
+                        <button type="submit" class="btn-save-mini payme-save">Saqlash</button>
+                    </form>
                 </div>
 
-                <div id="catStatusMsg" style="display:none; padding: 14px 20px; border-radius: 16px; font-size: 13px; margin-bottom: 24px; transition: all 0.3s ease;"></div>
-
-                <div class="select-pair-grid">
-                    <!-- Payme uchun kategoriya -->
-                    <div class="premium-input-box">
-                        <div class="input-label-row">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 16px;" alt="Payme">
-                                <span class="input-title">Payme Kategoriyasi</span>
-                            </div>
-                            <span class="badge-mini-id">Hozirgi: ID {{ current_user.yandex_payme_category_id or '1' }}</span>
+                <!-- Click Category -->
+                <div class="selection-card-premium">
+                    <div class="selection-header">
+                        <div class="selection-title-box">
+                            <img src="{{ url_for('static', filename='click.svg') }}" height="12">
+                            <span>Click Kategoriyasi</span>
                         </div>
-                        <form action="{{ url_for('user.payment_settings') }}" method="POST">
-                            <input type="hidden" name="payment_method" value="yandex_payme_category">
-                            <div class="custom-select-wrapper">
-                                <select name="yandex_payme_category_id" id="paymeCatSelect" class="premium-select">
-                                    <option value="{{ current_user.yandex_payme_category_id or '1' }}">
-                                        Yuklanmoqda...
-                                    </option>
-                                </select>
-                                <i class='bx bx-chevron-down select-arrow'></i>
-                            </div>
-                            <button type="submit" class="btn-save-premium payme-btn-save">
-                                <i class='bx bx-check-double'></i> Payme-ni Saqlash
-                            </button>
-                        </form>
+                        <span class="current-id-badge">ID: {{ current_user.yandex_click_category_id or '1' }}</span>
                     </div>
-
-                    <!-- Click uchun kategoriya -->
-                    <div class="premium-input-box">
-                        <div class="input-label-row">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <img src="{{ url_for('static', filename='click.svg') }}" style="height: 14px;" alt="Click">
-                                <span class="input-title">Click Kategoriyasi</span>
-                            </div>
-                            <span class="badge-mini-id">Hozirgi: ID {{ current_user.yandex_click_category_id or '1' }}</span>
+                    <form action="{{ url_for('user.payment_settings') }}" method="POST">
+                        <input type="hidden" name="payment_method" value="yandex_click_category">
+                        <div class="premium-select-wrapper">
+                            <select name="yandex_click_category_id" id="clickCatSelect" class="premium-styled-select">
+                                <option value="{{ current_user.yandex_click_category_id or '1' }}">Yuklanmoqda...</option>
+                            </select>
+                            <i class='bx bx-chevron-down select-arrow'></i>
                         </div>
-                        <form action="{{ url_for('user.payment_settings') }}" method="POST">
-                            <input type="hidden" name="payment_method" value="yandex_click_category">
-                            <div class="custom-select-wrapper">
-                                <select name="yandex_click_category_id" id="clickCatSelect" class="premium-select">
-                                    <option value="{{ current_user.yandex_click_category_id or '1' }}">
-                                        Yuklanmoqda...
-                                    </option>
-                                </select>
-                                <i class='bx bx-chevron-down select-arrow'></i>
-                            </div>
-                            <button type="submit" class="btn-save-premium click-btn-save">
-                                <i class='bx bx-check-double'></i> Click-ni Saqlash
-                            </button>
-                        </form>
-                    </div>
+                        <button type="submit" class="btn-save-mini click-save">Saqlash</button>
+                    </form>
                 </div>
             </div>
             {% endif %}
@@ -257,329 +257,332 @@
     </div>
 </div>
 
-
 <style>
-/* PREMIUM UI ENHANCEMENTS */
+/* --- PREMIUM UI SYSTEM --- */
+:root {
+    --payme-gold: #FCBA03;
+    --click-blue: #007bff;
+    --yandex-yellow: #ffcc00;
+    --glass-bg: rgba(20, 21, 24, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
 .glass-panel-premium {
-    background: rgba(26, 27, 30, 0.6) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
-}
-
-.icon-box-gold {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    background: rgba(252,186,3,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(252,186,3,0.1);
-}
-
-.status-pulse-gold {
-    width: 6px;
-    height: 6px;
-    background: #FCBA03;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 10px rgba(252, 186, 3, 0.6);
-    animation: goldPulse 2s infinite;
-}
-
-@keyframes goldPulse {
-    0% { transform: scale(0.9); opacity: 0.7; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(0.9); opacity: 0.7; }
-}
-
-.btn-premium-outline {
-    background: rgba(252,186,3,0.08);
-    color: #FCBA03;
-    border: 1px solid rgba(252,186,3,0.2);
-    padding: 10px 20px;
-    border-radius: 14px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-premium-outline:hover {
-    background: rgba(252,186,3,0.15);
-    border-color: rgba(252,186,3,0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(252, 186, 3, 0.1);
-}
-
-.info-banner-premium {
-    background: rgba(252,186,3,0.05);
-    border: 1px solid rgba(252,186,3,0.1);
-    border-radius: 18px;
-    padding: 20px 24px;
-    margin-bottom: 32px;
-}
-
-.info-icon-gold {
-    font-size: 24px;
-    color: #FCBA03;
-}
-
-.select-pair-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 32px;
-}
-
-.premium-input-box {
-    background: rgba(0,0,0,0.2);
-    padding: 24px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.04);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     transition: all 0.3s ease;
 }
 
-.premium-input-box:hover {
-    border-color: rgba(255,255,255,0.08);
-    background: rgba(0,0,0,0.25);
+.full-width-card { grid-column: 1 / -1; }
+
+.payment-card-professional {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.input-label-row {
+.card-header-premium {
+    padding: 24px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    border-bottom: 1px solid var(--glass-border);
 }
 
-.input-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.01em;
-}
+.payme-header { background: rgba(252, 186, 3, 0.03); }
+.click-header { background: rgba(0, 123, 255, 0.03); }
+.yandex-header { background: rgba(255, 204, 0, 0.03); }
 
-.badge-mini-id {
+.header-brand-box { display: flex; align-items: center; gap: 16px; }
+.brand-logo-lg { height: 32px; filter: drop-shadow(0 0 5px rgba(252,186,3,0.3)); }
+.brand-logo-md { height: 24px; }
+
+.brand-title { margin: 0; font-size: 1.15rem; font-weight: 800; color: #fff; }
+.brand-subtitle { margin: 2px 0 0; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.status-badge {
     font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: rgba(255,255,255,0.05);
-    padding: 2px 8px;
-    border-radius: 6px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 30px;
+    letter-spacing: 0.02em;
 }
+.status-badge.connected { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
+.status-badge.disconnected { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+.blue-badge { background: rgba(0, 123, 255, 0.1) !important; color: #3498db !important; border-color: rgba(0,123,255,0.2) !important; }
 
-/* Custom Select Styling */
-.custom-select-wrapper {
+.card-content-premium { padding: 28px; }
+.card-content-premium.spacious { padding: 32px; }
+
+/* FORM ELEMENTS */
+.premium-form { display: flex; flex-direction: column; gap: 20px; }
+
+.premium-label { color: var(--text-muted); font-size: 12px; font-weight: 700; margin-bottom: 8px; display: block; }
+
+.input-wrapper-premium {
     position: relative;
-    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
 }
-
-.premium-select {
+.input-icon { position: absolute; left: 16px; color: rgba(255,255,255,0.2); font-size: 18px; }
+.premium-input {
     width: 100%;
-    padding: 14px 18px;
+    padding: 13px 16px 13px 48px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
     border-radius: 14px;
-    background: rgba(15, 15, 15, 0.8);
-    border: 1px solid rgba(255,255,255,0.1);
     color: #fff;
     font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
-
-.premium-select:focus {
-    border-color: #FCBA03;
+.premium-input:focus {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.4);
     outline: none;
-    box-shadow: 0 0 0 4px rgba(252, 186, 3, 0.1);
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.03);
 }
+.mono-font { font-family: 'JetBrains Mono', monospace; }
 
-.select-arrow {
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #FCBA03;
-    font-size: 20px;
-    pointer-events: none;
-    transition: transform 0.3s ease;
+.hide-toggle { position: absolute; right: 16px; cursor: pointer; color: var(--text-muted); transition: color 0.2s; }
+.hide-toggle:hover { color: #fff; }
+
+/* SWITCH */
+.switch-card-premium {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: rgba(252, 186, 3, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(252, 186, 3, 0.1);
 }
+.switch-title { margin: 0; font-size: 14px; font-weight: 700; }
+.switch-desc { margin: 1px 0 0; font-size: 11px; color: var(--text-muted); }
 
-.custom-select-wrapper:focus-within .select-arrow {
-    transform: translateY(-50%) rotate(180deg);
+.premium-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+.premium-switch input { opacity: 0; width: 0; height: 0; }
+.premium-slider {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px;
 }
+.premium-slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background-color: #fff; transition: .4s; border-radius: 50%;
+}
+input:checked + .premium-slider { background-color: var(--payme-gold); }
+input:checked + .premium-slider:before { transform: translateX(20px); }
 
-.btn-save-premium {
+/* BUTTONS */
+.btn-premium-save {
     width: 100%;
-    padding: 14px;
-    border-radius: 14px;
+    padding: 15px;
+    border-radius: 16px;
     border: none;
     font-weight: 800;
-    font-size: 13px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.payme-btn-theme { background: var(--payme-gold); color: #000; }
+.click-btn-theme { background: var(--click-blue); color: #fff; }
+.btn-premium-save:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); opacity: 0.95; }
 
-.payme-btn-save {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.2);
+/* CALLBACKS */
+.callback-section-premium {
+    margin-top: 28px;
+    padding: 18px;
+    background: rgba(255, 204, 0, 0.05);
+    border-radius: 18px;
+    border: 1px dashed rgba(255, 204, 0, 0.2);
 }
-
-.click-btn-save {
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0.08) 100%);
-    color: #3498db;
-    border: 1px solid rgba(0, 123, 255, 0.2);
+.callback-section-premium.blue-theme {
+    background: rgba(0, 123, 255, 0.05);
+    border-color: rgba(0, 123, 255, 0.2);
 }
+.callback-header { display: flex; align-items: center; gap: 8px; color: var(--payme-gold); font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.blue-theme .callback-header { color: #3498db; }
 
-.btn-save-premium:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+.callback-copy-box {
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px;
 }
-
-.payme-btn-save:hover { background: rgba(59, 130, 246, 0.25); border-color: rgba(59, 130, 246, 0.4); color: #fff; }
-.click-btn-save:hover { background: rgba(0, 123, 255, 0.25); border-color: rgba(0, 123, 255, 0.4); color: #fff; }
-
-.lock-icon-container {
-    width: 80px;
-    height: 80px;
-    background: rgba(245, 158, 11, 0.08);
-    color: var(--warning);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    margin: 0 auto 24px;
+.callback-copy-box code { font-size: 11px; flex: 1; word-break: break-all; opacity: 0.8; }
+.copy-btn-premium {
+    background: rgba(255,255,255,0.05); color: #fff; border: none; padding: 7px;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s;
 }
+.copy-btn-premium:hover { background: rgba(255,255,255,0.15); }
+.callback-hint { font-size: 10px; color: var(--text-muted); margin-top: 10px; text-align: center; }
 
-.btn-premium-gold {
-    background: #FCBA03;
-    color: #000;
-    font-weight: 800;
-    border-radius: 12px;
-    display: inline-flex;
-    transition: all 0.3s ease;
+/* LOCKED STATE */
+.locked-state-premium { text-align: center; padding: 40px 20px; }
+.lock-icon-wrapper {
+    width: 60px; height: 60px; border-radius: 20px; background: rgba(252, 186, 3, 0.1);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    font-size: 30px; color: #fcba03;
 }
-.btn-premium-gold:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(252, 186, 3, 0.3); }
+.blue-lock { background: rgba(0, 123, 255, 0.1); color: #007bff; }
+.gold-lock { background: rgba(255, 204, 0, 0.1); color: #ffcc00; }
+.large { width: 80px; height: 80px; font-size: 40px; }
 
-/* Mini Toggle Switch Style */
-.switch-mini { position: relative; display: inline-block; width: 44px; height: 22px; }
-.switch-mini input { opacity: 0; width: 0; height: 0; }
-.slider-mini { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.05); }
-.slider-mini:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider-mini { background-color: var(--warning); }
-input:checked + .slider-mini:before { transform: translateX(20px); }
+/* REFRESH BTN */
+.btn-refresh-premium {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    color: #fff; padding: 10px 20px; border-radius: 14px; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+}
+.btn-refresh-premium:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
 
-.hide-toggle { transition: all 0.2s; }
-.hide-toggle:hover { color: var(--primary-color); }
+/* CATEGORY SELECTORS */
+.professional-banner-premium {
+    display: flex; gap: 20px; background: rgba(255,255,255,0.03);
+    padding: 24px; border-radius: 20px; border: 1px solid var(--glass-border);
+    margin-bottom: 32px; align-items: center;
+}
+.banner-icon-box { font-size: 32px; color: #ffcc00; opacity: 0.8; }
+.banner-content h5 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: 0.02em; }
+.banner-content p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+.category-selectors-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.selection-card-premium {
+    background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+    padding: 24px; border-radius: 20px; transition: border-color 0.2s;
+}
+.selection-card-premium:hover { border-color: rgba(255,255,255,0.15); }
+.selection-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.selection-title-box { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #fff; font-size: 14px; }
+.current-id-badge { font-family: monospace; font-size: 10px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 8px; }
+
+.premium-select-wrapper { position: relative; margin-bottom: 16px; }
+.premium-styled-select {
+    width: 100%; padding: 14px; border-radius: 12px; background: rgba(15,15,15,0.8);
+    border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;
+    appearance: none; cursor: pointer; padding-right: 40px;
+}
+.select-arrow { position: absolute; right: 15px; top: 50%; translate: 0 -50%; color: var(--text-muted); pointer-events: none; }
+
+.btn-save-mini {
+    width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.payme-save { background: rgba(252, 186, 3, 0.1); color: #fcba03; border: 1px solid rgba(252,186,3,0.2); }
+.click-save { background: rgba(0, 123, 255, 0.1); color: #3498db; border: 1px solid rgba(0,123,255,0.2); }
+.btn-save-mini:hover { transform: scale(1.02); filter: brightness(1.2); }
+
+.pulse-dot {
+    width: 6px; height: 6px; background: #ffcc00; border-radius: 50%; display: inline-block;
+    box-shadow: 0 0 10px #ffcc00; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 </style>
 
 <script>
-function copyLink(id) {
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text);
-    alert('Manzil ko\'chirildi!');
-}
-
-function copyToClipboard() {
-    copyLink('callbackUrl');
-}
-
-// Yandex kategoriyalarni API dan yuklash (AJAX)
-async function loadYandexCategories() {
-    const btn = document.getElementById('loadCategoriesBtn');
-    const icon = document.getElementById('refreshIcon');
-    const statusMsg = document.getElementById('catStatusMsg');
-    const paymeSelect = document.getElementById('paymeCatSelect');
-    const clickSelect = document.getElementById('clickCatSelect');
-
-    if (!btn) return;
-
-    // UI holatini o'zgartirish (Loading)
-    btn.disabled = true;
-    if (icon) icon.classList.add('bx-spin');
-    if (statusMsg) {
-        statusMsg.style.display = 'block';
-        statusMsg.className = 'info-banner-premium animate-slide';
-        statusMsg.style.borderColor = 'rgba(252,186,3,0.3)';
-        statusMsg.innerHTML = "<div style='display:flex; align-items:center; gap:12px; color:#FCBA03; font-weight:600;'><i class='bx bx-loader-alt bx-spin' style='font-size:20px;'></i> Yandex Fleet API dan kategoriyalar o'qilmoqda, iltimos kuting...</div>";
-    }
-
-    try {
-        const response = await fetch("{{ url_for('user.ajax_yandex_categories') }}");
-        const data = await response.json();
-
-        if (data.error) throw new Error(data.error);
-
-        const categories = data.categories || [];
-        
-        if (categories.length === 0) {
-            if (statusMsg) {
-                statusMsg.style.background = 'rgba(231, 76, 60, 0.1)';
-                statusMsg.style.borderColor = 'rgba(231, 76, 60, 0.3)';
-                statusMsg.innerHTML = "<div style='display:flex; align-items:center; gap:12px; color:#e74c3c; font-weight:600;'><i class='bx bx-error-circle' style='font-size:20px;'></i> Kategoriyalar topilmadi.</div>";
-            }
+// Toggle Password Visibility
+document.querySelectorAll('.hide-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.classList.replace('bx-hide', 'bx-show');
         } else {
-            const currentPayme = "{{ current_user.yandex_payme_category_id }}";
-            const currentClick = "{{ current_user.yandex_click_category_id }}";
-            
-            // Only category names in dropdown
-            let html = categories.map(c => 
-                `<option value="${c.id}" ${c.id === currentPayme ? 'selected' : ''}>${c.name}</option>`
-            ).join('');
-            
-            let htmlClick = categories.map(c => 
-                `<option value="${c.id}" ${c.id === currentClick ? 'selected' : ''}>${c.name}</option>`
-            ).join('');
-
-            if (paymeSelect) paymeSelect.innerHTML = html;
-            if (clickSelect) clickSelect.innerHTML = htmlClick;
-
-            if (statusMsg) {
-                statusMsg.style.background = 'rgba(46, 204, 113, 0.1)';
-                statusMsg.style.borderColor = 'rgba(46, 204, 113, 0.3)';
-                statusMsg.innerHTML = `<div style='display:flex; align-items:center; gap:12px; color:#2ecc71; font-weight:600;'><i class='bx bx-check-circle' style='font-size:20px;'></i> ${categories.length} ta kategoriya yuklandi.</div>`;
-                setTimeout(() => { statusMsg.style.display = 'none'; }, 4000);
-            }
+            input.type = 'password';
+            this.classList.replace('bx-show', 'bx-hide');
         }
-    } catch (err) {
-        console.error("Kategoriyalarni yuklashda xato:", err);
-        if (statusMsg) {
-            statusMsg.style.background = 'rgba(231, 76, 60, 0.1)';
-            statusMsg.style.borderColor = 'rgba(231, 76, 60, 0.3)';
-            statusMsg.innerHTML = `<div style='display:flex; align-items:center; gap:12px; color:#e74c3c; font-weight:600;'><i class='bx bx-x-circle' style='font-size:20px;'></i> ${err.message}</div>`;
-        }
-    } finally {
-        btn.disabled = false;
-        if (icon) icon.classList.remove('bx-spin');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    {% if current_user.yandex_keys_active %}
-    loadYandexCategories();
-    {% endif %}
-    
-    document.querySelectorAll('.hide-toggle').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const targetInput = document.getElementById(targetId);
-            const type = targetInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            targetInput.setAttribute('type', type);
-            this.classList.toggle('bx-show');
-            this.classList.toggle('bx-hide');
-        });
     });
 });
+
+function copyToClipboard(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.currentTarget;
+        const originalIcon = btn.innerHTML;
+        btn.innerHTML = "<i class='bx bx-check'></i>";
+        btn.style.background = "#2ecc71";
+        setTimeout(() => {
+            btn.innerHTML = originalIcon;
+            btn.style.background = "";
+        }, 2000);
+    });
+}
+
+function loadYandexCategories() {
+    const icon = document.getElementById('refreshIcon');
+    const msgBox = document.getElementById('catStatusMsg');
+    
+    icon.classList.add('bx-spin');
+    msgBox.style.display = 'none';
+
+    fetch('/user/ajax/yandex-categories')
+        .then(response => response.json())
+        .then(data => {
+            icon.classList.remove('bx-spin');
+            
+            if (data.error) {
+                msgBox.innerHTML = `<i class='bx bx-error-circle'></i> ${data.error}`;
+                msgBox.className = 'premium-alert-box alert-error';
+                msgBox.style.display = 'block';
+                return;
+            }
+
+            const categories = data.categories;
+            const paymeSelect = document.getElementById('paymeCatSelect');
+            const clickSelect = document.getElementById('clickCatSelect');
+            
+            // Current values
+            const currentPayme = paymeSelect.value;
+            const currentClick = clickSelect.value;
+
+            const optionsHtml = categories.map(cat => 
+                `<option value="${cat.id}">${cat.name}</option>`
+            ).join('');
+
+            paymeSelect.innerHTML = optionsHtml;
+            clickSelect.innerHTML = optionsHtml;
+
+            // Restore current selections if they exist in new list
+            paymeSelect.value = currentPayme;
+            clickSelect.value = currentClick;
+
+            msgBox.innerHTML = "<i class='bx bx-check-circle'></i> Kategoriyalar muvaffaqiyatli yangilandi!";
+            msgBox.className = 'premium-alert-box alert-success';
+            msgBox.style.display = 'block';
+            setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
+        })
+        .catch(err => {
+            icon.classList.remove('bx-spin');
+            msgBox.innerHTML = "<i class='bx bx-error'></i> Tarmoq xatosi!";
+            msgBox.style.display = 'block';
+        });
+}
+
+// Auto-load categories on startup
+window.onload = function() {
+    if (document.getElementById('paymeCatSelect')) {
+        loadYandexCategories();
+    }
+};
 </script>
+
+<style>
+.premium-alert-box {
+    padding: 14px 22px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.alert-success { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
+.alert-error { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
+</style>
 {% endblock %}
