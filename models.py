@@ -119,7 +119,6 @@ class Driver(db.Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     phone = db.Column(db.String(50))
-    balance = db.Column(db.Float, default=0.0)
     status = db.Column(db.String(50), default='working')
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     last_sync = db.Column(db.DateTime, default=datetime.datetime.now)

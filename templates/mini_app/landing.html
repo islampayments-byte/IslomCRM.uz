@@ -329,13 +329,14 @@
                 <h3>Kirish</h3>
                 <button onclick="closeLoginModal()" class="close-btn"><i class='bx bx-x'></i></button>
             </div>
-            
+
             <!-- Step 1: Phone -->
             <div id="step-phone" class="auth-step active">
                 <p class="modal-desc">Telefon raqamingizni kiriting</p>
                 <div class="input-wrapper">
                     <span class="prefix">+998</span>
-                    <input type="tel" id="driverPhone" placeholder="90 123 45 67" maxlength="12" oninput="formatPhone(this)">
+                    <input type="tel" id="driverPhone" placeholder="90 123 45 67" maxlength="12"
+                        oninput="formatPhone(this)">
                 </div>
                 <button onclick="checkDriver()" id="checkBtn" class="btn-premium btn-primary w-100 mt-4">
                     <span>Davom etish</span>
@@ -356,13 +357,18 @@
     </div>
 
     <style>
-        .w-100 { width: 100%; }
-        .mt-4 { margin-top: 20px; }
-        
+        .w-100 {
+            width: 100%;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
             z-index: 1000;
             display: none;
@@ -370,8 +376,11 @@
             justify-content: center;
             padding: 20px;
         }
-        .modal-overlay.active { display: flex; }
-        
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
         .modal-content {
             background: var(--bg-deep);
             border: 1px solid var(--glass-border);
@@ -381,35 +390,70 @@
             max-width: 400px;
             animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
-        
+
         .modal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 20px;
         }
-        .modal-header h3 { margin: 0; font-size: 20px; }
-        .close-btn { background: none; border: none; color: var(--text-dim); font-size: 24px; cursor: pointer; }
-        
-        .modal-desc { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; text-align: center; }
-        
-        .auth-step { display: none; }
-        .auth-step.active { display: block; }
-        
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-desc {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .auth-step {
+            display: none;
+        }
+
+        .auth-step.active {
+            display: block;
+        }
+
         .input-wrapper {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 18px;
             font-size: 18px;
         }
-        .prefix { font-weight: 700; color: var(--accent); margin-right: 10px; }
+
+        .prefix {
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 10px;
+        }
+
         .input-wrapper input {
             background: none;
             border: none;
@@ -419,10 +463,10 @@
             outline: none;
             font-family: inherit;
         }
-        
+
         .sms-code-wrapper input {
             width: 100%;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 18px;
@@ -436,26 +480,12 @@
 
     <script>
         const webApp = window.Telegram.WebApp;
-        if (webApp.expand) webApp.expand(); // Full height
+        webApp.expand(); // Full height
         webApp.ready();
 
         function haptic(type = 'medium') {
-            try {
-                if (webApp.HapticFeedback) {
-                    webApp.HapticFeedback.impactOccurred(type);
-                }
-            } catch(e) {}
-        }
-
-        function safeAlert(msg) {
-            try {
-                if (webApp.showAlert) {
-                    webApp.showAlert(msg);
-                } else {
-                    alert(msg);
-                }
-            } catch(e) {
-                alert(msg);
+            if (webApp.HapticFeedback) {
+                webApp.HapticFeedback.impactOccurred(type);
             }
         }
 
@@ -504,12 +534,12 @@
                     btn.disabled = false;
                     btn.innerHTML = "<span>Davom etish</span>";
                 } else {
-                    safeAlert(data.message);
+                    webApp.showAlert(data.message);
                     btn.disabled = false;
                     btn.innerHTML = "<span>Davom etish</span>";
                 }
             } catch (err) {
-                safeAlert('Xatolik yuz berdi');
+                webApp.showAlert('Xatolik yuz berdi');
                 btn.disabled = false;
                 btn.innerHTML = "<span>Davom etish</span>";
             }
@@ -520,7 +550,7 @@
             const code = document.getElementById('smsCode').value;
             const phone = document.getElementById('driverPhone').value;
             if (code.length < 6) {
-                safeAlert('Tasdiqlash kodini kiriting');
+                webApp.showAlert('Tasdiqlash kodini kiriting');
                 return;
             }
 
@@ -537,15 +567,15 @@
                 const data = await res.json();
 
                 if (data.status === 'success') {
-                    safeAlert('Kirish muvaffaqiyatli!');
+                    webApp.showAlert('Kirish muvaffaqiyatli!');
                     window.location.href = data.redirect;
                 } else {
-                    safeAlert(data.message);
+                    webApp.showAlert(data.message);
                     btn.disabled = false;
                     btn.innerHTML = "<span>Tasdiqlash</span>";
                 }
             } catch (err) {
-                safeAlert('Xatolik yuz berdi');
+                webApp.showAlert('Xatolik yuz berdi');
                 btn.disabled = false;
                 btn.innerHTML = "<span>Tasdiqlash</span>";
             }
