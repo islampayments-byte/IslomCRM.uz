@@ -507,9 +507,9 @@
         <div id="profile-view" class="view">
             <div class="profile-card glass">
                 <div class="avatar">
-                    {{ (driver.first_name[0] if driver.first_name else 'H') | upper }}
+                    {{ (driver.first_name[0] if driver.first_name else (driver.phone[0] if driver.phone else 'H')) | upper }}
                 </div>
-                <h2 style="margin-bottom: 5px;">{{ driver.first_name }} {{ driver.last_name }}</h2>
+                <h2 style="margin-bottom: 5px;">{{ driver.first_name|default('Haydovchi') }} {{ driver.last_name|default('') }}</h2>
                 <p style="color: var(--text-dim); font-size: 0.9rem;">{{ driver.phone }}</p>
                 
                 <div class="glass mt-4" style="padding: 15px; text-align: left; display: flex; align-items: center; gap: 12px;">
