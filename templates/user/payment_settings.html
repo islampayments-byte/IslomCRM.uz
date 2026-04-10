@@ -2,7 +2,6 @@
 
 {% block title %}To'lov tizimlari{% endblock %}
 {% block page_title %}To'lov tizimlari sozlamalari{% endblock %}
-
 {% block content %}
 <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
     <!-- Payme Settings -->
@@ -18,7 +17,6 @@
                 {% else %}
                 <span style="font-size: 12px; color: var(--warning); background: rgba(241, 196, 15, 0.1); padding: 4px 10px; border-radius: 10px;">ULANMAGAN</span>
                 {% endif %}
-            </div>
         </div>
         
         <div class="card-content" style="padding: 24px;">
@@ -27,7 +25,6 @@
                 <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
                 <p style="color: var(--text-muted); font-size: 14px;">Payme'ni ulash uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
                 <a href="{{ url_for('user.settings') }}" class="user-pill" style="margin-top: 15px; background: var(--primary-color); color: #000; border: none;">Yandex sozlamalariga o'tish</a>
-            </div>
             {% else %}
             <form action="{{ url_for('user.payment_settings') }}" method="POST">
                 <div style="margin-bottom: 20px;">
@@ -35,22 +32,14 @@
                     <input type="text" name="merchant_id" value="{{ current_user.payme_merchant_id or '' }}" placeholder="Masalan: 65e12...789" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
                 </div>
                 
-                <div style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Kassa uchun kalit (Secret Key)</label>
                     <div style="position: relative;">
                         <input type="password" name="secret_key" id="paymeSecret" value="{{ current_user.payme_secret_key or '' }}" placeholder="Kassa paroli..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
                         <i class='bx bx-hide hide-toggle' data-target="paymeSecret" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
                     </div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Test rejimi uchun kalit (Test Key)</label>
-                    <div style="position: relative;">
                         <input type="password" name="test_key" id="paymeTestKey" value="{{ current_user.payme_test_key or '' }}" placeholder="Test kassa paroli..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
                         <i class='bx bx-hide hide-toggle' data-target="paymeTestKey" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
-                    </div>
-                </div>
-
                 <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class='bx bx-flask' style="color: var(--warning); font-size: 20px;"></i>
@@ -58,18 +47,14 @@
                             <p style="margin: 0; font-size: 14px; color: #fff;">Test Rejimi</p>
                             <p style="margin: 0; font-size: 11px; color: var(--text-muted);">To'lovlarni sinovdan o'tkazish uchun</p>
                         </div>
-                    </div>
                     <label class="switch-mini">
                         <input type="checkbox" name="test_mode" {% if current_user.is_payme_test_mode %}checked{% endif %}>
                         <span class="slider-mini round"></span>
                     </label>
-                </div>
-
                 <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: var(--primary-color); color: #000; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
                     Sozlamalarni saqlash
                 </button>
             </form>
-
             <div style="margin-top: 30px; padding: 15px; background: rgba(59, 130, 246, 0.05); border-radius: 12px; border: 1px dashed rgba(59, 130, 246, 0.3);">
                 <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                     <i class='bx bx-link-external'></i> Shaxsiy Callback URL (Payme kabineti uchun)
@@ -79,180 +64,229 @@
                     <button onclick="copyToClipboard()" style="background: var(--accent-color); color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
                         <i class='bx bx-copy'></i>
                     </button>
-                </div>
                 <p style="margin-top: 10px; font-size: 11px; color: var(--text-muted);">⬆️ Bu manzilni Payme xodimlariga bering. <strong>Aynan shunday</strong> bo'lishi kerak.</p>
-            </div>
             {% endif %}
-        </div>
     </div>
-
     <!-- Click Settings -->
-    <div class="stat-card" style="padding: 0; overflow: hidden;">
         <div class="card-header" style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0, 123, 255, 0.03);">
-            <div style="display: flex; align-items: center; gap: 12px;">
                 <img src="{{ url_for('static', filename='click.svg') }}" style="height: 20px;" alt="Click">
                 <h3 style="margin: 0; font-size: 1.2rem;">Click Merchant</h3>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
                 {% if current_user.click_merchant_id %}
                 <span style="font-size: 12px; color: #3498db; background: rgba(52, 152, 219, 0.1); padding: 4px 10px; border-radius: 10px;">BOG'LANGAN</span>
-                {% else %}
                 <span style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 10px;">ULANMAGAN</span>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="card-content" style="padding: 24px;">
-            {% if not current_user.yandex_keys_active %}
-            <div style="text-align: center; padding: 20px;">
-                <i class='bx bx-lock-alt' style="font-size: 40px; color: var(--warning); margin-bottom: 15px;"></i>
                 <p style="color: var(--text-muted); font-size: 14px;">Click'ni ulash uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
-            </div>
-            {% else %}
-            <form action="{{ url_for('user.payment_settings') }}" method="POST">
                 <input type="hidden" name="payment_method" value="click">
-                <div style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Service ID</label>
                     <input type="text" name="click_service_id" value="{{ current_user.click_service_id or '' }}" placeholder="Masalan: 12345" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant ID</label>
                     <input type="text" name="click_merchant_id" value="{{ current_user.click_merchant_id or '' }}" placeholder="Masalan: 67890" style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Merchant Key (Secret Key)</label>
-                    <div style="position: relative;">
                         <input type="password" name="click_secret_key" id="clickSecret" value="{{ current_user.click_secret_key or '' }}" placeholder="Click maxfiy kaliti..." style="width: 100%; padding: 12px 45px 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px;">
                         <i class='bx bx-hide hide-toggle' data-target="clickSecret" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
-                    </div>
-                </div>
-
                 <button type="submit" class="user-pill" style="width: 100%; justify-content: center; background: #007bff; color: #fff; border: none; padding: 14px; font-weight: 800; border-radius: 12px;">
                     Click sozlamalarini saqlash
-                </button>
-            </form>
-
             <div style="margin-top: 30px; padding: 15px; background: rgba(0, 123, 255, 0.05); border-radius: 12px; border: 1px dashed rgba(0, 123, 255, 0.3);">
                 <h4 style="color: #3498db; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                     <i class='bx bx-link-external'></i> Shaxsiy Callback URL (Click uchun)
-                </h4>
-                <div style="display: flex; gap: 10px; align-items: center;">
                     <code id="clickCallbackUrl" style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; font-size: 11px; color: #fff; flex: 1; word-break: break-all;">https://islomcrm.uz/payments/{{ current_user.org_slug }}/click/callback</code>
                     <button onclick="copyLink('clickCallbackUrl')" style="background: #3498db; color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer;">
-                        <i class='bx bx-copy'></i>
-                    </button>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
     <!-- Yandex Fleet: Kategoriya sozlamalari -->
-    <div class="stat-card" style="padding: 0; overflow: hidden; border: 1px solid rgba(252, 186, 3, 0.2); grid-column: 1 / -1;">
-        <div class="card-header" style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(252, 186, 3, 0.04); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(252,186,3,0.15); display: flex; align-items: center; justify-content: center; flex-shrink:0;">
-                    <i class='bx bx-category' style="font-size: 22px; color: #FCBA03;"></i>
-                </div>
+    <div class="stat-card glass-panel-premium" style="padding: 0; overflow: hidden; grid-column: 1 / -1;">
+        <div class="card-header" style="padding: 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(252, 186, 3, 0.04); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="icon-box-gold">
+                    <i class='bx bx-category-alt' style="font-size: 24px; color: #FCBA03;"></i>
                 <div>
-                    <h3 style="margin: 0; font-size: 1.1rem;">Yandex Tranzaksiya Kategoriyalari</h3>
-                    <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
-                        Payme va Click uchun <strong style="color:#FCBA03">alohida-alohida</strong> Yandex balans kategoriyasi
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;">Yandex Fleet Balans Kategoriyalari</h3>
+                    <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                        <span class="status-pulse-gold"></span> Avtomatik haydovchi balansini to'ldirish sozlamalari
                     </p>
-                </div>
-            </div>
             {% if current_user.yandex_keys_active %}
-            <button type="button" id="loadCategoriesBtn" onclick="loadYandexCategories()" style="background: rgba(252,186,3,0.12); color: #FCBA03; border: 1px solid rgba(252,186,3,0.3); padding: 8px 16px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-                <i class='bx bx-refresh' id="refreshIcon"></i> API dan kategoriyalarni yukla
+            <button type="button" id="loadCategoriesBtn" onclick="loadYandexCategories()" class="btn-premium-outline">
+                <i class='bx bx-refresh' id="refreshIcon"></i> API dan yuklash
             </button>
-            {% endif %}
-        </div>
-
-        <div class="card-content" style="padding: 24px;">
-            {% if not current_user.yandex_keys_active %}
-            <div style="text-align: center; padding: 30px;">
-                <i class='bx bx-lock-alt' style="font-size: 48px; color: var(--warning); margin-bottom: 15px;"></i>
-                <p style="color: var(--text-muted); font-size: 14px;">Bu sozlama uchun avval <strong>Yandex API</strong> kalitlarini ulab tasdiqlang.</p>
-                <a href="{{ url_for('user.settings') }}" class="user-pill" style="margin-top: 15px; background: var(--primary-color); color: #000; border: none; display: inline-flex;">Yandex sozlamalariga o'tish</a>
-            </div>
-            {% else %}
-
-            <!-- Izoh bloki -->
-            <div style="background: rgba(252,186,3,0.06); border-left: 3px solid #FCBA03; border-radius: 0 10px 10px 0; padding: 14px 16px; margin-bottom: 28px;">
-                <p style="margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #FCBA03;">
-                    <i class='bx bx-info-circle'></i> Bu nima?
-                </p>
-                <p style="margin: 0 0 6px; font-size: 13px; color: var(--text-muted); line-height: 1.7;">
-                    Haydovchi <strong style="color:#fff">Payme</strong> yoki <strong style="color:#fff">Click</strong> orqali to'lov qilganda, tizim avtomatik ravishda <strong style="color:#fff">Yandex Fleet</strong> orqali haydovchining balansiga pul o'tkazadi.
-                    Har bir to'lov tizimi uchun <strong style="color:#FCBA03">alohida Yandex kategoriyasi</strong> belgilash mumkin (masalan, Payme uchun "Ish haqi", Click uchun "Mukofot" kabi).
-                </p>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.7;">
-                    ⬆️ Tepada <em>"API dan kategoriyalarni yukla"</em> tugmasini bosing — tizim Yandex kabinetidan barcha mavjud kategoriyalaringizni avtomatik tortib keladi.
-                    <strong style="color:#FCBA03">Kategoriya tanlanmasa — tizim avtomatik <code>1</code>-kategoriyadan foydalanadi.</strong>
-                </p>
-            </div>
-
-            <!-- Yuklash holati xabar bloki -->
-            <div id="catStatusMsg" style="display:none; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 20px;"></div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px;">
-
-                <!-- Payme uchun kategoriya -->
-                <div>
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                        <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 18px;" alt="Payme">
-                        <span style="font-size: 14px; font-weight: 700;">Payme uchun kategoriya</span>
-                        <span style="font-size: 11px; color: var(--text-muted);">(hozirgi: <code>{{ current_user.yandex_payme_category_id or '1' }}</code>)</span>
-                    </div>
-                    <form action="{{ url_for('user.payment_settings') }}" method="POST">
-                        <input type="hidden" name="payment_method" value="yandex_payme_category">
-                        <div style="margin-bottom: 14px;">
-                            <select name="yandex_payme_category_id" id="paymeCatSelect"
-                                    style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(59,130,246,0.3); color: #fff; font-size: 14px; cursor: pointer; appearance: none;">
-                                <option value="{{ current_user.yandex_payme_category_id or '1' }}">
-                                    📦 Hozirgi: #{{ current_user.yandex_payme_category_id or '1' }} — Yuklanmoqda...
-                                </option>
-                            </select>
-                        </div>
-                        <button type="submit" style="width: 100%; background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer;">
-                            <i class='bx bx-save'></i> Payme kategoriyasini saqlash
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Click uchun kategoriya -->
-                <div>
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                        <img src="{{ url_for('static', filename='click.svg') }}" style="height: 14px;" alt="Click">
-                        <span style="font-size: 14px; font-weight: 700;">Click uchun kategoriya</span>
-                        <span style="font-size: 11px; color: var(--text-muted);">(hozirgi: <code>{{ current_user.yandex_click_category_id or '1' }}</code>)</span>
-                    </div>
-                    <form action="{{ url_for('user.payment_settings') }}" method="POST">
-                        <input type="hidden" name="payment_method" value="yandex_click_category">
-                        <div style="margin-bottom: 14px;">
-                            <select name="yandex_click_category_id" id="clickCatSelect"
-                                    style="width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(0,123,255,0.3); color: #fff; font-size: 14px; cursor: pointer; appearance: none;">
-                                <option value="{{ current_user.yandex_click_category_id or '1' }}">
-                                    📦 Hozirgi: #{{ current_user.yandex_click_category_id or '1' }} — Yuklanmoqda...
-                                </option>
-                            </select>
-                        </div>
-                        <button type="submit" style="width: 100%; background: rgba(0,123,255,0.15); color: #3498db; border: 1px solid rgba(0,123,255,0.3); padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer;">
-                            <i class='bx bx-save'></i> Click kategoriyasini saqlash
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-            {% endif %}
-        </div>
-    </div>
+        <div class="card-content" style="padding: 32px;">
+            <div style="text-align: center; padding: 40px;">
+                <div class="lock-icon-container">
+                    <i class='bx bxs-lock-alt'></i>
+                <h4 style="margin-bottom: 10px; font-weight: 700;">Kirish Cheklangan</h4>
+                <p style="color: var(--text-muted); font-size: 14px; max-width: 320px; margin: 0 auto 20px;">Bu bo'limdan foydalanish uchun avval <strong>Yandex API</strong> sozlamalarini yakunlang.</p>
+                <a href="{{ url_for('user.settings') }}" class="btn-premium-gold" style="text-decoration: none; padding: 12px 24px;">Yandex sozlamalariga o'tish</a>
+            <div class="category-grid-improved">
+                <!-- Info Section -->
+                <div class="info-banner-premium">
+                    <div style="display: flex; gap: 16px;">
+                        <div class="info-icon-gold"><i class='bx bx-info-circle'></i></div>
+                            <h5 style="margin: 0 0 6px; font-size: 14px; color: #FCBA03; font-weight: 800;">PROFESIONAL SOZLAMALAR</h5>
+                            <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                                Haydovchi <strong>Payme</strong> yoki <strong>Click</strong> orqali to'lov qilganda balans avtomat tushadi. 
+                                Har bir tizim uchun alohida kategoriyani tanlang (masalan, Payme -> "Arenda", Click -> "Bonus").
+                            </p>
+                <div id="catStatusMsg" style="display:none; padding: 14px 20px; border-radius: 16px; font-size: 13px; margin-bottom: 24px; transition: all 0.3s ease;"></div>
+                <div class="select-pair-grid">
+                    <!-- Payme uchun kategoriya -->
+                    <div class="premium-input-box">
+                        <div class="input-label-row">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 16px;" alt="Payme">
+                                <span class="input-title">Payme Kategoriyasi</span>
+                            </div>
+                            <span class="badge-mini-id">Hozirgi: ID {{ current_user.yandex_payme_category_id or '1' }}</span>
+                        <form action="{{ url_for('user.payment_settings') }}" method="POST">
+                            <input type="hidden" name="payment_method" value="yandex_payme_category">
+                            <div class="custom-select-wrapper">
+                                <select name="yandex_payme_category_id" id="paymeCatSelect" class="premium-select">
+                                    <option value="{{ current_user.yandex_payme_category_id or '1' }}">
+                                        Yuklanmoqda...
+                                    </option>
+                                </select>
+                                <i class='bx bx-chevron-down select-arrow'></i>
+                            <button type="submit" class="btn-save-premium payme-btn-save">
+                                <i class='bx bx-check-double'></i> Payme-ni Saqlash
+                            </button>
+                        </form>
+                    <!-- Click uchun kategoriya -->
+                                <img src="{{ url_for('static', filename='click.svg') }}" style="height: 14px;" alt="Click">
+                                <span class="input-title">Click Kategoriyasi</span>
+                            <span class="badge-mini-id">Hozirgi: ID {{ current_user.yandex_click_category_id or '1' }}</span>
+                            <input type="hidden" name="payment_method" value="yandex_click_category">
+                                <select name="yandex_click_category_id" id="clickCatSelect" class="premium-select">
+                                    <option value="{{ current_user.yandex_click_category_id or '1' }}">
+                            <button type="submit" class="btn-save-premium click-btn-save">
+                                <i class='bx bx-check-double'></i> Click-ni Saqlash
 </div>
-
-
 <style>
+/* PREMIUM UI ENHANCEMENTS */
+.glass-panel-premium {
+    background: rgba(26, 27, 30, 0.6) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+}
+.icon-box-gold {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: rgba(252,186,3,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(252,186,3,0.1);
+.status-pulse-gold {
+    width: 6px;
+    height: 6px;
+    background: #FCBA03;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px rgba(252, 186, 3, 0.6);
+    animation: goldPulse 2s infinite;
+@keyframes goldPulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+.btn-premium-outline {
+    background: rgba(252,186,3,0.08);
+    color: #FCBA03;
+    border: 1px solid rgba(252,186,3,0.2);
+    padding: 10px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+.btn-premium-outline:hover {
+    background: rgba(252,186,3,0.15);
+    border-color: rgba(252,186,3,0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(252, 186, 3, 0.1);
+.info-banner-premium {
+    background: rgba(252,186,3,0.05);
+    border-radius: 18px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+.info-icon-gold {
+    font-size: 24px;
+.select-pair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+.premium-input-box {
+    background: rgba(0,0,0,0.2);
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: all 0.3s ease;
+.premium-input-box:hover {
+    border-color: rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.25);
+.input-label-row {
+    justify-content: space-between;
+    margin-bottom: 16px;
+.input-title {
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: 0.01em;
+.badge-mini-id {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+/* Custom Select Styling */
+.custom-select-wrapper {
+    position: relative;
+.premium-select {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(15, 15, 15, 0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+.premium-select:focus {
+    border-color: #FCBA03;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(252, 186, 3, 0.1);
+.select-arrow {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+.custom-select-wrapper:focus-within .select-arrow {
+    transform: translateY(-50%) rotate(180deg);
+.btn-save-premium {
+    padding: 14px;
+    border: none;
+    font-weight: 800;
+.payme-btn-save {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+.click-btn-save {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0.08) 100%);
+    color: #3498db;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+.btn-save-premium:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+.payme-btn-save:hover { background: rgba(59, 130, 246, 0.25); border-color: rgba(59, 130, 246, 0.4); color: #fff; }
+.click-btn-save:hover { background: rgba(0, 123, 255, 0.25); border-color: rgba(0, 123, 255, 0.4); color: #fff; }
+.lock-icon-container {
+    width: 80px;
+    height: 80px;
+    background: rgba(245, 158, 11, 0.08);
+    color: var(--warning);
+    font-size: 40px;
+    margin: 0 auto 24px;
+.btn-premium-gold {
+    color: #000;
+    border-radius: 12px;
+    display: inline-flex;
+.btn-premium-gold:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(252, 186, 3, 0.3); }
 /* Mini Toggle Switch Style */
 .switch-mini { position: relative; display: inline-block; width: 44px; height: 22px; }
 .switch-mini input { opacity: 0; width: 0; height: 0; }
@@ -260,15 +294,9 @@
 .slider-mini:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
 input:checked + .slider-mini { background-color: var(--warning); }
 input:checked + .slider-mini:before { transform: translateX(20px); }
-
-.hide-toggle {
-    transition: all 0.2s;
-}
-.hide-toggle:hover {
-    color: var(--primary-color);
-}
+.hide-toggle { transition: all 0.2s; }
+.hide-toggle:hover { color: var(--primary-color); }
 </style>
-
 <script>
 function copyLink(id) {
     const text = document.getElementById(id).innerText;
@@ -292,62 +320,64 @@ async function loadYandexCategories() {
 
     // UI holatini o'zgartirish (Loading)
     btn.disabled = true;
-    icon.classList.add('bx-spin');
-    statusMsg.style.display = 'block';
-    statusMsg.style.background = 'rgba(252,186,3,0.1)';
-    statusMsg.style.color = '#FCBA03';
-    statusMsg.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Yandex Fleet API dan kategoriyalar o'qilmoqda, iltimos kuting...";
+    if (icon) icon.classList.add('bx-spin');
+    if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.className = 'info-banner-premium animate-slide';
+        statusMsg.style.borderColor = 'rgba(252,186,3,0.3)';
+        statusMsg.innerHTML = "<div style='display:flex; align-items:center; gap:12px; color:#FCBA03; font-weight:600;'><i class='bx bx-loader-alt bx-spin' style='font-size:20px;'></i> Yandex Fleet API dan kategoriyalar o'qilmoqda, iltimos kuting...</div>";
+    }
 
     try {
         const response = await fetch("{{ url_for('user.ajax_yandex_categories') }}");
         const data = await response.json();
 
-        if (data.error) {
-            throw new Error(data.error);
-        }
+        if (data.error) throw new Error(data.error);
 
         const categories = data.categories || [];
         
         if (categories.length === 0) {
-            statusMsg.style.background = 'rgba(231, 76, 60, 0.1)';
-            statusMsg.style.color = '#e74c3c';
-            statusMsg.innerHTML = "<i class='bx bx-error-circle'></i> Kategoriyalar topilmadi. Yandex API kalitlaringizni tekshiring.";
+            if (statusMsg) {
+                statusMsg.style.background = 'rgba(231, 76, 60, 0.1)';
+                statusMsg.style.borderColor = 'rgba(231, 76, 60, 0.3)';
+                statusMsg.innerHTML = "<div style='display:flex; align-items:center; gap:12px; color:#e74c3c; font-weight:600;'><i class='bx bx-error-circle' style='font-size:20px;'></i> Kategoriyalar topilmadi.</div>";
+            }
         } else {
-            // Select'larni tozalash va to'ldirish
             const currentPayme = "{{ current_user.yandex_payme_category_id }}";
             const currentClick = "{{ current_user.yandex_click_category_id }}";
             
+            // Only category names in dropdown
             let html = categories.map(c => 
-                `<option value="${c.id}" ${c.id === currentPayme ? 'selected' : ''}>${c.name} (#${c.id})</option>`
+                `<option value="${c.id}" ${c.id === currentPayme ? 'selected' : ''}>${c.name}</option>`
             ).join('');
             
             let htmlClick = categories.map(c => 
-                `<option value="${c.id}" ${c.id === currentClick ? 'selected' : ''}>${c.name} (#${c.id})</option>`
+                `<option value="${c.id}" ${c.id === currentClick ? 'selected' : ''}>${c.name}</option>`
             ).join('');
 
-            paymeSelect.innerHTML = html;
-            clickSelect.innerHTML = htmlClick;
+            if (paymeSelect) paymeSelect.innerHTML = html;
+            if (clickSelect) clickSelect.innerHTML = htmlClick;
 
-            statusMsg.style.background = 'rgba(46, 204, 113, 0.1)';
-            statusMsg.style.color = '#2ecc71';
-            statusMsg.innerHTML = `<i class='bx bx-check-circle'></i> ${categories.length} ta kategoriya muvaffaqiyatli yuklandi.`;
-            
-            // 3 sekunddan keyin xabarni yashirish
-            setTimeout(() => { statusMsg.style.display = 'none'; }, 4000);
+            if (statusMsg) {
+                statusMsg.style.background = 'rgba(46, 204, 113, 0.1)';
+                statusMsg.style.borderColor = 'rgba(46, 204, 113, 0.3)';
+                statusMsg.innerHTML = `<div style='display:flex; align-items:center; gap:12px; color:#2ecc71; font-weight:600;'><i class='bx bx-check-circle' style='font-size:20px;'></i> ${categories.length} ta kategoriya yuklandi.</div>`;
+                setTimeout(() => { statusMsg.style.display = 'none'; }, 4000);
+            }
         }
-
     } catch (err) {
         console.error("Kategoriyalarni yuklashda xato:", err);
-        statusMsg.style.background = 'rgba(231, 76, 60, 0.1)';
-        statusMsg.style.color = '#e74c3c';
-        statusMsg.innerHTML = `<i class='bx bx-x-circle'></i> Xatolik yuz berdi: ${err.message}`;
+        if (statusMsg) {
+            statusMsg.style.background = 'rgba(231, 76, 60, 0.1)';
+            statusMsg.style.borderColor = 'rgba(231, 76, 60, 0.3)';
+            statusMsg.innerHTML = `<div style='display:flex; align-items:center; gap:12px; color:#e74c3c; font-weight:600;'><i class='bx bx-x-circle' style='font-size:20px;'></i> ${err.message}</div>`;
+        }
     } finally {
         btn.disabled = false;
-        icon.classList.remove('bx-spin');
+        if (icon) icon.classList.remove('bx-spin');
     }
 }
 
-// Sahifa yuklanganda avtomatik chaqirish
 document.addEventListener('DOMContentLoaded', function() {
     {% if current_user.yandex_keys_active %}
     loadYandexCategories();
