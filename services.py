@@ -173,10 +173,14 @@ def fetch_yandex_categories(user):
             result = []
             for cat in categories:
                 if isinstance(cat, dict):
-                    result.append({
-                        'id':   str(cat.get('id', '')),
-                        'name': cat.get('name', f"Kategoriya {cat.get('id', '?')}")
-                    })
+                    cat_id = str(cat.get('id', ''))
+                    # FILTER: Faqat partner_service_manual bilan boshlanadiganlarini olamiz
+                    # Bu haydovchiga barcha texnik kategoriyalarni ko'rsatmaslik uchun kerak.
+                    if cat_id.startswith('partner_service_manual'):
+                        result.append({
+                            'id':   cat_id,
+                            'name': cat.get('name', f"Kategoriya {cat_id}")
+                        })
             logging.info(f"[Yandex Categories] User {user.id} uchun {len(result)} ta kategoriya olindi")
             return result, None
         else:
