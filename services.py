@@ -258,20 +258,20 @@ def yandex_topup_driver(app, owner_user, transaction_id, payment_method='payme')
         logging.info(f"[Yandex Topup] Trans #{transaction_id} | payment_method={payment_method} | category_id={category_id}")
 
         # 6. So'rov tayyorlaymiz
+        idempotency_key = f"islomcrm-trans-{trans.id}"
         headers = {
             'X-Client-ID': owner_user.yandex_client_id.strip(),
             'X-Api-Key':   owner_user.yandex_api_key.strip(),
             'X-Park-ID':   owner_user.yandex_park_id.strip(),
+            'X-Idempotency-Token': idempotency_key, # V2 requires this in header
             'Content-Type': 'application/json',
         }
         payload = {
             "park_id":           owner_user.yandex_park_id.strip(),
             "driver_profile_id": driver.yandex_driver_id,
-            "amount":            trans.amount,      # so'mda (Yandex so'mni qabul qiladi)
+            "amount":            str(trans.amount), # API expects string usually but number works too; let's use string to be safe
             "category_id":       category_id,
-            # IDEMPOTENCY KEY: tranzaksiya IDsi asosida — bir xil to'lov ikki marta tushmasin
-            "idempotency_key":   f"islomcrm-trans-{trans.id}",
-            "remarks":           f"IslomCRM | To'lov #{trans.id}"
+            "description":       f"IslomCRM | To'lov #{trans.id}" # V2 uses 'description' instead of 'remarks'
         }
 
         # 7. Retry bilan yuboramiz
