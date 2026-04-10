@@ -139,11 +139,11 @@ def dated_url_for(endpoint, **values):
 def make_session_permanent():
     session.permanent = True
 
-@app.route('/m/<slug>')
-def mini_app_landing(slug):
-    # Public route for Mini App entry (Root level)
+@app.route('/m/<code>/<slug>')
+def mini_app_landing(code, slug):
+    # Public route for Mini App entry (Secured with 4-char code)
     from flask import render_template
-    org = User.query.filter_by(org_slug=slug).first_or_404()
+    org = User.query.filter_by(org_link_code=code, org_slug=slug).first_or_404()
     return render_template('mini_app/landing.html', org=org)
 
 @app.route('/')

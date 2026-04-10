@@ -1,6 +1,8 @@
 import sqlite3
 import os
 import re
+import random
+import string
 
 # Try production DB first, then local
 db_path = '/var/www/db/islomcrm.db'
@@ -69,6 +71,7 @@ add_column('users', 'tg_bot_token',      'VARCHAR(255)')
 add_column('users', 'tg_bot_username',   'VARCHAR(100)')
 add_column('users', 'tg_mini_app_url',   'VARCHAR(512)')
 add_column('users', 'org_logo',          'VARCHAR(255)')
+add_column('users', 'org_link_code',     'VARCHAR(10)')
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")
@@ -151,6 +154,23 @@ for uid, name in rows:
             slug = f"{slug}-{random.randint(100, 999)}"
         cursor.execute("UPDATE users SET org_slug = ? WHERE id = ?", (slug, uid))
         print(f"  [+] User {uid} -> org_slug: {slug}")
+
+if not rows:
+    print("  [=] Barchasi allaqachon to'liq")
+    
+# Auto-generate org_link_code if missing
+print("\n--- org_link_code ni to'ldirish ---")
+cursor.execute("SELECT id FROM users WHERE org_link_code IS NULL")
+rows = cursor.fetchall()
+for uid, in rows:
+    # 4 char unique alphanumeric code
+    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    # Ensure uniqueness
+    while cursor.execute("SELECT id FROM users WHERE org_link_code = ?", (code,)).fetchone():
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    
+    cursor.execute("UPDATE users SET org_link_code = ? WHERE id = ?", (code, uid))
+    print(f"  [+] User {uid} -> org_link_code: {code}")
 
 if not rows:
     print("  [=] Barchasi allaqachon to'liq")

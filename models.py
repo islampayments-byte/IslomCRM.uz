@@ -56,6 +56,7 @@ class User(db.Model, UserMixin):
     tg_mini_app_url = db.Column(db.String(512))
     
     org_logo = db.Column(db.String(255)) # Path to uploaded logo
+    org_link_code = db.Column(db.String(10), unique=True) # Unique 4-char code for secure link
     
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
