@@ -176,6 +176,29 @@
         </form>
     </div>
 </div>
+
+<div class="glass-panel" style="max-width: 800px; margin-top: 30px;">
+    <div class="panel-header">
+        <h3><i class='bx bx-message-square-dots' style="color: #f1c40f;"></i> SMS Xizmati</h3>
+    </div>
+    
+    <div class="panel-body">
+        <form method="POST" action="{{ url_for('admin.settings') }}">
+            <div class="form-group">
+                <label class="form-label">Har bir SMS narxi (UZS)</label>
+                <div style="position: relative;">
+                    <i class='bx bx-money' style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"></i>
+                    <input type="number" name="sms_price" value="{{ settings.sms_price or 100 }}" 
+                           class="modern-input" style="padding-left: 45px;" placeholder="Masalan: 100">
+                </div>
+                <p style="font-size: 0.8rem; color: #718096; margin-top: 8px;">Har bir haydovchi kirishidagi SMS uchun tashkilot balansidan yechiladigan summa.</p>
+            </div>
+            <button type="submit" class="btn-glow primary" style="width: 100%; padding: 16px; font-size: 1rem; background: #f1c40f; color: #000;">
+                <i class='bx bx-save'></i> SMS Narxini Saqlash
+            </button>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

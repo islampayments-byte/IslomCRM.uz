@@ -306,11 +306,11 @@
 
         <!-- Actions -->
         <div class="actions-grid anim-slide-up delay-2">
-            <a href="{{ url_for('auth.login') }}" class="btn-premium btn-primary" onclick="haptic()">
+            <a href="javascript:void(0)" class="btn-premium btn-primary" onclick="openLoginModal()">
                 <i class='bx bx-log-in-circle'></i>
                 <span>Tizimga kirish</span>
             </a>
-            <a href="{{ url_for('auth.register') }}" class="btn-premium btn-secondary" onclick="haptic()">
+            <a href="javascript:void(0)" class="btn-premium btn-secondary" onclick="webApp.showAlert('Tez kunda!')">
                 <i class='bx bx-user-plus'></i>
                 <span>Ro'yxatdan o'tish</span>
             </a>
@@ -322,14 +322,218 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Kirish</h3>
+                <button onclick="closeLoginModal()" class="close-btn"><i class='bx bx-x'></i></button>
+            </div>
+            
+            <!-- Step 1: Phone -->
+            <div id="step-phone" class="auth-step active">
+                <p class="modal-desc">Telefon raqamingizni kiriting</p>
+                <div class="input-wrapper">
+                    <span class="prefix">+998</span>
+                    <input type="tel" id="driverPhone" placeholder="90 123 45 67" maxlength="12" oninput="formatPhone(this)">
+                </div>
+                <button onclick="checkDriver()" id="checkBtn" class="btn-premium btn-primary w-100 mt-4">
+                    <span>Davom etish</span>
+                </button>
+            </div>
+
+            <!-- Step 2: SMS Code -->
+            <div id="step-sms" class="auth-step">
+                <p class="modal-desc">Sizga yuborilgan 6 xonali kodni kiriting</p>
+                <div class="sms-code-wrapper">
+                    <input type="number" id="smsCode" placeholder="000000" maxlength="6">
+                </div>
+                <button onclick="verifyCode()" id="verifyBtn" class="btn-premium btn-primary w-100 mt-4">
+                    <span>Tasdiqlash</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .w-100 { width: 100%; }
+        .mt-4 { margin-top: 20px; }
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        
+        .modal-content {
+            background: var(--bg-deep);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 { margin: 0; font-size: 20px; }
+        .close-btn { background: none; border: none; color: var(--text-dim); font-size: 24px; cursor: pointer; }
+        
+        .modal-desc { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; text-align: center; }
+        
+        .auth-step { display: none; }
+        .auth-step.active { display: block; }
+        
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 18px;
+            font-size: 18px;
+        }
+        .prefix { font-weight: 700; color: var(--accent); margin-right: 10px; }
+        .input-wrapper input {
+            background: none;
+            border: none;
+            color: #fff;
+            width: 100%;
+            font-size: 18px;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        .sms-code-wrapper input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 18px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 10px;
+            color: var(--accent);
+            outline: none;
+        }
+    </style>
+
     <script>
         const webApp = window.Telegram.WebApp;
         webApp.expand(); // Full height
         webApp.ready();
 
-        function haptic() {
+        function haptic(type = 'medium') {
             if (webApp.HapticFeedback) {
-                webApp.HapticFeedback.impactOccurred('medium');
+                webApp.HapticFeedback.impactOccurred(type);
+            }
+        }
+
+        function openLoginModal() {
+            haptic();
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            // Reset to step 1
+            document.getElementById('step-phone').classList.add('active');
+            document.getElementById('step-sms').classList.remove('active');
+        }
+
+        function formatPhone(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.startsWith('998')) val = val.substring(3);
+            input.value = val.substring(0, 9);
+        }
+
+        async function checkDriver() {
+            haptic();
+            const phone = document.getElementById('driverPhone').value;
+            if (phone.length < 9) {
+                webApp.showAlert('Telefon raqamini to\'liq kiriting');
+                return;
+            }
+
+            const btn = document.getElementById('checkBtn');
+            btn.disabled = true;
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+
+            try {
+                const res = await fetch(window.location.pathname + '/check-driver', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: '+998' + phone })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    // Switch to SMS step
+                    document.getElementById('step-phone').classList.remove('active');
+                    document.getElementById('step-sms').classList.add('active');
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>Davom etish</span>";
+                } else {
+                    webApp.showAlert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>Davom etish</span>";
+                }
+            } catch (err) {
+                webApp.showAlert('Xatolik yuz berdi');
+                btn.disabled = false;
+                btn.innerHTML = "<span>Davom etish</span>";
+            }
+        }
+
+        async function verifyCode() {
+            haptic();
+            const code = document.getElementById('smsCode').value;
+            const phone = document.getElementById('driverPhone').value;
+            if (code.length < 6) {
+                webApp.showAlert('Tasdiqlash kodini kiriting');
+                return;
+            }
+
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true;
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+
+            try {
+                const res = await fetch(window.location.pathname + '/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: '+998' + phone, code: code })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    webApp.showAlert('Kirish muvaffaqiyatli!');
+                    window.location.href = data.redirect;
+                } else {
+                    webApp.showAlert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = "<span>Tasdiqlash</span>";
+                }
+            } catch (err) {
+                webApp.showAlert('Xatolik yuz berdi');
+                btn.disabled = false;
+                btn.innerHTML = "<span>Tasdiqlash</span>";
             }
         }
     </script>

@@ -58,6 +58,11 @@ class User(db.Model, UserMixin):
     org_logo = db.Column(db.String(255)) # Path to uploaded logo
     org_link_code = db.Column(db.String(10), unique=True) # Unique 4-char code for secure link
     
+    # SMS Custom Branding & Statistics
+    sms_status = db.Column(db.String(20), default='none') # none, pending, approved, rejected
+    sms_count_platform = db.Column(db.Integer, default=0)
+    sms_count_custom = db.Column(db.Integer, default=0)
+    
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def check_pin(self, pin, bcrypt):
@@ -79,6 +84,8 @@ class PaymentSettings(db.Model):
     min_topup_amount = db.Column(db.Integer, default=1000)
     max_topup_amount = db.Column(db.Integer, default=10000000)
     payme_account_field = db.Column(db.String(50), default='phone')
+    
+    sms_price = db.Column(db.Float, default=100.0) # Price per SMS in UZS
 
 class Transaction(db.Model):
     __tablename__ = 'transactions'

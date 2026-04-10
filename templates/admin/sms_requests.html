@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}SMS Tasdiqlash{% endblock %}
+{% block page_title %}SMS Faollashtirish So'rovlari{% endblock %}
+
+{% block content %}
+<div class="dashboard-header mb-4 mt-2">
+    <div>
+        <h2 class="text-gradient">SMS Tasdiqlash</h2>
+        <p class="text-muted">Tashkilotlar tomonidan yuborilgan maxsus SMS so'rovlarini boshqarish</p>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div class="table-container">
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Tashkilot</th>
+                    <th>Telefon</th>
+                    <th>Holat</th>
+                    <th>Statistika (P/C)</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in sms_requests %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 700;">{{ req.org_name or 'Nomsiz' }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">{{ req.stir }}</div>
+                    </td>
+                    <td>{{ req.phone }}</td>
+                    <td>
+                        {% if req.sms_status == 'pending' %}
+                            <span class="badge-glow" style="background: rgba(241, 196, 15, 0.1); color: #f1c40f;">Kutilmoqda</span>
+                        {% elif req.sms_status == 'approved' %}
+                            <span class="status-indicator active">Tasdiqlangan</span>
+                        {% elif req.sms_status == 'rejected' %}
+                            <span class="status-indicator" style="background: rgba(231, 76, 60, 0.2); color: #e74c3c;">Bekor qilingan</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span title="Platforma SMSlari">{{ req.sms_count_platform }}</span> / 
+                        <span title="Maxsus SMSlar" style="color: var(--primary-color);">{{ req.sms_count_custom }}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{{ url_for('admin.sms_action', user_id=req.id, action='approve') }}" 
+                               class="btn-glow primary" style="padding: 8px 12px; font-size: 0.8rem; background: #2ecc71;">
+                                <i class='bx bx-check'></i> Tasdiqlash
+                            </a>
+                            <a href="{{ url_for('admin.sms_action', user_id=req.id, action='reject') }}" 
+                               class="btn-glow secondary" style="padding: 8px 12px; font-size: 0.8rem; background: #e74c3c; color: #fff; border:none;">
+                                <i class='bx bx-x'></i> Bekor qilish
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        Hozircha so'rovlar yo'q
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

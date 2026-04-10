@@ -72,6 +72,9 @@ add_column('users', 'tg_bot_username',   'VARCHAR(100)')
 add_column('users', 'tg_mini_app_url',   'VARCHAR(512)')
 add_column('users', 'org_logo',          'VARCHAR(255)')
 add_column('users', 'org_link_code',     'VARCHAR(10)')
+add_column('users', 'sms_status',        "VARCHAR(20) DEFAULT 'none'")
+add_column('users', 'sms_count_platform', "INTEGER DEFAULT 0")
+add_column('users', 'sms_count_custom',   "INTEGER DEFAULT 0")
 
 
 print("\n--- payment_settings jadvalini tekshirish ---")
@@ -87,6 +90,8 @@ CREATE TABLE IF NOT EXISTS payment_settings (
     payme_account_field VARCHAR(50) DEFAULT 'phone'
 )
 """)
+# SMS
+add_column('payment_settings', 'sms_price', 'FLOAT DEFAULT 100.0')
 # Also add payme_test_key to payment_settings if missing
 add_column('payment_settings', 'payme_test_key', 'VARCHAR(255)')
 add_column('payment_settings', 'is_test_mode', 'BOOLEAN DEFAULT 0')

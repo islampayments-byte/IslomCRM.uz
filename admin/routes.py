@@ -64,6 +64,14 @@ def settings():
             settings.click_secret_key = request.form.get('click_secret_key')
             flash("Click sozlamalari saqlandi!", "success")
 
+        elif 'sms_price' in request.form:
+            # SMS settings
+            try:
+                settings.sms_price = float(request.form.get('sms_price', 100))
+                flash("SMS narxi saqlandi!", "success")
+            except (ValueError, TypeError):
+                flash("SMS narxi noto'g'ri kiritildi", "danger")
+
         db.session.commit()
         return redirect(url_for('admin.settings'))
 
@@ -227,3 +235,30 @@ def vps_action(action):
         flash("Kesh tozalandi.", "success")
         
     return redirect(url_for('admin.vps_management'))
+
+@admin_bp.route('/sms-requests')
+@login_required
+def sms_requests():
+    if current_user.role != 'admin':
+        abort(403)
+    
+    # Show users with pending or any non-none status if needed
+    requests = User.query.filter(User.sms_status.in_(['pending', 'approved', 'rejected'])).order_by(User.created_at.desc()).all()
+    return render_template('admin/sms_requests.html', sms_requests=requests)
+
+@admin_bp.route('/sms-requests/<int:user_id>/action/<action>')
+@login_required
+def sms_action(user_id, action):
+    if current_user.role != 'admin':
+        abort(403)
+        
+    user = User.query.get_or_404(user_id)
+    if action == 'approve':
+        user.sms_status = 'approved'
+        flash(f"{user.org_name} uchun maxsus SMS tasdiqlandi", "success")
+    elif action == 'reject':
+        user.sms_status = 'rejected'
+        flash(f"{user.org_name} uchun maxsus SMS bekor qilindi", "warning")
+        
+    db.session.commit()
+    return redirect(url_for('admin.sms_requests'))
