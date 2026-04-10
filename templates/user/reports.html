@@ -96,6 +96,61 @@
 .badge-pending { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
 .badge-failed  { background: rgba(239,68,68,0.1);  color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
 
+/* Yandex Specific Badges */
+.badge-yandex-success {
+    background: rgba(252, 186, 3, 0.1);
+    color: #FCBA03;
+    border: 1px solid rgba(252, 186, 3, 0.2);
+    padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 4px; border-style: dashed;
+}
+.badge-yandex-failed {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    transition: all 0.2s;
+}
+.badge-yandex-failed:hover { background: rgba(239, 68, 68, 0.15); transform: scale(1.05); }
+
+.badge-yandex-pending {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+
+/* Payment Method Styles */
+.payment-method-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 10px;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+}
+.method-id { font-family: monospace; font-size: 10px; color: var(--text-muted); }
+
+/* Error Details Box */
+.error-json-details {
+    display: none;
+    position: absolute;
+    z-index: 100;
+    background: #1a1b1e;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    width: 280px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-top: 8px;
+}
+.error-header { font-size: 11px; font-weight: 800; color: #ef4444; margin-bottom: 8px; text-transform: uppercase; }
+.error-pre {
+    margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: #ff9999; white-space: pre-wrap; word-break: break-all;
+    background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;
+    max-height: 150px; overflow-y: auto;
+}
+
 .amount-cell { font-weight: 700; color: var(--text-primary); font-size: 15px; }
 .amount-cell.success-amount { color: #22c55e; }
 
@@ -110,6 +165,33 @@
 
 .trans-id { font-family: monospace; font-size: 11px; color: var(--text-muted); }
 </style>
+
+<script>
+function toggleErrorDetails(id) {
+    const el = document.getElementById('error-' + id);
+    const all = document.querySelectorAll('.error-json-details');
+    
+    // Close others
+    all.forEach(box => {
+        if (box.id !== 'error-' + id) box.style.display = 'none';
+    });
+
+    if (el.style.display === 'block') {
+        el.style.display = 'none';
+    } else {
+        el.style.display = 'block';
+    }
+}
+
+// Close error boxes when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.badge-yandex-failed') && !event.target.closest('.error-json-details')) {
+        document.querySelectorAll('.error-json-details').forEach(box => {
+            box.style.display = 'none';
+        });
+    }
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -206,14 +288,15 @@
                     <th>#</th>
                     <th>Haydovchi / Telefon</th>
                     <th>Summa</th>
+                    <th>Tizim</th>
                     <th>Holat</th>
+                    <th>Yandex Fleet</th>
                     <th>Sana</th>
-                    <th>Payme ID</th>
                 </tr>
             </thead>
             <tbody>
                 {% for t in transactions %}
-                <tr>
+                <tr class="transaction-row-premium">
                     <td style="color: var(--text-muted); font-size: 13px;">{{ t.id }}</td>
                     <td>
                         {% if t.payer_phone %}
@@ -236,6 +319,21 @@
                         </span>
                     </td>
                     <td>
+                        {% if t.click_trans_id %}
+                            <div class="payment-method-badge click-method">
+                                <img src="{{ url_for('static', filename='click.svg') }}" style="height: 10px;" alt="Click">
+                                <span class="method-id">ID: {{ t.click_trans_id[:8] }}...</span>
+                            </div>
+                        {% elif t.payme_trans_id %}
+                            <div class="payment-method-badge payme-method">
+                                <img src="{{ url_for('static', filename='payme.svg') }}" style="height: 12px;" alt="Payme">
+                                <span class="method-id">ID: {{ t.payme_trans_id[:8] }}...</span>
+                            </div>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 11px;">Noma'lum</span>
+                        {% endif %}
+                    </td>
+                    <td>
                         {% if t.status == 'success' %}
                             <span class="badge badge-success"><i class='bx bx-check'></i> To'landi</span>
                         {% elif t.status == 'pending' %}
@@ -244,15 +342,29 @@
                             <span class="badge badge-failed"><i class='bx bx-x'></i> Bekor</span>
                         {% endif %}
                     </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            {% if t.yandex_sync_status == 'success' %}
+                                <span class="badge-yandex-success"><i class='bx bx-check-double'></i> O'TKAZILDI</span>
+                            {% elif t.yandex_sync_status == 'failed' %}
+                                <span class="badge-yandex-failed" onclick="toggleErrorDetails({{ t.id }})">
+                                    <i class='bx bx-error'></i> XATTOLIK
+                                </span>
+                                <div id="error-{{ t.id }}" class="error-json-details">
+                                    <div class="error-header">Xatolik tafsilotlari (JSON):</div>
+                                    <pre class="error-pre">{{ t.yandex_sync_error or 'Ma\'lumot yo\'q' }}</pre>
+                                </div>
+                            {% elif t.yandex_sync_status == 'pending' %}
+                                <span class="badge-yandex-pending"><i class='bx bx-loader-alt bx-spin'></i> KUTILMOQDA</span>
+                            {% else %}
+                                <span style="color: var(--text-muted); font-size: 11px; font-weight: 500;">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td style="font-size: 13px; color: var(--text-muted);">
                         {% if t.created_at %}
                             {{ t.created_at.strftime('%d.%m.%Y') }}<br>
                             <small>{{ t.created_at.strftime('%H:%M') }}</small>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if t.payme_trans_id %}
-                            <span class="trans-id">{{ t.payme_trans_id[:16] }}...</span>
                         {% else %}—{% endif %}
                     </td>
                 </tr>
