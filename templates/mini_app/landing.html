@@ -12,15 +12,15 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            /* Dynamic variables using Telegram Theme or defaults */
-            --accent: var(--tg-theme-button-color, #8e2de2);
-            --accent-light: var(--tg-theme-button-color, #4a00e0);
-            --accent-gradient: linear-gradient(135deg, var(--accent) 0%, var(--tg-theme-link-color, #4a00e0) 100%);
-            --bg-deep: var(--tg-theme-bg-color, #08090a);
+            /* Brand colors - Fixed for permanent Premium Dark Mode */
+            --accent: #8e2de2;
+            --accent-light: #4a00e0;
+            --accent-gradient: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            --bg-deep: #0f1014; /* Deep, rich dark */
             --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.07);
-            --text-main: var(--tg-theme-text-color, #ffffff);
-            --text-dim: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.5));
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.5);
         }
 
         * {
