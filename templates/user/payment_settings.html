@@ -184,9 +184,7 @@
                 </div>
             </div>
             {% if current_user.yandex_keys_active %}
-            <button type="button" id="loadCategoriesBtn" onclick="loadYandexCategories()" class="btn-refresh-premium">
-                <i class='bx bx-refresh' id="refreshIcon"></i> API dan yuklash
-            </button>
+            {# Manual refresh button removed as per user request #}
             {% endif %}
         </div>
 
@@ -535,18 +533,20 @@ function loadYandexCategories() {
     const icon = document.getElementById('refreshIcon');
     const msgBox = document.getElementById('catStatusMsg');
     
-    icon.classList.add('bx-spin');
-    msgBox.style.display = 'none';
+    if (icon) icon.classList.add('bx-spin');
+    if (msgBox) msgBox.style.display = 'none';
 
     fetch('/user/ajax/yandex-categories')
         .then(response => response.json())
         .then(data => {
-            icon.classList.remove('bx-spin');
+            if (icon) icon.classList.remove('bx-spin');
             
             if (data.error) {
-                msgBox.innerHTML = `<i class='bx bx-error-circle'></i> ${data.error}`;
-                msgBox.className = 'premium-alert-box alert-error';
-                msgBox.style.display = 'block';
+                if (msgBox) {
+                    msgBox.innerHTML = `<i class='bx bx-error-circle'></i> ${data.error}`;
+                    msgBox.className = 'premium-alert-box alert-error';
+                    msgBox.style.display = 'block';
+                }
                 return;
             }
 
@@ -562,22 +562,26 @@ function loadYandexCategories() {
                 `<option value="${cat.id}">${cat.name}</option>`
             ).join('');
 
-            paymeSelect.innerHTML = optionsHtml;
-            clickSelect.innerHTML = optionsHtml;
+            if (paymeSelect) paymeSelect.innerHTML = optionsHtml;
+            if (clickSelect) clickSelect.innerHTML = optionsHtml;
 
             // Restore current selections if they exist in new list
-            paymeSelect.value = currentPayme;
-            clickSelect.value = currentClick;
+            if (paymeSelect) paymeSelect.value = currentPayme;
+            if (clickSelect) clickSelect.value = currentClick;
 
-            msgBox.innerHTML = "<i class='bx bx-check-circle'></i> Kategoriyalar muvaffaqiyatli yangilandi!";
-            msgBox.className = 'premium-alert-box alert-success';
-            msgBox.style.display = 'block';
-            setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
+            if (msgBox) {
+                msgBox.innerHTML = "<i class='bx bx-check-circle'></i> Kategoriyalar muvaffaqiyatli yangilandi!";
+                msgBox.className = 'premium-alert-box alert-success';
+                msgBox.style.display = 'block';
+                setTimeout(() => { msgBox.style.display = 'none'; }, 4000);
+            }
         })
         .catch(err => {
-            icon.classList.remove('bx-spin');
-            msgBox.innerHTML = "<i class='bx bx-error'></i> Tarmoq xatosi!";
-            msgBox.style.display = 'block';
+            if (icon) icon.classList.remove('bx-spin');
+            if (msgBox) {
+                msgBox.innerHTML = "<i class='bx bx-error'></i> Tarmoq xatosi!";
+                msgBox.style.display = 'block';
+            }
         });
 }
 
