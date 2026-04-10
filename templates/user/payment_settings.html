@@ -4,7 +4,7 @@
 {% block page_title %}To'lov tizimlari sozlamalari{% endblock %}
 
 {% block content %}
-<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+<div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 32px;">
     <!-- Payme Settings -->
     <div class="stat-card glass-panel-premium payment-card-professional">
         <div class="card-header-premium payme-header">
@@ -301,42 +301,43 @@
 .brand-logo-lg { height: 32px; filter: drop-shadow(0 0 5px rgba(252,186,3,0.3)); }
 .brand-logo-md { height: 24px; }
 
-.brand-title { margin: 0; font-size: 1.15rem; font-weight: 800; color: #fff; }
-.brand-subtitle { margin: 2px 0 0; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.brand-title { margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
+.brand-subtitle { margin: 2px 0 0; font-size: 13px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
 
 .status-badge {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 30px;
     letter-spacing: 0.02em;
 }
-.status-badge.connected { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46,204,113,0.2); }
-.status-badge.disconnected { background: rgba(255,255,255,0.05); color: var(--text-muted); }
-.blue-badge { background: rgba(0, 123, 255, 0.1) !important; color: #3498db !important; border-color: rgba(0,123,255,0.2) !important; }
+.status-badge.connected { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
+.status-badge.disconnected { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+.blue-badge { background: rgba(0, 123, 255, 0.15) !important; color: #3498db !important; border-color: rgba(0,123,255,0.3) !important; }
 
-.card-content-premium { padding: 28px; }
-.card-content-premium.spacious { padding: 32px; }
+.card-content-premium { padding: 32px; }
+.card-content-premium.spacious { padding: 40px; }
 
 /* FORM ELEMENTS */
-.premium-form { display: flex; flex-direction: column; gap: 20px; }
+.premium-form { display: flex; flex-direction: column; gap: 24px; }
 
-.premium-label { color: var(--text-muted); font-size: 12px; font-weight: 700; margin-bottom: 8px; display: block; }
+.premium-label { color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 700; margin-bottom: 10px; display: block; }
 
 .input-wrapper-premium {
     position: relative;
     display: flex;
     align-items: center;
 }
-.input-icon { position: absolute; left: 16px; color: rgba(255,255,255,0.2); font-size: 18px; }
+.input-icon { position: absolute; left: 18px; color: rgba(255,255,255,0.3); font-size: 20px; }
 .premium-input {
     width: 100%;
-    padding: 13px 16px 13px 48px;
-    background: rgba(0,0,0,0.3);
+    padding: 15px 18px 15px 54px;
+    background: rgba(0,0,0,0.4);
     border: 1px solid var(--glass-border);
-    border-radius: 14px;
+    border-radius: 16px;
     color: #fff;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 500;
     transition: all 0.2s ease;
 }
 .premium-input:focus {
