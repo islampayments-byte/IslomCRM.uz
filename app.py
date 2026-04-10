@@ -270,6 +270,7 @@ def m_verify_code(code, slug):
         # Login successful
         session[f'm_driver_phone'] = phone
         session[f'm_org_id'] = code
+        session['m_org_slug'] = slug
         # Clear code
         session.pop(f'm_code_{phone}', None)
         return jsonify({'status': 'success', 'redirect': f'/m/{code}/{slug}/dashboard'})
@@ -278,10 +279,136 @@ def m_verify_code(code, slug):
 
 @app.route('/m/<code>/<slug>/dashboard')
 def m_driver_dashboard(code, slug):
-    # Dummy dashboard for now
     phone = session.get('m_driver_phone')
     if not phone: return redirect(f'/m/{code}/{slug}')
-    return f"<h1>Salom, {phone}! Siz tizimga kirdingiz.</h1><p>Tez kunda bu yerda sizning balansingiz ko'rinadi.</p>"
+    
+    org = User.query.filter_by(org_link_code=code, org_slug=slug).first_or_404()
+    from services import _find_driver_by_phone
+    driver = _find_driver_by_phone(phone, org.id)
+    
+    if not driver:
+        # Fallback if driver removed/invalid
+        session.clear()
+        return redirect(f'/m/{code}/{slug}')
+        
+    return render_template('mini_app/dashboard.html', org=org, driver=driver)
+
+# --- Mini App Driver Topup Routes ---
+
+@app.route('/m/topup/payme', methods=['POST'])
+def m_topup_payme():
+    phone = session.get('m_driver_phone')
+    code = session.get('m_org_id')
+    if not phone or not code:
+        return jsonify({'status': 'error', 'message': 'Sessiya muddati tugagan'}), 401
+    
+    amount = request.form.get('amount')
+    if not amount or not amount.isdigit():
+        return jsonify({'status': 'error', 'message': 'Noto\'g\'ri summa'}), 400
+    
+    amount = int(amount)
+    org = User.query.filter_by(org_link_code=code).first_or_404()
+    
+    if not org.payme_merchant_id or not org.payme_secret_key:
+        return jsonify({'status': 'error', 'message': 'Tashkilotda Payme sozlanmagan'}), 400
+        
+    # Payme setup
+    merchant_id = org.payme_merchant_id
+    secret_key = org.payme_secret_key
+    is_test = org.is_payme_test_mode
+    auth_key = org.payme_test_key if is_test and org.payme_test_key else secret_key
+    
+    api_url = "https://checkout.test.paycom.uz/api" if is_test else "https://checkout.paycom.uz/api"
+    checkout_base = "https://checkout.test.paycom.uz" if is_test else "https://checkout.paycom.uz"
+    
+    headers = {
+        "X-Auth": f"{merchant_id}:{auth_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "receipts.create",
+        "params": {
+            "amount": amount * 100,
+            "account": {"phone": phone.replace('+', '')}
+        },
+        "id": int(os.urandom(4).hex(), 16)
+    }
+    
+    try:
+        res = requests.post(api_url, json=payload, headers=headers, timeout=10)
+        res_data = res.json()
+        if "error" in res_data:
+            return jsonify({'status': 'error', 'message': 'Payme API xatosi'}), 500
+            
+        receipt_id = res_data["result"]["receipt"]["_id"]
+        
+        # Create transaction
+        new_trans = Transaction(
+            user_id=org.id,
+            amount=amount,
+            type='driver_payment',
+            status='pending',
+            payme_trans_id=receipt_id,
+            payer_phone=phone,
+            yandex_sync_status='pending'
+        )
+        db.session.add(new_trans)
+        db.session.commit()
+        
+        return jsonify({'status': 'success', 'redirect': f"{checkout_base}/{receipt_id}"})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/m/topup/click', methods=['POST'])
+def m_topup_click():
+    phone = session.get('m_driver_phone')
+    code = session.get('m_org_id')
+    if not phone or not code:
+        return jsonify({'status': 'error', 'message': 'Sessiya muddati tugagan'}), 401
+    
+    amount = request.form.get('amount')
+    if not amount or not amount.isdigit():
+        return jsonify({'status': 'error', 'message': 'Noto\'g\'ri summa'}), 400
+    
+    amount = int(amount)
+    org = User.query.filter_by(org_link_code=code).first_or_404()
+    
+    if not org.click_service_id or not org.click_merchant_id:
+        return jsonify({'status': 'error', 'message': 'Tashkilotda Click sozlanmagan'}), 400
+        
+    # Create pending transaction
+    new_trans = Transaction(
+        user_id=org.id,
+        amount=amount,
+        type='driver_payment',
+        status='pending',
+        payer_phone=phone,
+        yandex_sync_status='pending'
+    )
+    db.session.add(new_trans)
+    db.session.commit()
+    
+    click_url = (
+        f"https://my.click.uz/services/pay?"
+        f"service_id={org.click_service_id}&"
+        f"merchant_id={org.click_merchant_id}&"
+        f"amount={amount}&"
+        f"transaction_param={new_trans.id}"
+    )
+    
+    return jsonify({'status': 'success', 'redirect': click_url})
+
+
+@app.route('/m/logout')
+def m_logout():
+    code = session.get('m_org_id')
+    slug = session.get('m_org_slug') # We should probably store slug too
+    session.clear()
+    if code and slug:
+        return redirect(f'/m/{code}/{slug}')
+    return redirect('/')
 
 @app.route('/')
 def index():

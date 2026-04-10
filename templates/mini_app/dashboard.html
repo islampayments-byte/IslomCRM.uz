@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ org.yandex_park_name or org.org_name }} - Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- BoxIcons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --bg: #030712;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+            --accent: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background: radial-gradient(circle at top right, #1e1b4b, #030712);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 90px; /* Space for bottom nav */
+        }
+
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-top: 10px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--glass-border);
+        }
+
+        .brand-name h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .brand-name p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* View Management */
+        .view {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .balance-card {
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .balance-currency {
+            font-size: 1rem;
+            color: var(--text-dim);
+        }
+
+        /* Quick Actions Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .action-btn {
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .action-btn i {
+            font-size: 1.8rem;
+            color: var(--primary-light);
+        }
+
+        .action-btn span {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* List Items */
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-left: 5px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .list-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(79, 70, 229, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-light);
+            font-size: 1.2rem;
+        }
+
+        .list-content {
+            flex: 1;
+        }
+
+        .list-content h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .list-content p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* Payment View Specifics */
+        .payment-input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 18px 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
+        }
+
+        .input-wrapper .currency {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .method-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .method-card {
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid var(--glass-border);
+        }
+
+        .method-card.active {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .method-card img {
+            height: 30px;
+            filter: grayscale(1);
+            transition: 0.3s;
+            opacity: 0.7;
+        }
+
+        .method-card.active img {
+            filter: grayscale(0);
+            opacity: 1;
+        }
+
+        .pay-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+            transition: 0.3s;
+        }
+
+        .pay-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 5px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 70px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+            width: 60px;
+        }
+
+        .nav-item i {
+            font-size: 1.4rem;
+        }
+
+        .nav-item span {
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: var(--primary-light);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-5px);
+            text-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
+        }
+
+        /* Profile Details */
+        .profile-card {
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 3px solid var(--glass-border);
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 15px;
+            width: 100%;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        /* Utility */
+        .mt-4 { margin-top: 1rem; }
+        .success { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                {% if org.org_logo %}
+                    <img src="{{ url_for('static', filename=org.org_logo) }}" alt="Logo">
+                {% else %}
+                    <div class="glass" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                        <i class='bx bxs-car' style="color:var(--primary-light);"></i>
+                    </div>
+                {% endif %}
+                <div class="brand-name">
+                    <h2>{{ org.yandex_park_name or org.org_name }}</h2>
+                    <p>Mini Dashboard</p>
+                </div>
+            </div>
+            <div class="notifications">
+                <i class='bx bx-bell' style="font-size: 1.4rem; color: var(--text-dim);"></i>
+            </div>
+        </header>
+
+        <!-- VIEW 1: Bosh Sahifa -->
+        <div id="home-view" class="view active">
+            <div class="balance-card glass">
+                <p class="balance-label">Yandex Balans</p>
+                <h1 class="balance-amount">{{ "{:,.0f}".format(driver.balance or 0).replace(',', ' ') }} <span class="balance-currency">so'm</span></h1>
+                <p style="font-size: 0.7rem; color: var(--accent);">
+                    <i class='bx bx-check-circle'></i> Holat: Faol
+                </p>
+            </div>
+
+            <div class="action-grid">
+                <div class="action-btn glass" onclick="switchTab('pay')">
+                    <i class='bx bx-wallet'></i>
+                    <span>To'ldirish</span>
+                </div>
+                <div class="action-btn glass">
+                    <i class='bx bx-history'></i>
+                    <span>Tarix</span>
+                </div>
+                <div class="action-btn glass" onclick="switchTab('bonus')">
+                    <i class='bx bx-gift'></i>
+                    <span>Bonuslar</span>
+                </div>
+                <div class="action-btn glass">
+                    <i class='bx bx-support'></i>
+                    <span>Yordam</span>
+                </div>
+            </div>
+
+            <h3 class="section-title">So'nggi harakatlar</h3>
+            <div class="list-item glass">
+                <div class="list-icon"><i class='bx bx-plus'></i></div>
+                <div class="list-content">
+                    <h4>Balans to'ldirish</h4>
+                    <p>Bugun, 14:20</p>
+                </div>
+                <div class="list-amount success">+50 000</div>
+            </div>
+            <div class="list-item glass">
+                <div class="list-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class='bx bx-taxi'></i></div>
+                <div class="list-content">
+                    <h4>Kunlik xizmat haqi</h4>
+                    <p>Kecha, 23:55</p>
+                </div>
+                <div class="list-amount" style="color: #ef4444;">-5 000</div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: Islom Pay (Wallet) -->
+        <div id="pay-view" class="view">
+            <h3 class="section-title">Balansni to'ldirish</h3>
+            
+            <div class="payment-input-group">
+                <p class="balance-label">To'lov summasini kiriting</p>
+                <div class="input-wrapper">
+                    <input type="number" id="pay-amount" placeholder="Min. 5 000" value="50000">
+                    <span class="currency">so'm</span>
+                </div>
+            </div>
+
+            <p class="balance-label" style="margin-bottom: 10px;">To'lov usuli</p>
+            <div class="method-selector">
+                <div class="method-card glass active" onclick="selectMethod('payme', this)">
+                    <img src="https://checkout.paycom.uz/assets/img/payme_logo_full.svg" alt="Payme" style="height: 24px;">
+                </div>
+                <div class="method-card glass" onclick="selectMethod('click', this)">
+                    <img src="https://click.uz/static/img/logo.png" alt="Click" style="height: 24px;">
+                </div>
+            </div>
+
+            <div class="glass mt-4" style="padding: 15px; font-size: 0.75rem; color: var(--text-dim); line-height: 1.4;">
+                <i class='bx bx-info-circle'></i> To'lov amalga oshirilgandan so'ng balans 1-2 daqiqa ichida avtomatik ravishda yangilanadi.
+            </div>
+
+            <form id="payment-form" method="POST" action="">
+                <input type="hidden" name="amount" id="final-amount" value="50000">
+                <button type="button" onclick="startPayment()" class="pay-btn">To'lashni boshlash</button>
+            </form>
+        </div>
+
+        <!-- VIEW 3: Bonuslar -->
+        <div id="bonus-view" class="view">
+            <h3 class="section-title">Bonus va Referallar</h3>
+            <div class="glass" style="padding: 40px 20px; text-align: center;">
+                <i class='bx bx-lock-alt' style="font-size: 3rem; color: var(--primary-light); margin-bottom: 15px;"></i>
+                <h4 style="margin-bottom: 10px;">Tez kunda!</h4>
+                <p style="font-size: 0.85rem; color: var(--text-dim);">Do'stlaringizni taklif qiling va har bir to'lovidan bonus oling. Ushbu bo'lim hozirda tayyorlanmoqda.</p>
+            </div>
+        </div>
+
+        <!-- VIEW 4: Profil -->
+        <div id="profile-view" class="view">
+            <div class="profile-card glass">
+                <div class="avatar">
+                    {{ (driver.first_name[0] if driver.first_name else 'H') | upper }}
+                </div>
+                <h2 style="margin-bottom: 5px;">{{ driver.first_name }} {{ driver.last_name }}</h2>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">{{ driver.phone }}</p>
+                
+                <div class="glass mt-4" style="padding: 15px; text-align: left; display: flex; align-items: center; gap: 12px;">
+                    <i class='bx bx-shield-quarter' style="font-size: 1.5rem; color: var(--accent);"></i>
+                    <div>
+                        <h4 style="font-size: 0.85rem;">Xavfsizlik</h4>
+                        <p style="font-size: 0.7rem; color: var(--text-dim);">Sessiyangiz himoyalangan</p>
+                    </div>
+                </div>
+
+                <a href="/m/logout" class="logout-btn" style="display: block; text-decoration: none;">
+                    <i class='bx bx-log-out'></i> Tizimdan chiqish
+                </a>
+            </div>
+
+            <div class="glass" style="padding: 15px; text-align: center; font-size: 0.7rem; color: var(--text-dim);">
+                IslomCRM & IslomPayments &copy; 2026<br>Versiya 1.2.0
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav glass">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <i class='bx bxs-home-alt-2'></i>
+            <span>Asosiy</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('pay', this)">
+            <i class='bx bxs-wallet'></i>
+            <span>Hamyon</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('bonus', this)">
+            <i class='bx bxs-gift'></i>
+            <span>Bonuslar</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <i class='bx bxs-user'></i>
+            <span>Profil</span>
+        </div>
+    </nav>
+
+    <script>
+        let currentMethod = 'payme';
+
+        function switchTab(tabName, el) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            // Show target view
+            document.getElementById(tabName + '-view').classList.add('active');
+
+            // Update nav icons
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // If called from click on Nav, we use 'el', if from redirect inside view, we find by order or similar
+            if (el) {
+                el.classList.add('active');
+            } else {
+                // Find matching nav item
+                const navItems = document.querySelectorAll('.nav-item');
+                if (tabName === 'home') navItems[0].classList.add('active');
+                if (tabName === 'pay') navItems[1].classList.add('active');
+                if (tabName === 'bonus') navItems[2].classList.add('active');
+                if (tabName === 'profile') navItems[3].classList.add('active');
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+
+            // Haptic feedback simulation
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(10);
+            }
+        }
+
+        function selectMethod(method, el) {
+            currentMethod = method;
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            el.classList.add('active');
+        }
+
+        function startPayment() {
+            const amount = document.getElementById('pay-amount').value;
+            if (amount < 5000) {
+                alert("Minimal miqdor 5 000 so'm");
+                return;
+            }
+
+            const btn = document.querySelector('.pay-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Bog'lanmoqda...";
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('amount', amount);
+
+            fetch(`/m/topup/${currentMethod}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Redirect to payment provider
+                    window.location.href = data.redirect;
+                } else {
+                    alert("Xato: " + (data.message || "To'lovni boshlab bo'lmadi"));
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Tarmoq xatosi. Keyinroq urinib ko'ring.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
