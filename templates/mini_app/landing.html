@@ -476,7 +476,47 @@
             color: var(--accent);
             outline: none;
         }
+
+        /* Premium Custom Alert Styles */
+        #alertModal .modal-content {
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .alert-icon {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .alert-message {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-main);
+            margin-bottom: 24px;
+        }
+
+        .alert-btn {
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+        }
     </style>
+    <!-- Custom Premium Alert Modal -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content">
+            <i class='bx bx-info-circle alert-icon'></i>
+            <div id="alertModalMessage" class="alert-message">Xatolik yuz berdi</div>
+            <button onclick="closeAlertModal()" class="btn-premium btn-primary alert-btn w-100">
+                <span>Tushunarli</span>
+            </button>
+        </div>
+    </div>
 
     <script>
         const webApp = window.Telegram.WebApp;
@@ -484,15 +524,13 @@
         webApp.ready();
 
         function showMessage(msg) {
-            if (webApp.showAlert) {
-                try {
-                    webApp.showAlert(msg);
-                } catch (e) {
-                    alert(msg);
-                }
-            } else {
-                alert(msg);
-            }
+            document.getElementById('alertModalMessage').innerText = msg;
+            document.getElementById('alertModal').classList.add('active');
+            haptic('heavy');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.remove('active');
         }
 
         function haptic(type = 'medium') {
@@ -602,7 +640,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                webApp.showAlert(err.message || 'Xatolik yuz berdi');
+                showMessage(err.message || 'Xatolik yuz berdi');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;

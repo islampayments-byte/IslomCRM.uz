@@ -402,12 +402,85 @@
         .success {
             color: var(--accent);
         }
+
+        /* Modal Base */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0f1014;
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Premium Custom Alert Styles */
+        .alert-icon {
+            font-size: 48px;
+            color: var(--primary-light);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .alert-message {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-main);
+            margin-bottom: 24px;
+        }
+
+        .alert-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
     </style>
 </head>
 
 <body>
 
     <div class="container">
+    
+    <!-- Custom Premium Alert Modal -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content">
+            <i class='bx bx-info-circle alert-icon'></i>
+            <div id="alertModalMessage" class="alert-message">Xatolik yuz berdi</div>
+            <button onclick="closeAlertModal()" class="alert-btn">
+                <span>Tushunarli</span>
+            </button>
+        </div>
+    </div>
         <!-- Header -->
         <header>
             <div class="brand">
@@ -579,15 +652,13 @@
         webApp.ready();
 
         function showMessage(msg) {
-            if (webApp.showAlert) {
-                try {
-                    webApp.showAlert(msg);
-                } catch (e) {
-                    alert(msg);
-                }
-            } else {
-                alert(msg);
-            }
+            document.getElementById('alertModalMessage').innerText = msg;
+            document.getElementById('alertModal').classList.add('active');
+            haptic('heavy');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.remove('active');
         }
 
         function haptic(type = 'medium') {
