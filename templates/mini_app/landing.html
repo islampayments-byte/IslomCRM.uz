@@ -483,9 +483,25 @@
         webApp.expand(); // Full height
         webApp.ready();
 
+        function showMessage(msg) {
+            if (webApp.showAlert) {
+                try {
+                    webApp.showAlert(msg);
+                } catch (e) {
+                    alert(msg);
+                }
+            } else {
+                alert(msg);
+            }
+        }
+
         function haptic(type = 'medium') {
-            if (webApp.HapticFeedback) {
-                webApp.HapticFeedback.impactOccurred(type);
+            try {
+                if (webApp.HapticFeedback && webApp.isVersionAtLeast('6.1')) {
+                    webApp.HapticFeedback.impactOccurred(type);
+                }
+            } catch (e) {
+                console.warn('Haptic not supported');
             }
         }
 
@@ -511,7 +527,7 @@
             haptic();
             const phone = document.getElementById('driverPhone').value;
             if (phone.length < 9) {
-                webApp.showAlert('Telefon raqamini to\'liq kiriting');
+                showMessage('Telefon raqamini to\'liq kiriting');
                 return;
             }
 
@@ -539,11 +555,11 @@
                     document.getElementById('step-phone').classList.remove('active');
                     document.getElementById('step-sms').classList.add('active');
                 } else {
-                    webApp.showAlert(data.message || 'Xatolik yuz berdi');
+                    showMessage(data.message || 'Xatolik yuz berdi');
                 }
             } catch (err) {
                 console.error(err);
-                webApp.showAlert(err.message || 'Xatolik yuz berdi');
+                showMessage(err.message || 'Xatolik yuz berdi');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
@@ -555,7 +571,7 @@
             const code = document.getElementById('smsCode').value;
             const phone = document.getElementById('driverPhone').value;
             if (code.length < 6) {
-                webApp.showAlert('Tasdiqlash kodini kiriting');
+                showMessage('Tasdiqlash kodini kiriting');
                 return;
             }
 
@@ -579,10 +595,10 @@
                 }
 
                 if (res.ok && data.status === 'success') {
-                    webApp.showAlert('Kirish muvaffaqiyatli!');
+                    showMessage('Kirish muvaffaqiyatli!');
                     window.location.href = data.redirect;
                 } else {
-                    webApp.showAlert(data.message || 'Tasdiqlash kodi noto\'g\'ri');
+                    showMessage(data.message || 'Tasdiqlash kodi noto\'g\'ri');
                 }
             } catch (err) {
                 console.error(err);

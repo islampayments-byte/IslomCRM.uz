@@ -575,7 +575,31 @@
         </div>
     </nav>
 
-    <script>
+        const webApp = window.Telegram.WebApp;
+        webApp.ready();
+
+        function showMessage(msg) {
+            if (webApp.showAlert) {
+                try {
+                    webApp.showAlert(msg);
+                } catch (e) {
+                    alert(msg);
+                }
+            } else {
+                alert(msg);
+            }
+        }
+
+        function haptic(type = 'medium') {
+            try {
+                if (webApp.HapticFeedback && webApp.isVersionAtLeast('6.1')) {
+                    webApp.HapticFeedback.impactOccurred(type);
+                }
+            } catch (e) {
+                console.warn('Haptic not supported');
+            }
+        }
+
         let currentMethod = 'payme';
 
         function switchTab(tabName, el) {
@@ -623,7 +647,7 @@
         function startPayment() {
             const amount = document.getElementById('pay-amount').value;
             if (amount < 5000) {
-                webApp.showAlert("Minimal miqdor 5 000 so'm");
+                showMessage("Minimal miqdor 5 000 so'm");
                 return;
             }
 
@@ -649,12 +673,12 @@
                 if (data.status === 'success') {
                     window.location.href = data.redirect;
                 } else {
-                    webApp.showAlert("Xato: " + (data.message || "To'lovni boshlab bo'lmadi"));
+                    showMessage("Xato: " + (data.message || "To'lovni boshlab bo'lmadi"));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                webApp.showAlert(error.message || "Tarmoq xatosi. Keyinroq urinib ko'ring.");
+                showMessage(error.message || "Tarmoq xatosi. Keyinroq urinib ko'ring.");
             })
             .finally(() => {
                 btn.innerText = originalText;
