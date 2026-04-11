@@ -517,6 +517,7 @@
 
             const btn = document.getElementById('checkBtn');
             btn.disabled = true;
+            const originalHTML = btn.innerHTML;
             btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
 
             try {
@@ -525,23 +526,27 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: '+998' + phone })
                 });
-                const data = await res.json();
+                
+                let data;
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    throw new Error('Serverda xatolik yuz berdi (Noma\'lum format)');
+                }
 
-                if (data.status === 'success') {
+                if (res.ok && data.status === 'success') {
                     // Switch to SMS step
                     document.getElementById('step-phone').classList.remove('active');
                     document.getElementById('step-sms').classList.add('active');
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>Davom etish</span>";
                 } else {
-                    webApp.showAlert(data.message);
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>Davom etish</span>";
+                    webApp.showAlert(data.message || 'Xatolik yuz berdi');
                 }
             } catch (err) {
-                webApp.showAlert('Xatolik yuz berdi');
+                console.error(err);
+                webApp.showAlert(err.message || 'Xatolik yuz berdi');
+            } finally {
                 btn.disabled = false;
-                btn.innerHTML = "<span>Davom etish</span>";
+                btn.innerHTML = originalHTML;
             }
         }
 
@@ -556,6 +561,7 @@
 
             const btn = document.getElementById('verifyBtn');
             btn.disabled = true;
+            const originalHTML = btn.innerHTML;
             btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
 
             try {
@@ -564,20 +570,26 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: '+998' + phone, code: code })
                 });
-                const data = await res.json();
+                
+                let data;
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    throw new Error('Serverda xatolik yuz berdi (Noma\'lum format)');
+                }
 
-                if (data.status === 'success') {
+                if (res.ok && data.status === 'success') {
                     webApp.showAlert('Kirish muvaffaqiyatli!');
                     window.location.href = data.redirect;
                 } else {
-                    webApp.showAlert(data.message);
-                    btn.disabled = false;
-                    btn.innerHTML = "<span>Tasdiqlash</span>";
+                    webApp.showAlert(data.message || 'Tasdiqlash kodi noto\'g\'ri');
                 }
             } catch (err) {
-                webApp.showAlert('Xatolik yuz berdi');
+                console.error(err);
+                webApp.showAlert(err.message || 'Xatolik yuz berdi');
+            } finally {
                 btn.disabled = false;
-                btn.innerHTML = "<span>Tasdiqlash</span>";
+                btn.innerHTML = originalHTML;
             }
         }
     </script>

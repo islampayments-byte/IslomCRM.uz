@@ -623,7 +623,7 @@
         function startPayment() {
             const amount = document.getElementById('pay-amount').value;
             if (amount < 5000) {
-                alert("Minimal miqdor 5 000 so'm");
+                webApp.showAlert("Minimal miqdor 5 000 so'm");
                 return;
             }
 
@@ -639,23 +639,27 @@
                 method: 'POST',
                 body: formData
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Redirect to payment provider
-                        window.location.href = data.redirect;
-                    } else {
-                        alert("Xato: " + (data.message || "To'lovni boshlab bo'lmadi"));
-                        btn.innerText = originalText;
-                        btn.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("Tarmoq xatosi. Keyinroq urinib ko'ring.");
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                });
+            .then(response => {
+                if (!response.ok) {
+                   return response.json().then(data => { throw new Error(data.message || 'Server xatosi'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = data.redirect;
+                } else {
+                    webApp.showAlert("Xato: " + (data.message || "To'lovni boshlab bo'lmadi"));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                webApp.showAlert(error.message || "Tarmoq xatosi. Keyinroq urinib ko'ring.");
+            })
+            .finally(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
