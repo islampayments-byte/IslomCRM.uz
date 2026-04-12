@@ -1,353 +1,350 @@
 {% extends "base.html" %}
 
-{% block page_title %}Security Console{% endblock %}
+{% block page_title %}Security Center{% endblock %}
 
 {% block content %}
-<div class="cyber-security-dashboard">
-    <!-- Pulse Header -->
-    <div class="cyber-header glass p-4 mb-4">
-        <div class="pulse-indicator"></div>
-        <div class="header-info">
-            <h1 class="console-title text-white">SYSTEM SECURITY CONSOLE</h1>
-            <p class="console-subtitle text-muted">LIVE MONITORING: <span id="serverTime">{{ data.last_update.strftime('%H:%M:%S') }}</span> | STATUS: SECURE</p>
+<div class="security-center-v3">
+    <!-- Sophisticated Header -->
+    <div class="sc-header mb-5">
+        <div class="sc-title-area">
+            <nav class="sc-breadcrumbs mb-2">
+                <span class="text-muted">Admin</span>
+                <span class="text-muted mx-2">/</span>
+                <span class="text-primary font-weight-bold">Security Center</span>
+            </nav>
+            <h1 class="h3 text-white font-weight-bold mb-1">Xavfsizlik Monitoringi</h1>
+            <p class="text-muted small">Server himoyasi va tarmoq xavfsizligi tahlili</p>
         </div>
-    </div>
-
-    <!-- Triple Threat Status Row -->
-    <div class="cyber-row mb-4">
-        <!-- Firewall Card -->
-        <div class="cyber-card glass p-4">
-            <div class="glow-layer {{ 'glow-cyan' if data.firewall_status == 'Faol' else 'glow-red' }}"></div>
-            <div class="card-top">
-                <div class="svg-icon-box cyan">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L4 5V11C4 16.07 7.41 20.74 12 22C16.59 20.74 20 16.07 20 11V5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <span class="cyber-label">FIREWALL PROTECTION</span>
-            </div>
-            <h2 class="cyber-value {{ 'text-cyan' if data.firewall_status == 'Faol' else 'text-red' }}">
-                {{ data.firewall_status }}
-            </h2>
-            <div class="cyber-progress">
-                <div class="progress-bar {{ 'bg-cyan' if data.firewall_status == 'Faol' else 'bg-red' }}" style="width: 100%"></div>
-            </div>
-        </div>
-
-        <!-- Bans Card -->
-        <div class="cyber-card glass p-4">
-            <div class="glow-layer glow-red"></div>
-            <div class="card-top">
-                <div class="svg-icon-box red">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                        <path d="M4.93 4.93L19.07 19.07" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                </div>
-                <span class="cyber-label">BANNED ENTITIES</span>
-            </div>
-            <h2 class="cyber-value text-red">{{ data.banned_ips|length }}</h2>
-            <div class="cyber-progress">
-                <div class="progress-bar bg-red" style="width: {{ (data.banned_ips|length * 5) if data.banned_ips|length < 20 else 100 }}%"></div>
-            </div>
-        </div>
-
-        <!-- Attacks Card -->
-        <div class="cyber-card glass p-4">
-            <div class="glow-layer glow-gold"></div>
-            <div class="card-top">
-                <div class="svg-icon-box gold">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10.29 3.86L1.82 18C1.64531 18.3024 1.55299 18.6452 1.55197 18.9939C1.55095 19.3427 1.6413 19.6844 1.81355 19.9839C1.9858 20.2834 2.2333 20.5293 2.53005 20.6961C2.8268 20.8629 3.16102 20.944 3.5 20.93H20.5C20.839 20.944 21.1732 20.8629 21.47 20.6961C21.7667 20.5293 22.0142 20.2834 22.1864 19.9839C22.3587 19.6844 22.4491 19.3427 22.448 18.9939C22.447 18.6452 22.3547 18.3024 22.18 18L13.71 3.86C13.5401 3.56447 13.2952 3.32204 13.0016 3.1587C12.7079 2.99535 12.3755 2.91039 12.04 2.91039C11.7045 2.91039 11.3721 2.99535 11.0784 3.1587C10.7848 3.32204 10.5399 3.56447 10.37 3.86H10.29Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 9V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <span class="cyber-label">INTRUSION ATTEMPTS</span>
-            </div>
-            <h2 class="cyber-value text-gold">{{ data.failed_attempts|length }}</h2>
-            <div class="cyber-progress">
-                <div class="progress-bar bg-gold" style="width: {{ (data.failed_attempts|length * 5) if data.failed_attempts|length < 20 else 100 }}%"></div>
+        <div class="sc-pulse-box glass p-3 px-4">
+            <div class="pulse-dot mr-3"></div>
+            <div class="pulse-info">
+                <span class="text-muted d-block small uppercase tracking-1">Tizim holati</span>
+                <span class="text-white font-weight-bold">LIVE: SECURED</span>
             </div>
         </div>
     </div>
 
-    <!-- Logs and Scan Grid -->
-    <div class="cyber-main-grid">
-        <!-- Live Log Stream -->
-        <div class="cyber-panel glass p-0 overflow-hidden">
-            <div class="panel-header p-4">
-                <h4 class="m-0 text-white font-weight-bold tracking-wider">THREAT LOG STREAM</h4>
-                <span class="text-gold small">SSH-DAEMON FILTERED</span>
+    <!-- Professional Status Cards -->
+    <div class="sc-grid-status mb-5">
+        <!-- Firewall -->
+        <div class="sc-stat-card glass p-4">
+            <div class="sc-card-inner">
+                <div class="sc-icon-circle bg-soft-primary">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="sc-data">
+                    <span class="sc-label">Firewall Status</span>
+                    <h3 class="sc-value {{ 'text-success' if data.firewall_status == 'Faol' else 'text-warning' }}">
+                        {{ data.firewall_status }}
+                    </h3>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table class="cyber-table">
-                    <thead>
-                        <tr>
-                            <th>TIME</th>
-                            <th>IP SOURCE</th>
-                            <th>TARGET PROFILE</th>
-                            <th>EVENT TYPE</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for attempt in data.failed_attempts %}
-                        <tr class="cyber-row-hover">
-                            <td class="text-dim small">{{ attempt.time }}</td>
-                            <td class="text-white font-weight-bold">{{ attempt.ip }}</td>
-                            <td>
-                                <span class="cyber-badge {{ 'badge-red' if attempt.user == 'root' else 'badge-gold' }}">
-                                    {{ attempt.user }}
-                                </span>
-                            </td>
-                            <td><span class="text-red glow-text-red small uppercase">auth_failure</span></td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5">
-                                <span class="text-dim small tracking-widest uppercase">No immediate threats detected in cache</span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="sc-indicator bg-soft-primary mt-3">
+                <div class="sc-progress {{ 'bg-success' if data.firewall_status == 'Faol' else 'bg-warning' }}" style="width: 100%"></div>
             </div>
         </div>
 
-        <!-- Ban Registry -->
-        <div class="cyber-panel glass p-4">
-            <h4 class="m-0 text-white font-weight-bold mb-4 tracking-wider">BANNED REGISTRY</h4>
-            <div class="scroll-box">
-                {% for ip in data.banned_ips %}
-                <div class="ban-entry glass mb-2">
-                    <span class="text-white font-weight-bold">{{ ip }}</span>
-                    <span class="cyber-tag red">LOCKED</span>
+        <!-- Bips -->
+        <div class="sc-stat-card glass p-4">
+            <div class="sc-card-inner">
+                <div class="sc-icon-circle bg-soft-danger">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.36 6.64L5.64 19.36M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-                {% else %}
-                <div class="text-center py-5 text-dim small">CLEAN REGISTRY</div>
-                {% endfor %}
+                <div class="sc-data">
+                    <span class="sc-label">Bloklangan IPlar</span>
+                    <h3 class="sc-value text-white">{{ data.banned_ips|length }}</h3>
+                </div>
+            </div>
+            <div class="sc-indicator bg-soft-danger mt-3">
+                <div class="sc-progress bg-danger" style="width: {{ (data.banned_ips|length * 5) if data.banned_ips|length < 20 else 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Threats -->
+        <div class="sc-stat-card glass p-4">
+            <div class="sc-card-inner">
+                <div class="sc-icon-circle bg-soft-gold">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9V14M12 17.01L12.01 16.9989M10.29 3.86L1.82 18C1.64531 18.3024 1.55299 18.6452 1.55197 18.9939C1.55095 19.3427 1.6413 19.6844 1.81355 19.9839C1.9858 20.2834 2.2333 20.5293 2.53005 20.6961C2.8268 20.8629 3.16102 20.944 3.5 20.93H20.5C20.839 20.944 21.1732 20.8629 21.47 20.6961C21.7667 20.5293 22.0142 20.2834 22.1864 19.9839C22.3587 19.6844 22.4491 19.3427 22.448 18.9939C22.447 18.6452 22.3547 18.3024 22.18 18L13.71 3.86C13.5401 3.56447 13.2952 3.32204 13.0016 3.1587C12.7079 2.99535 12.3755 2.91039 12.04 2.91039C11.7045 2.91039 11.3721 2.99535 11.0784 3.1587C10.7848 3.32204 10.5399 3.56447 10.37 3.86H10.29Z" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="sc-data">
+                    <span class="sc-label">Hujum Urinishlari</span>
+                    <h3 class="sc-value text-white">{{ data.failed_attempts|length }}</h3>
+                </div>
+            </div>
+            <div class="sc-indicator bg-soft-gold mt-3">
+                <div class="sc-progress bg-warning" style="width: {{ (data.failed_attempts|length * 5) if data.failed_attempts|length < 20 else 100 }}%"></div>
             </div>
         </div>
     </div>
 
-    <!-- Network Topology -->
-    <div class="cyber-panel glass p-4 mt-4">
-        <h4 class="text-white mb-3 font-weight-bold tracking-widest small uppercase">NETWORK TOPOLOGY SCAN</h4>
-        <div class="terminal-shell p-3">
-            <div class="terminal-header">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-                <span class="ml-2 text-dim small">CMD: ss -tuln</span>
+    <!-- Main Dynamic Area -->
+    <div class="sc-main-layout">
+        <div class="sc-main-col">
+            <div class="card glass border-0 overflow-hidden">
+                <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
+                    <h4 class="h5 text-white font-weight-bold m-0">Xavfsizlik Loglari</h4>
+                    <span class="badge badge-pill badge-outline-warning p-2 px-3 small">SSHD REAL-TIME</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="sc-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Source IP</th>
+                                <th>Attempted Profile</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in data.failed_attempts %}
+                            <tr class="sc-row">
+                                <td class="text-muted small">{{ attempt.time }}</td>
+                                <td class="font-weight-bold text-white">{{ attempt.ip }}</td>
+                                <td>
+                                    <span class="badge {{ 'badge-danger-soft' if attempt.user == 'root' else 'badge-warning-soft' }}">
+                                        {{ attempt.user }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-danger small font-weight-bold">
+                                        <i class='bx bx-minus-circle mr-1'></i> FAILED
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <div class="py-4">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" class="mb-3 opacity-2" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p class="m-0 uppercase tracking-1 small">Hozirda hech qanday hujum qayd etilmadi</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <pre class="terminal-content">{% for port in data.open_ports %}{{ port }}\n{% endfor %}</pre>
+        </div>
+
+        <div class="sc-side-col">
+            <div class="card glass border-0 p-4">
+                <h4 class="h5 text-white font-weight-bold mb-4">Bloklanganlar</h4>
+                <div class="sc-ban-list">
+                    {% for ip in data.banned_ips %}
+                    <div class="sc-ban-item glass-border p-3 mb-2 d-flex justify-content-between align-items-center">
+                        <span class="text-white small font-weight-bold">{{ ip }}</span>
+                        <div class="sc-status-pill danger">RESTRICTED</div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted small uppercase tracking-1">
+                        Barcha IPlar toza
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network Footprint -->
+    <div class="card glass border-0 p-4 mt-5">
+        <h4 class="h6 text-white font-weight-bold mb-3 uppercase tracking-2">Tarmoq portlari monitoringi</h4>
+        <div class="sc-terminal p-4 rounded">
+            <div class="sc-terminal-header mb-3">
+                <div class="sc-terminal-dots">
+                    <span class="dot-red"></span>
+                    <span class="dot-yellow"></span>
+                    <span class="dot-green"></span>
+                </div>
+                <span class="text-muted ml-3 x-small">root@islomcrm# ss -tuln</span>
+            </div>
+            <pre class="sc-terminal-code">{% for port in data.open_ports %}{{ port }}\n{% endfor %}</pre>
         </div>
     </div>
 </div>
 
 <style>
-    :root {
-        --cyan: #00f2ff;
-        --red: #ff2d55;
-        --gold: #ffcc00;
-        --dim: #94a3b8;
-        --card-bg: rgba(255, 255, 255, 0.02);
-    }
-
-    .cyber-security-dashboard {
-        padding: 5px;
-        background: radial-gradient(circle at top right, #1a1b1e, #0c0d0e);
-        min-height: 100%;
-        color: #fff;
+    .security-center-v3 {
+        padding: 10px;
+        color: var(--text-color);
     }
 
     .glass {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 24px;
-        position: relative;
-        overflow: hidden;
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
     }
 
-    /* Pulse Header */
-    .cyber-header {
+    .glass-border {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+    }
+
+    /* Header Styles */
+    .sc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sc-pulse-box {
         display: flex;
         align-items: center;
-        gap: 20px;
-    }
-    
-    .pulse-indicator {
-        width: 14px;
-        height: 14px;
-        background: var(--cyan);
-        border-radius: 50%;
-        box-shadow: 0 0 20px var(--cyan);
-        animation: pulse 2s infinite;
+        border-radius: 50px;
     }
 
-    @keyframes pulse {
+    .pulse-dot {
+        width: 12px;
+        height: 12px;
+        background: var(--success);
+        border-radius: 50%;
+        box-shadow: 0 0 15px var(--success);
+        animation: scPulse 2.5s infinite;
+    }
+
+    @keyframes scPulse {
         0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.5); opacity: 0.4; }
+        50% { transform: scale(1.4); opacity: 0.5; }
         100% { transform: scale(1); opacity: 1; }
     }
 
-    .console-title {
-        font-size: 1.5rem;
-        font-weight: 900;
-        letter-spacing: 3px;
-        margin: 0;
+    /* Grid Layout */
+    .sc-grid-status {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
     }
 
-    /* Grid Layout */
-    .cyber-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    .sc-stat-card {
+        transition: transform 0.3s ease;
+    }
+
+    .sc-stat-card:hover { transform: translateY(-5px); }
+
+    .sc-card-inner {
+        display: flex;
+        align-items: center;
         gap: 20px;
     }
 
-    .cyber-card {
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .cyber-card:hover {
-        transform: translateY(-8px);
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .glow-layer {
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 3px;
-    }
-    .glow-cyan { background: linear-gradient(90deg, transparent, var(--cyan), transparent); box-shadow: 0 0 20px var(--cyan); }
-    .glow-red { background: linear-gradient(90deg, transparent, var(--red), transparent); box-shadow: 0 0 20px var(--red); }
-    .glow-gold { background: linear-gradient(90deg, transparent, var(--gold), transparent); box-shadow: 0 0 20px var(--gold); }
-
-    .card-top {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .svg-icon-box {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
+    .sc-icon-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    .svg-icon-box.cyan { background: rgba(0, 242, 255, 0.1); color: var(--cyan); }
-    .svg-icon-box.red { background: rgba(255, 45, 85, 0.1); color: var(--red); }
-    .svg-icon-box.gold { background: rgba(255, 204, 0, 0.1); color: var(--gold); }
 
-    .cyber-label {
+    .bg-soft-primary { background: rgba(255, 204, 0, 0.08); }
+    .bg-soft-danger { background: rgba(239, 68, 68, 0.08); }
+    .bg-soft-gold { background: rgba(245, 158, 11, 0.08); }
+
+    .sc-label {
         font-size: 0.75rem;
-        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
         letter-spacing: 1px;
-        color: var(--dim);
     }
 
-    .cyber-value {
-        font-size: 2.25rem;
-        font-weight: 900;
-        margin-bottom: 12px;
+    .sc-value {
+        font-size: 1.85rem;
+        font-weight: 800;
+        margin: 0;
     }
 
-    .cyber-progress {
-        height: 6px;
-        background: rgba(255, 255, 255, 0.05);
+    .sc-indicator {
+        height: 4px;
         border-radius: 10px;
+        overflow: hidden;
     }
-    .progress-bar { height: 100%; border-radius: 10px; }
-    .bg-cyan { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
-    .bg-red { background: var(--red); box-shadow: 0 0 10px var(--red); }
-    .bg-gold { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 
-    .text-cyan { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 242, 255, 0.3); }
-    .text-red { color: var(--red); text-shadow: 0 0 10px rgba(255, 45, 85, 0.3); }
-    .text-gold { color: var(--gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
+    .sc-progress { height: 100%; border-radius: 10px; }
 
-    /* Tables */
-    .cyber-main-grid {
+    /* Main Content */
+    .sc-main-layout {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 20px;
+        grid-template-columns: 2.5fr 1fr;
+        gap: 24px;
     }
 
-    @media (max-width: 1100px) { .cyber-main-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1200px) {
+        .sc-main-layout { grid-template-columns: 1fr; }
+        .sc-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+        .sc-pulse-box { width: 100%; }
+    }
 
-    .cyber-table {
+    .sc-table {
         width: 100%;
         border-collapse: collapse;
     }
-    .cyber-table th {
-        background: rgba(255, 255, 255, 0.02);
-        padding: 18px;
+
+    .sc-table th {
+        padding: 18px 20px;
         text-align: left;
-        color: var(--dim);
+        color: var(--text-muted);
         font-size: 0.7rem;
-        letter-spacing: 2px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .cyber-table td {
-        padding: 18px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+
+    .sc-table td {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    .cyber-badge {
-        padding: 4px 12px;
-        border-radius: 6px;
+    .badge-danger-soft { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .badge-warning-soft { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .badge-outline-warning { border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; }
+
+    .sc-ban-item:hover { background: rgba(255, 255, 255, 0.02); }
+
+    .sc-status-pill {
         font-size: 0.65rem;
-        font-weight: 900;
-        letter-spacing: 1px;
-    }
-    .badge-red { background: rgba(255, 45, 85, 0.15); color: var(--red); border: 1px solid var(--red); }
-    .badge-gold { background: rgba(255, 204, 0, 0.15); color: var(--gold); border: 1px solid var(--gold); }
-
-    .ban-entry {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.01);
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
     }
 
-    .cyber-tag {
-        font-size: 0.6rem;
-        font-weight: 900;
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
-    .cyber-tag.red { border: 1px solid var(--red); color: var(--red); box-shadow: 0 0 8px rgba(255, 45, 85, 0.3); }
+    .sc-status-pill.danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
 
     /* Terminal */
-    .terminal-shell {
+    .sc-terminal {
         background: #000;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
     }
-    .terminal-header {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-    }
-    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-    .dot.red { background: #ff5f56; }
-    .dot.yellow { background: #ffbd2e; }
-    .dot.green { background: #27c93f; }
 
-    .terminal-content {
+    .sc-terminal-dots { display: flex; gap: 6px; }
+    .sc-terminal-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .sc-terminal-code {
         color: #10b981;
         font-family: 'Consolas', 'Monaco', monospace;
         font-size: 0.85rem;
         line-height: 1.6;
+        margin: 0;
     }
 
-    .scroll-box { max-height: 400px; overflow-y: auto; }
+    /* Utils */
+    .uppercase { text-transform: uppercase; }
+    .tracking-1 { letter-spacing: 1px; }
+    .tracking-2 { letter-spacing: 2px; }
+    .x-small { font-size: 0.7rem; }
+    .opacity-2 { opacity: 0.2; }
 </style>
 {% endblock %}

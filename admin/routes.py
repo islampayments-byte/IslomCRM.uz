@@ -240,17 +240,20 @@ def security_center():
         # 1. Firewall Status
         try:
             fw = subprocess.check_output(['/usr/sbin/ufw', 'status'], stderr=subprocess.STDOUT).decode()
-            security_data['firewall_status'] = 'Faol' if 'Status: active' in fw else 'Faol emas'
-        except Exception as fe:
-            security_data['firewall_status'] = 'Xatolik'
+            # More robust check
+            status_line = [l for l in fw.split('\n') if 'Status:' in l]
+            security_data['firewall_status'] = 'Faol' if status_line and 'active' in status_line[0] else 'Faol emas'
+        except Exception:
+            security_data['firewall_status'] = 'Nofaol'
         
         # 2. Banned IPs (Fail2Ban)
         try:
             f2b = subprocess.check_output(['/usr/bin/fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
-            if 'Banned IP list:' in f2b:
-                ips_str = f2b.split('Banned IP list:')[1].strip()
-                if ips_str:
-                    security_data['banned_ips'] = ips_str.split()
+            for line in f2b.split('\n'):
+                if 'Banned IP list:' in line:
+                    ips_str = line.split('Banned IP list:')[1].strip()
+                    if ips_str:
+                        security_data['banned_ips'] = ips_str.split()
         except Exception:
             pass
             
@@ -277,12 +280,14 @@ def security_center():
         # 4. Open Ports
         try:
             ports_out = subprocess.check_output(['/usr/bin/ss', '-tuln'], stderr=subprocess.STDOUT).decode()
-            security_data['open_ports'] = [l.strip() for l in ports_out.split('\n') if l.strip()]
+            # Clean header and empty lines
+            filtered_ports = [l.strip() for l in ports_out.split('\n') if l.strip() and 'Netid' not in l]
+            security_data['open_ports'] = filtered_ports
         except Exception:
             pass
             
     except Exception as e:
-        flash(f"Xavfsizlik tizimi bilan bog'lanishda xatolik: {str(e)}", "warning")
+        flash(f"Tizim xavfsizligi ma'lumotlarini o'qishda kutilmagan xato: {str(e)}", "warning")
         
     return render_template('admin/security.html', data=security_data)
 
