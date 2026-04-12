@@ -888,3 +888,32 @@ h2.text-gradient { font-size: 1.8rem; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
+
+/* Gold Premium Menu Item */
+.nav-premium-gold a {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 165, 0, 0.03)) !important;
+    border: 1px solid rgba(255, 215, 0, 0.15) !important;
+    color: #ffd700 !important;
+    font-weight: 800 !important;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.nav-premium-gold a i {
+    color: #ffd700 !important;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.nav-premium-gold a:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.08)) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.4) !important;
+}
+
+.nav-premium-gold .link_name {
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-size: 12px;
+}

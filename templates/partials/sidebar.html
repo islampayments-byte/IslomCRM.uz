@@ -134,6 +134,13 @@
         <ul class="nav-links" style="margin-bottom: 0;">
             {# UNIVERSAL BUTTONS - VISIBLE TO USER ONLY #}
             {% if current_user.role != 'admin' %}
+            <li class="nav-premium-gold" style="margin-bottom: 12px;">
+                <a href="{{ url_for('user.mini_app') }}">
+                    <i class='bx bx-bolt-circle'></i>
+                    <span class="link_name">ISLOM PAY</span>
+                </a>
+            </li>
+
             <li>
                 <a href="/user/pricing" class="{{ 'active' if request.endpoint == 'user.pricing' }}">
                     <i class='bx bx-crown'></i>
