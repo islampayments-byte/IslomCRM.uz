@@ -1,88 +1,84 @@
 {% extends "base.html" %}
 
-{% block page_title %}Xavfsizlik Markazi{% endblock %}
+{% block page_title %}Xavfsizlik Monitori{% endblock %}
 
 {% block content %}
-<div class="security-dashboard animate__animated animate__fadeIn">
-    <!-- Header -->
-    <div class="security-header mb-4">
-        <div class="header-main">
-            <h1 class="page-title text-white">Xavfsizlik Markazi</h1>
-            <p class="text-muted">VPS himoyasi va xakerlik hujumlari monitoringi</p>
-        </div>
-        <div class="update-tag glass">
-            <span class="text-muted small">So'nggi yangilanish:</span>
-            <span class="text-white font-weight-bold">{{ data.last_update.strftime('%H:%M:%S') }}</span>
-        </div>
-    </div>
-
-    <!-- Overview Cards -->
-    <div class="stats-grid mb-4">
-        <div class="stat-card glass p-4">
-            <div class="stat-icon bg-primary-faded">
+<div class="security-container animate__animated animate__fadeIn">
+    
+    <!-- Top Stats Row -->
+    <div class="row-stats mb-4">
+        <div class="security-stat-card glass p-4">
+            <div class="stat-icon-wrapper guard">
                 <i class='bx bx-shield-quarter'></i>
             </div>
-            <div class="stat-info">
-                <span class="stat-label">Firewall</span>
-                <h3 class="stat-value {{ 'text-success' if data.firewall_status == 'Faol' else 'text-danger' }}">
+            <div class="stat-content">
+                <span class="label">Himoya Devori (Firewall)</span>
+                <h3 class="status-value {{ 'text-success' if data.firewall_status == 'Faol' else 'text-danger' }}">
                     {{ data.firewall_status }}
                 </h3>
             </div>
         </div>
-        
-        <div class="stat-card glass p-4">
-            <div class="stat-icon bg-danger-faded">
+
+        <div class="security-stat-card glass p-4">
+            <div class="stat-icon-wrapper ban">
                 <i class='bx bx-block'></i>
             </div>
-            <div class="stat-info">
-                <span class="stat-label">Bloklangan IPlar</span>
-                <h3 class="stat-value text-white">{{ data.banned_ips|length }}</h3>
+            <div class="stat-content">
+                <span class="label">Bloklangan Robot-IP'lar</span>
+                <h3 class="status-value text-white">{{ data.banned_ips|length }}</h3>
             </div>
         </div>
 
-        <div class="stat-card glass p-4">
-            <div class="stat-icon bg-warning-faded">
+        <div class="security-stat-card glass p-4">
+            <div class="stat-icon-wrapper fire">
                 <i class='bx bx-error'></i>
             </div>
-            <div class="stat-info">
-                <span class="stat-label">So'nggi Hujumlar</span>
-                <h3 class="stat-value text-white">{{ data.failed_attempts|length }}</h3>
+            <div class="stat-content">
+                <span class="label">So'nggi Hujum Urinishlari</span>
+                <h3 class="status-value text-white">{{ data.failed_attempts|length }}</h3>
+                <p class="sub-label">Oxirgi 1 soat ichida</p>
             </div>
         </div>
     </div>
 
-    <!-- Tables Grid -->
-    <div class="details-grid">
-        <!-- Recent Logs -->
-        <div class="details-card glass p-4 col-main">
-            <h4 class="section-title mb-4">
-                <i class='bx bx-history text-warning'></i> So'nggi shubhali harakatlar (SSH)
-            </h4>
-            <div class="table-container">
-                <table class="modern-table">
+    <!-- Main Grid -->
+    <div class="security-main-grid">
+        <!-- Attack Logs -->
+        <div class="card glass p-0 border-0 overflow-hidden">
+            <div class="card-header p-4 d-flex justify-content-between align-items-center">
+                <h4 class="m-0 text-white font-weight-bold">
+                    <i class='bx bx-history text-warning mr-2'></i> So'nggi shubhali harakatlar
+                </h4>
+                <span class="badge badge-warning-faded text-warning p-2 px-3">SSHD Monitoring</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table-security">
                     <thead>
                         <tr>
                             <th>Vaqt</th>
                             <th>IP Manzil</th>
-                            <th>User</th>
-                            <th>Holat</th>
+                            <th>Nishon</th>
+                            <th>Natija</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for attempt in data.failed_attempts %}
-                        <tr>
-                            <td><span class="text-muted">{{ attempt.time }}</span></td>
-                            <td class="font-bold">{{ attempt.ip }}</td>
+                        <tr class="log-row">
+                            <td class="text-muted">{{ attempt.time }}</td>
+                            <td class="font-weight-bold text-white">{{ attempt.ip }}</td>
                             <td>
-                                <span class="badge {{ 'badge-danger' if attempt.user == 'root' else 'badge-warning' }}">
+                                <span class="badge {{ 'badge-danger-faded' if attempt.user == 'root' else 'badge-warning-faded' }}">
                                     {{ attempt.user }}
                                 </span>
                             </td>
-                            <td><span class="text-danger">Failed Password</span></td>
+                            <td><span class="text-danger small">failed_password</span></td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4" class="empty-state">Hali hech qanday hujum qayd etilmagan.</td>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class='bx bx-check-shield h1 d-block mb-3 text-success'></i>
+                                Hech qanday shubhali xatti-harakat aniqlanmadi
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -90,193 +86,157 @@
             </div>
         </div>
 
-        <!-- Banned List -->
-        <div class="details-card glass p-4 col-side">
-            <h4 class="section-title mb-4">
-                <i class='bx bx-list-check text-danger'></i> Bloklanganlar
+        <!-- Banned IPs Side Panel -->
+        <div class="card glass p-4 border-0">
+            <h4 class="m-0 text-white font-weight-bold mb-4">
+                <i class='bx bx-list-ul text-danger mr-2'></i> Blok ro'yxati
             </h4>
-            <div class="ip-list">
+            <div class="ban-list-container">
                 {% for ip in data.banned_ips %}
-                <div class="ip-item glass-border mb-2">
-                    <span class="font-bold">{{ ip }}</span>
-                    <span class="status-tag danger">BANNED</span>
+                <div class="ban-item glass p-3 mb-2 d-flex justify-content-between align-items-center">
+                    <span class="ip-addr font-weight-bold">{{ ip }}</span>
+                    <span class="status-indicator danger">BLOCKED</span>
                 </div>
                 {% else %}
-                <div class="empty-state py-4">Bloklanganlar yo'q.</div>
+                <div class="text-center py-5 text-muted small">
+                    Oq ro'yxatda barcha IPlar toza
+                </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <!-- Active Ports -->
-    <div class="details-card glass p-4 mt-4">
-        <h4 class="section-title mb-3">
-            <i class='bx bx-wifi text-primary'></i> Ochiq Portlar Monitoringi
+    <!-- Technical Info -->
+    <div class="card glass p-4 mt-4 border-0">
+        <h4 class="text-white mb-3 font-weight-bold small uppercase tracking-wider">
+            <i class='bx bx-terminal text-primary mr-2'></i> Tizim Portlari
         </h4>
-        <div class="terminal-view">
-            <pre>{% for port in data.open_ports %}{{ port }}{% if not loop.last %}\n{% endif %}{% endfor %}</pre>
+        <div class="shell-container p-3 rounded">
+            <pre class="m-0 text-success">{% for port in data.open_ports %}{{ port }}\n{% endfor %}</pre>
         </div>
     </div>
 </div>
 
 <style>
-    /* Custom Security UI Styles */
-    .security-dashboard {
-        color: var(--text-color);
-        padding: 10px;
+    .security-container {
+        padding: 5px;
     }
     
-    .security-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-    
-    .glass {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-    }
-    
-    .glass-border {
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 12px;
-        border-radius: 12px;
-    }
-
-    .stats-grid {
+    .row-stats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
     }
 
-    .stat-card {
+    .security-stat-card {
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 22px;
+        transition: transform 0.2s;
+    }
+    
+    .security-stat-card:hover {
+        transform: translateY(-5px);
     }
 
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
+    .stat-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        font-size: 32px;
     }
 
-    .bg-primary-faded { background: rgba(255, 204, 0, 0.1); color: var(--primary-color); }
-    .bg-danger-faded { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-    .bg-warning-faded { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .guard { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+    .ban { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+    .fire { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
 
-    .stat-label {
-        display: block;
+    .label {
         color: var(--text-muted);
-        font-size: 0.75rem;
+        font-size: 0.8rem;
+        display: block;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
     }
 
-    .stat-value {
-        font-size: 1.75rem;
+    .status-value {
+        font-size: 1.8rem;
         font-weight: 800;
         margin: 0;
     }
 
-    .details-grid {
+    .sub-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .security-main-grid {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 2.2fr 1fr;
         gap: 20px;
     }
 
-    @media (max-width: 1024px) {
-        .details-grid { grid-template-columns: 1fr; }
-        .security-header { flex-direction: column; gap: 12px; }
+    @media (max-width: 1100px) {
+        .security-main-grid { grid-template-columns: 1fr; }
     }
 
-    .section-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    .modern-table {
+    .table-security {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .modern-table th {
+    .table-security th {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 16px;
         text-align: left;
         color: var(--text-muted);
         font-size: 0.75rem;
         text-transform: uppercase;
-        padding: 12px;
-        border-bottom: 1px solid var(--border-color);
     }
 
-    .modern-table td {
-        padding: 16px 12px;
+    .table-security td {
+        padding: 16px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    .font-bold { font-weight: 700; }
-    .empty-state { text-align: center; color: var(--text-muted); padding: 40px 0; }
+    .badge-warning-faded { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .badge-danger-faded { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
 
-    .badge {
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 0.7rem;
-        font-weight: 700;
-    }
-
-    .badge-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-    .badge-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-
-    .ip-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: 0.2s;
-    }
-
-    .ip-item:hover { background: rgba(255,255,255, 0.02); }
-
-    .status-tag {
+    .status-indicator {
         font-size: 0.65rem;
         font-weight: 800;
-        padding: 4px 8px;
+        padding: 4px 10px;
         border-radius: 6px;
         border: 1px solid;
     }
 
-    .status-tag.danger { border-color: #ef4444; color: #ef4444; }
+    .danger { border-color: #ef4444; color: #ef4444; }
 
-    .terminal-view {
+    .shell-container {
         background: #000;
-        padding: 20px;
-        border-radius: 12px;
         border: 1px solid var(--border-color);
-        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
     }
 
-    .terminal-view pre {
-        margin: 0;
+    .shell-container pre {
         color: #10b981;
-        font-family: 'Courier New', monospace;
+        font-family: 'Consolas', monospace;
         font-size: 0.85rem;
-        line-height: 1.5;
+        line-height: 1.6;
     }
 
-    .update-tag {
-        padding: 10px 20px;
-        display: flex;
-        gap: 12px;
-        align-items: center;
+    .glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
     }
+
+    .tracking-wider { letter-spacing: 1px; }
 </style>
 {% endblock %}

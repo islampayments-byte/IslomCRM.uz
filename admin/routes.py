@@ -239,29 +239,25 @@ def security_center():
     try:
         # 1. Firewall Status
         try:
-            # Use full path and sudo if needed
-            fw = subprocess.check_output(['sudo', 'ufw', 'status'], stderr=subprocess.STDOUT).decode()
+            fw = subprocess.check_output(['ufw', 'status'], stderr=subprocess.STDOUT).decode()
             security_data['firewall_status'] = 'Faol' if 'Status: active' in fw else 'Faol emas'
         except Exception as fe:
-            with open('error.log', 'a') as f:
-                f.write(f"{datetime.datetime.now()} - Firewall Check Error: {str(fe)}\n")
+            security_data['firewall_status'] = 'Xatolik'
         
         # 2. Banned IPs (Fail2Ban)
         try:
-            f2b = subprocess.check_output(['sudo', 'fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
-            for line in f2b.split('\n'):
-                if 'Banned IP list:' in line:
-                    ips_str = line.split('Banned IP list:')[1].strip()
-                    if ips_str:
-                        security_data['banned_ips'] = ips_str.split()
-        except Exception as f2e:
-           with open('error.log', 'a') as f:
-                f.write(f"{datetime.datetime.now()} - Fail2Ban Check Error: {str(f2e)}\n")
+            f2b = subprocess.check_output(['fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
+            if 'Banned IP list:' in f2b:
+                ips_str = f2b.split('Banned IP list:')[1].strip()
+                if ips_str:
+                    security_data['banned_ips'] = ips_str.split()
+        except Exception:
+            pass
             
-        # 3. Failed Login Attempts (Last 50 logs, filtered)
+        # 3. Failed Login Attempts
         try:
-            log_out = subprocess.check_output(['sudo', 'journalctl', '_SYSTEMD_UNIT=ssh.service', '--no-pager', '-n', '100'], stderr=subprocess.STDOUT).decode()
-            seen_ips = set()
+            # Get last 100 lines and find 'Failed password'
+            log_out = subprocess.check_output(['journalctl', '_SYSTEMD_UNIT=ssh.service', '-n', '200', '--no-pager'], stderr=subprocess.STDOUT).decode()
             attempts = []
             for line in reversed(log_out.split('\n')):
                 if 'Failed password' in line:
@@ -269,30 +265,25 @@ def security_center():
                     if len(parts) > 1:
                         ip = parts[1].split()[0]
                         time_part = " ".join(line.split()[:3])
-                        user_type = "root" if 'for root' in line else "invalid user"
+                        user_type = "root" if 'for root' in line else "foydalanuvchi"
                         attempts.append({
                             'time': time_part,
                             'ip': ip,
                             'user': user_type
                         })
-            security_data['failed_attempts'] = attempts[:20] # Return last 20 unique-ish
-        except Exception as le:
-            with open('error.log', 'a') as f:
-                f.write(f"{datetime.datetime.now()} - Log Check Error: {str(le)}\n")
+            security_data['failed_attempts'] = attempts[:20]
+        except Exception:
+            pass
             
         # 4. Open Ports
         try:
-            ports_out = subprocess.check_output(['sudo', 'ss', '-tuln'], stderr=subprocess.STDOUT).decode()
-            # Clean up the output to be more readable
-            lines = [l for l in ports_out.split('\n') if l.strip()]
-            security_data['open_ports'] = lines
-        except Exception as pe:
+            ports_out = subprocess.check_output(['ss', '-tuln'], stderr=subprocess.STDOUT).decode()
+            security_data['open_ports'] = [l.strip() for l in ports_out.split('\n') if l.strip()]
+        except Exception:
             pass
             
     except Exception as e:
-        with open('error.log', 'a') as f:
-            f.write(f"{datetime.datetime.now()} - Security Center Global Error: {str(e)}\n")
-        flash(f"Xavfsizlik ma'lumotlarini olishda kutilmagan xatolik: {str(e)}", "warning")
+        flash(f"Xavfsizlik tizimi bilan bog'lanishda xatolik: {str(e)}", "warning")
         
     return render_template('admin/security.html', data=security_data)
 
