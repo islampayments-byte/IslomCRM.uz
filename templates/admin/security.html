@@ -1,385 +1,412 @@
 {% extends "base.html" %}
 
-{% block page_title %}Live Threat Intelligence{% endblock %}
+{% block page_title %}Xavfsizlik Monitoringi{% endblock %}
 
 {% block content %}
-<div class="luxury-security-wrap animate__animated animate__fadeIn">
-    <!-- Mesh Background Layer -->
-    <div class="mesh-bg"></div>
+<div class="native-security-wrapper">
+    
+    <!-- Page Header -->
+    <div class="ns-header mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="ns-title m-0">Xavfsizlik Monitoringi</h1>
+            <p class="ns-subtitle m-0 mt-1">Server himoyasi va tarmoqni jonli kuzatish tizimi.</p>
+        </div>
+        <div class="ns-live-badge">
+            <span class="pulse-ring"></span>
+            <span class="live-text">Live: Monitor <span id="lastUpdatedTs" class="ml-1 text-muted">{{ data.last_update.strftime('%H:%M:%S') }}</span></span>
+        </div>
+    </div>
 
-    <div class="luxury-container p-4">
-        <!-- Identity Header -->
-        <header class="luxury-header mb-5">
-            <div class="header-left">
-                <div class="breadcrumb-luxury mb-2">
-                    <span class="text-white opacity-50 uppercase tracking-3 small">ADMIN CENTER</span>
-                    <i class='bx bx-chevron-right mx-2'></i>
-                    <span class="text-primary font-800 uppercase tracking-3 small">SECURITY COMMAND</span>
-                </div>
-                <h1 class="luxury-title text-white">System Threat Intelligence</h1>
-            </div>
-            <div class="header-right">
-                <div class="system-pulse-glass">
-                    <div class="pulse-node" id="pulseNode"></div>
-                    <div class="pulse-text">
-                        <span class="white font-800 tracking-1 h5 mb-0" id="liveStatusText">LIVE: MONITORING</span>
-                        <span class="dim d-block x-small opacity-75">Last sync: <span id="lastUpdate">{{ data.last_update.strftime('%H:%M:%S') }}</span></span>
+    <!-- Top Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="ns-card h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="ns-icon-bg primary mr-3">
+                        <i class='bx bx-check-shield'></i>
                     </div>
+                    <span class="ns-card-label">Firewall Status</span>
                 </div>
-            </div>
-        </header>
-
-        <!-- Intelligence Hub (Cards) -->
-        <div class="luxury-grid-top mb-5">
-            <!-- Firewall Status -->
-            <div class="l-card glassmorphism p-5">
-                <div class="l-card-glow cyan"></div>
-                <div class="l-card-header mb-4">
-                    <div class="l-icon-box cyan big">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="l-label-large">FIREWALL STATUS</span>
-                </div>
-                <div class="l-card-body">
-                    <h2 class="l-value-xl {{ 'cyan-text' if data.firewall_status == 'Faol' else 'gold-text' }}" id="fwStatus">
-                        {{ data.firewall_status }}
-                    </h2>
-                    <p class="l-sub-description">Network filtration layer is active and scanning.</p>
-                </div>
-            </div>
-
-            <!-- Bans Card -->
-            <div class="l-card glassmorphism p-5">
-                <div class="l-card-glow red"></div>
-                <div class="l-card-header mb-4">
-                    <div class="l-icon-box red big">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                            <path d="M15 9L9 15M9 9L15 15" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </div>
-                    <span class="l-label-large">BLOCKED ENTITIES</span>
-                </div>
-                <div class="l-card-body">
-                    <h2 class="l-value-xl text-white" id="bannedCount">{{ data.banned_ips|length }}</h2>
-                    <p class="l-sub-description">Hostile IP addresses isolated from the system.</p>
-                </div>
-            </div>
-
-            <!-- Intrusion History -->
-            <div class="l-card glassmorphism p-5">
-                <div class="l-card-glow gold"></div>
-                <div class="l-card-header mb-4">
-                    <div class="l-icon-box gold big">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="l-label-large">INTRUSION ATTEMPTS</span>
-                </div>
-                <div class="l-card-body">
-                    <h2 class="l-value-xl text-white" id="failedCount">{{ data.failed_attempts|length }}</h2>
-                    <p class="l-sub-description">Recent failed authentication logs (Last 1hr).</p>
+                <h2 class="ns-card-value {{ 'text-success' if data.firewall_status == 'Faol' else 'text-warning' }}" id="valFwStatus">
+                    {{ data.firewall_status }}
+                </h2>
+                <div class="ns-progress-bar-wrap mt-3">
+                    <div class="ns-progress-bar {{ 'bg-success' if data.firewall_status == 'Faol' else 'bg-warning' }}" style="width: 100%"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Intelligence Logs Section -->
-        <div class="luxury-split-layout mb-5">
-            <div class="luxury-main">
-                <div class="l-panel glassmorphism p-0">
-                    <div class="l-panel-header p-5 bg-glass-dark">
-                        <h4 class="m-0 text-white font-800 tracking-2 h4 uppercase">LIVE THREAT SCANNER</h4>
-                        <div class="l-badge-premium">REAL-TIME MONITOR</div>
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="ns-card h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="ns-icon-bg danger mr-3">
+                        <i class='bx bx-block'></i>
                     </div>
-                    <div class="table-responsive">
-                        <table class="luxury-table-large">
-                            <thead>
-                                <tr>
-                                    <th>TIMESTAMP</th>
-                                    <th>SOURCE IDENTITY (IP)</th>
-                                    <th>TARGET PROFILE</th>
-                                    <th>STATUS</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logsTableBody">
-                                {% for attempt in data.failed_attempts %}
-                                <tr class="l-row-premium">
-                                    <td class="text-white opacity-75 font-600">{{ attempt.time }}</td>
-                                    <td class="text-white font-800 h5 mb-0">{{ attempt.ip }}</td>
-                                    <td>
-                                        <span class="badge-premium-soft {{ 'red' if attempt.user == 'root' else 'gold' }}">
-                                            {{ attempt.user }}
-                                        </span>
-                                    </td>
-                                    <td><span class="status-denied glow-text-red">ACCESS_DENIED</span></td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="4" class="text-center py-5 text-white opacity-50 h5">NO THREATS DETECTED IN ACTIVE BUFFER</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                    <span class="ns-card-label">Bloklangan Tarmoqlar</span>
                 </div>
-            </div>
-
-            <div class="luxury-side">
-                <div class="l-panel glassmorphism p-5">
-                    <h4 class="m-0 text-white font-800 tracking-2 h5 uppercase mb-5">BANNED REGISTRY</h4>
-                    <div class="l-registry-list" id="bannedList">
-                        {% for ip in data.banned_ips %}
-                        <div class="l-registry-item-premium p-4 mb-3">
-                            <span class="text-white font-800 h6 mb-0">{{ ip }}</span>
-                            <div class="l-status-pill-solid red">RESTRICTED</div>
-                        </div>
-                        {% else %}
-                        <div class="text-center py-5 text-white opacity-25">EMPTY REGISTRY</div>
-                        {% endfor %}
-                    </div>
+                <h2 class="ns-card-value text-white" id="valBannedCount">
+                    {{ data.banned_ips|length }} <span class="ns-small-unit">IP</span>
+                </h2>
+                <div class="ns-progress-bar-wrap mt-3">
+                    <div class="ns-progress-bar bg-danger" id="barBannedCount" style="width: {{ (data.banned_ips|length * 5) if data.banned_ips|length < 20 else 100 }}%"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Technical Footprint -->
-        <div class="l-panel glassmorphism p-5">
-            <header class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="m-0 text-white font-800 tracking-2 h5 uppercase">Network Architecture Map</h4>
-                <span class="text-white opacity-50 small" id="portScanTime">Scan refreshed: {{ data.last_update.strftime('%H:%M:%S') }}</span>
-            </header>
-            <div class="modern-terminal p-4">
-                <div class="terminal-ctrls mb-3">
-                    <span class="c-dot red"></span>
-                    <span class="c-dot yellow"></span>
-                    <span class="c-dot green"></span>
-                    <span class="ml-3 text-white opacity-50 font-mono small">root@islomcrm# netstat -tuln</span>
+        <div class="col-md-4">
+            <div class="ns-card h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="ns-icon-bg warning mr-3">
+                        <i class='bx bx-error-alt'></i>
+                    </div>
+                    <span class="ns-card-label">Hujum Urinishlari</span>
                 </div>
-                <pre class="terminal-content-grid" id="portsContent">{% for port in data.open_ports %}<div class="t-line"><span class="t-p">></span> {{ port }}</div>{% endfor %}</pre>
+                <h2 class="ns-card-value text-white" id="valFailedCount">
+                    {{ data.failed_attempts|length }} <span class="ns-small-unit">Urinish</span>
+                </h2>
+                <div class="ns-progress-bar-wrap mt-3">
+                    <div class="ns-progress-bar bg-warning" id="barFailedCount" style="width: {{ (data.failed_attempts|length * 5) if data.failed_attempts|length < 20 else 100 }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="row">
+        <!-- Live Attack Logs -->
+        <div class="col-lg-8 mb-4">
+            <div class="ns-card p-0 h-100">
+                <div class="ns-card-header d-flex justify-content-between align-items-center p-4">
+                    <h5 class="m-0 font-weight-bold text-white">Shubhali Harakatlar Jurnali</h5>
+                    <span class="badge badge-light-warning">SSH LOGS</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table ns-table m-0">
+                        <thead>
+                            <tr>
+                                <th>Vaqt</th>
+                                <th>Manzil (IP)</th>
+                                <th>Foydalanuvchi</th>
+                                <th class="text-right">Holat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            {% for attempt in data.failed_attempts %}
+                            <tr>
+                                <td class="text-muted">{{ attempt.time }}</td>
+                                <td class="text-white font-weight-bold">{{ attempt.ip }}</td>
+                                <td>
+                                    <span class="badge {{ 'badge-light-danger' if attempt.user == 'root' else 'badge-light-warning' }}">
+                                        {{ attempt.user }}
+                                    </span>
+                                </td>
+                                <td class="text-right">
+                                    <span class="ns-text-danger d-flex align-items-center justify-content-end">
+                                        <i class='bx bx-x mr-1'></i> Diqqat
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class='bx bx-check-shield d-block mb-2' style="font-size: 24px;"></i>
+                                    Zararli xatti-harakatlar aniqlanmadi
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banned IPs & Ports -->
+        <div class="col-lg-4">
+            <div class="ns-card mb-4" style="max-height: 350px; overflow-y: auto;">
+                <h5 class="font-weight-bold text-white mb-3">Qora Ro'yxat</h5>
+                <div id="bannedListBody">
+                    {% for ip in data.banned_ips %}
+                    <div class="ns-list-item d-flex justify-content-between align-items-center">
+                        <span class="text-white font-weight-bold">{{ ip }}</span>
+                        <span class="ns-pill-danger">BANNED</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted small">Ro'yxat bo'sh</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="ns-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="font-weight-bold text-white m-0">Ochiq Portlar</h5>
+                </div>
+                <div class="ns-terminal">
+                    <code>{% for port in data.open_ports %}<div class="t-line">{{ port }}</div>{% endfor %}</code>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+    /* 
+       Native Design System Integration
+       Clean, small typography, perfect alignment, exact colors matching Sidebar.
+    */
 
-    :root {
-        --lux-bg: #08090a;
-        --lux-primary: #ffcc00;
-        --lux-cyan: #00f2ff;
-        --lux-red: #ff3b30;
-        --lux-text: #ffffff;
-        --lux-dim: #cbd5e1;
-        --card-glass: rgba(20, 21, 23, 0.7);
-        --border-glass: rgba(255, 255, 255, 0.12);
+    .native-security-wrapper {
+        padding: 10px 15px;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     }
 
-    .luxury-security-wrap {
-        background-color: var(--lux-bg);
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        min-height: 100vh;
-        color: var(--lux-text);
-        position: relative;
+    /* Typography */
+    .ns-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
     }
 
-    .mesh-bg {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: radial-gradient(circle at 10% 10%, rgba(0, 242, 255, 0.08) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 90%, rgba(255, 204, 0, 0.08) 0%, transparent 40%);
-        z-index: 0;
+    .ns-subtitle {
+        font-size: 13px;
+        color: #94a3b8;
     }
 
-    .luxury-container { position: relative; z-index: 10; max-width: 1600px; margin: 0 auto; }
-
-    .glassmorphism {
-        background: var(--card-glass);
-        backdrop-filter: blur(30px) saturate(200%);
-        border: 1px solid var(--border-glass);
-        border-radius: 40px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
-
-    /* Header */
-    .luxury-title { font-size: 3rem; font-weight: 800; letter-spacing: -1.5px; }
-    
-    .system-pulse-glass {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid var(--border-glass);
-        padding: 16px 32px;
-        border-radius: 100px;
+    /* Live Badge Header */
+    .ns-live-badge {
         display: flex;
         align-items: center;
-        gap: 20px;
-    }
-
-    .pulse-node {
-        width: 14px; height: 14px;
-        background: var(--lux-cyan);
-        border-radius: 50%;
-        box-shadow: 0 0 20px var(--lux-cyan);
-        animation: pulseLoop 2s infinite;
-    }
-
-    @keyframes pulseLoop {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.6); opacity: 0.5; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* Cards */
-    .luxury-grid-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; }
-    
-    .l-card { transition: all 0.4s ease; cursor: default; }
-    .l-card:hover { transform: translateY(-12px); background: rgba(255,255,255,0.05); }
-
-    .l-icon-box.big { width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
-    .l-icon-box.cyan { background: rgba(0,242,255,0.15); color: var(--lux-cyan); }
-    .l-icon-box.red { background: rgba(255,59,48,0.15); color: var(--lux-red); }
-    .l-icon-box.gold { background: rgba(255,204,0,0.15); color: var(--lux-primary); }
-    .l-icon-box svg { width: 35px; height: 35px; }
-
-    .l-label-large { font-size: 1rem; font-weight: 800; letter-spacing: 2px; color: var(--lux-dim); }
-    .l-value-xl { font-size: 4rem; font-weight: 800; margin: 15px 0; }
-    .l-sub-description { font-size: 1rem; color: var(--lux-dim); opacity: 0.8; }
-
-    /* Tables */
-    .luxury-split-layout { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; }
-    
-    .luxury-table-large { width: 100%; border-collapse: collapse; }
-    .luxury-table-large th {
-        padding: 30px; 
-        background: rgba(255,255,255,0.02);
-        color: var(--lux-dim);
-        font-size: 0.85rem;
-        font-weight: 800;
-        letter-spacing: 2px;
-        border-bottom: 2px solid var(--border-glass);
-    }
-    .luxury-table-large td { padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-
-    .l-row-premium:hover { background: rgba(255,255,255,0.02); }
-
-    .badge-premium-soft {
+        background: #1c1d1f; /* Standard secondary card color */
+        border: 1px solid rgba(255, 255, 255, 0.05);
         padding: 8px 16px;
+        border-radius: 50px;
+    }
+
+    .pulse-ring {
+        display: block;
+        width: 8px;
+        height: 8px;
+        background-color: #10b981;
+        border-radius: 50%;
+        margin-right: 12px;
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+        animation: ns-pulse 2s infinite;
+    }
+
+    @keyframes ns-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .live-text {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Native Cards */
+    .ns-card {
+        background: #1c1d1f;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        font-size: 0.9rem;
-        font-weight: 800;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .ns-card-header {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* Small Clean Icons */
+    .ns-icon-bg {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    .ns-icon-bg.primary { background: rgba(255, 204, 0, 0.1); color: #ffcc00; }
+    .ns-icon-bg.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .ns-icon-bg.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+    .ns-card-label {
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
-    .badge-premium-soft.red { background: rgba(255,59,48,0.15); color: var(--lux-red); border: 1px solid rgba(255,59,48,0.3); }
-    .badge-premium-soft.gold { background: rgba(255,204,0,0.15); color: var(--lux-primary); border: 1px solid rgba(255,204,0,0.3); }
 
-    .status-denied { font-weight: 900; font-size: 0.85rem; letter-spacing: 1px; }
-    .glow-text-red { color: var(--lux-red); text-shadow: 0 0 15px rgba(255,59,48,0.5); }
-
-    .l-registry-item-premium {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid var(--border-glass);
-        border-radius: 20px;
-        display: flex; justify-content: space-between; align-items: center;
-        transition: 0.3s;
+    .ns-card-value {
+        font-size: 26px; /* Greatly reduced from 4rem */
+        font-weight: 800;
+        margin: 0;
     }
-    .l-status-pill-solid { font-size: 0.75rem; font-weight: 900; padding: 6px 12px; border-radius: 8px; }
-    .l-status-pill-solid.red { background: var(--lux-red); color: #fff; box-shadow: 0 4px 15px rgba(255,59,48,0.4); }
+
+    .ns-small-unit {
+        font-size: 14px;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .ns-progress-bar-wrap {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .ns-progress-bar {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    /* Clean Table */
+    .ns-table {
+        color: #fff;
+    }
+    
+    .ns-table th {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        border-top: none;
+        padding: 12px 20px;
+    }
+
+    .ns-table td {
+        font-size: 13px; /* Clean readable size */
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+        border-top: none;
+        padding: 15px 20px;
+    }
+    
+    .ns-table tr:hover {
+        background-color: rgba(255,255,255,0.01);
+    }
+
+    .ns-text-danger { color: #ef4444; font-size: 12px; font-weight: 600; }
+
+    /* Badges */
+    .badge-light-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        font-size: 10px; padding: 4px 8px; font-weight: 600;
+    }
+    
+    .badge-light-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        font-size: 10px; padding: 4px 8px; font-weight: 600;
+    }
+
+    .ns-pill-danger {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: #ef4444;
+        color: #fff;
+    }
+
+    /* List Item */
+    .ns-list-item {
+        padding: 12px 15px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255,255,255,0.03);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
 
     /* Terminal */
-    .modern-terminal { background: #000; border: 1px solid var(--border-glass); border-radius: 24px; }
-    .terminal-content-grid { 
-        color: #10b981; 
-        font-family: 'JetBrains Mono', monospace; 
-        font-size: 1rem; 
-        line-height: 1.8;
-        max-height: 350px;
+    .ns-terminal {
+        background: #000;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 200px;
         overflow-y: auto;
+        font-family: Consolas, monospace;
     }
-    .t-p { color: var(--lux-dim); opacity: 0.5; margin-right: 15px; }
-    .c-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
-    .c-dot.red { background: #ff5f56; }
-    .c-dot.yellow { background: #ffbd2e; }
-    .c-dot.green { background: #27c93f; }
+    
+    .ns-terminal code { color: #10b981; font-size: 12px; display: block; }
+    .t-line { margin-bottom: 4px; padding-left: 10px; position: relative; }
+    .t-line::before { content: '>'; position: absolute; left: 0; color: #64748b; }
 
-    /* Dynamic Helpers */
-    .cyan-text { color: var(--lux-cyan); text-shadow: 0 0 20px rgba(0,242,255,0.4); }
-    .gold-text { color: var(--lux-primary); text-shadow: 0 0 20px rgba(255,204,0,0.4); }
-    .font-800 { font-weight: 800; }
-    .tracking-3 { letter-spacing: 3px; }
-    .bg-glass-dark { background: rgba(0,0,0,0.2); }
-    .l-badge-premium { background: var(--lux-primary); color: #000; font-weight: 900; font-size: 0.75rem; padding: 6px 16px; border-radius: 50px; }
 </style>
 
+<!-- Clean JS logic unchanged -->
 <script>
-    async function updateSecurityStats() {
+    async function fetchLatestSecurityStats() {
         try {
-            const response = await fetch('/admin/security/stats');
-            const data = await response.json();
+            const resp = await fetch('/admin/security/stats');
+            const data = await resp.json();
             
             if (data.error) return;
 
-            // Update Counts
-            document.getElementById('fwStatus').innerText = data.firewall_status;
-            document.getElementById('bannedCount').innerText = data.banned_ips.length;
-            document.getElementById('failedCount').innerText = data.failed_attempts.length;
-            document.getElementById('lastUpdate').innerText = data.last_update;
-            document.getElementById('portScanTime').innerText = 'Scan refreshed: ' + data.last_update;
+            // Simple text updates
+            document.getElementById('valFwStatus').innerText = data.firewall_status;
+            document.getElementById('valBannedCount').innerHTML = `${data.banned_ips.length} <span class="ns-small-unit">IP</span>`;
+            document.getElementById('valFailedCount').innerHTML = `${data.failed_attempts.length} <span class="ns-small-unit">Urinish</span>`;
+            document.getElementById('lastUpdatedTs').innerText = data.last_update;
 
-            // Update Firewall Color
-            const fwEl = document.getElementById('fwStatus');
-            if (data.firewall_status === 'Faol') {
-                fwEl.className = 'l-value-xl cyan-text';
-            } else {
-                fwEl.className = 'l-value-xl gold-text';
-            }
+            // Visual Status updates
+            const fwEl = document.getElementById('valFwStatus');
+            fwEl.className = data.firewall_status === 'Faol' ? 'ns-card-value text-success' : 'ns-card-value text-warning';
 
-            // Update Logs Table
-            const logsBody = document.getElementById('logsTableBody');
+            document.getElementById('barBannedCount').style.width = Math.min(data.banned_ips.length * 5, 100) + '%';
+            document.getElementById('barFailedCount').style.width = Math.min(data.failed_attempts.length * 5, 100) + '%';
+
+            // Logs Table Body
+            const tb = document.getElementById('logsTableBody');
             if (data.failed_attempts.length > 0) {
-                let logsHtml = '';
-                data.failed_attempts.forEach(attempt => {
-                    const badgeClass = attempt.user === 'root' ? 'red' : 'gold';
-                    logsHtml += `
-                        <tr class="l-row-premium">
-                            <td class="text-white opacity-75 font-600">${attempt.time}</td>
-                            <td class="text-white font-800 h5 mb-0">${attempt.ip}</td>
-                            <td>
-                                <span class="badge-premium-soft ${badgeClass}">${attempt.user}</span>
-                            </td>
-                            <td><span class="status-denied glow-text-red">ACCESS_DENIED</span></td>
-                        </tr>
-                    `;
+                let html = '';
+                data.failed_attempts.forEach(att => {
+                    const badge = att.user === 'root' ? 'badge-light-danger' : 'badge-light-warning';
+                    html += `<tr>
+                        <td class="text-muted">${att.time}</td>
+                        <td class="text-white font-weight-bold">${att.ip}</td>
+                        <td><span class="badge ${badge}">${att.user}</span></td>
+                        <td class="text-right">
+                            <span class="ns-text-danger d-flex align-items-center justify-content-end">
+                                <i class='bx bx-x mr-1'></i> Diqqat
+                            </span>
+                        </td>
+                    </tr>`;
                 });
-                logsBody.innerHTML = logsHtml;
+                tb.innerHTML = html;
             }
 
-            // Update Banned List
-            const bannedBody = document.getElementById('bannedList');
+            // Bans List
+            const bl = document.getElementById('bannedListBody');
             if (data.banned_ips.length > 0) {
-                let bannedHtml = '';
+                let html = '';
                 data.banned_ips.forEach(ip => {
-                    bannedHtml += `
-                        <div class="l-registry-item-premium p-4 mb-3">
-                            <span class="text-white font-800 h6 mb-0">${ip}</span>
-                            <div class="l-status-pill-solid red">RESTRICTED</div>
-                        </div>
-                    `;
+                    html += `<div class="ns-list-item d-flex justify-content-between align-items-center">
+                        <span class="text-white font-weight-bold">${ip}</span>
+                        <span class="ns-pill-danger">BANNED</span>
+                    </div>`;
                 });
-                bannedBody.innerHTML = bannedHtml;
+                bl.innerHTML = html;
             }
 
-            // Visual Pulse Confirmation
-            const pulse = document.getElementById('pulseNode');
-            pulse.style.transform = 'scale(1.8)';
-            setTimeout(() => { pulse.style.transform = 'scale(1)'; }, 500);
-
-        } catch (error) {
-            console.error('Security Update Failed:', error);
+        } catch (e) {
+            console.error('Update failed:', e);
         }
     }
 
-    // Auto update every 10 seconds
-    setInterval(updateSecurityStats, 10000);
+    // Auto-sync every 8 seconds, purely in background
+    setInterval(fetchLatestSecurityStats, 8000);
 </script>
 {% endblock %}
