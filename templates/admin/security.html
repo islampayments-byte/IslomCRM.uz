@@ -3,500 +3,296 @@
 {% block page_title %}Xavfsizlik Markazi{% endblock %}
 
 {% block content %}
-<div class="dashboard-wrapper">
-    <div class="dash-grid">
-        
-        <!-- COLUMN 1: LEFT -->
-        <div class="col-left">
-            <div class="db-card card-glow">
-                <div class="card-head">
-                    <span class="card-title">Hujum Urinishlari</span>
-                </div>
-                <div class="card-stat-row">
-                    <span class="stat-big" id="valFailed">{{ data.failed_attempts|length }}</span>
-                    <span class="db-badge green-solid">-5%</span>
-                </div>
-            </div>
+<div class="sf-wrapper">
+    <!-- Header -->
+    <header class="sf-header">
+        <div class="sf-header-text">
+            <h1 class="sf-title">Xavfsizlik Jurnali</h1>
+            <p class="sf-subtitle">Tizim holati va tarmoqni avtomatlashtirilgan tekshirish paneli.</p>
+        </div>
+        <div class="sf-live-badge">
+            <div class="sf-dot"></div>
+            <span>Jonli ulanish</span>
+        </div>
+    </header>
 
-            <!-- List 1: Intrusion Attempts -->
-            <div class="db-card flex-fill mt-3 p-0" style="overflow: hidden;">
-                <div class="card-head-flex mb-3 p-4 pb-0">
-                    <span class="card-title text-white">Hujum Urinishlari</span>
-                    <button class="btn-dark">Barchasi</button>
-                </div>
-                <!-- Clean table, pointer cursor for interactivity -->
-                <table class="db-table selectable-table">
+    <!-- Top Stats -->
+    <div class="sf-stats-grid">
+        <div class="sf-card stat-card">
+            <div class="stat-top">
+                <span class="stat-label">Firewall Holati</span>
+                <i class='bx bx-shield-quarter stat-icon text-green'></i>
+            </div>
+            <div class="stat-value {{ 'text-green' if data.firewall_status == 'Faol' else 'text-red' }}" id="valFw">
+                {{ data.firewall_status }}
+            </div>
+        </div>
+
+        <div class="sf-card stat-card">
+            <div class="stat-top">
+                <span class="stat-label">Hujum Urinishlari</span>
+                <i class='bx bx-crosshair stat-icon text-muted'></i>
+            </div>
+            <div class="stat-value text-white d-flex align-items-baseline gap-2">
+                <span id="valAttacks">{{ data.failed_attempts|length }}</span>
+                <span class="stat-unit">ta</span>
+            </div>
+        </div>
+
+        <div class="sf-card stat-card">
+            <div class="stat-top">
+                <span class="stat-label">Bloklangan Tarmoqlar</span>
+                <i class='bx bx-block stat-icon text-red'></i>
+            </div>
+            <div class="stat-value text-white d-flex align-items-baseline gap-2">
+                <span id="valBans">{{ data.banned_ips|length }}</span>
+                <span class="stat-unit">ta</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="sf-main-grid">
+        <!-- Event Logs (Left, larger flex) -->
+        <div class="sf-card flex-2">
+            <div class="card-header-clean">
+                <h2 class="card-title-clean">So'nggi Hodisalar</h2>
+                <button class="sf-btn" onclick="fetchLiveStats()"><i class='bx bx-refresh'></i> Yangilash</button>
+            </div>
+            <div class="sf-table-wrapper">
+                <table class="sf-table">
                     <thead>
                         <tr>
-                            <th style="padding-left: 20px;">Ogohlantirish</th>
-                            <th>Manba</th>
-                            <th>Nishon</th>
                             <th>Daraja</th>
+                            <th>Xavf Turi</th>
+                            <th>Manzil (IP)</th>
+                            <th>Vaqt</th>
                         </tr>
                     </thead>
-                    <tbody id="intrusionBody">
-                        {% for attempt in data.failed_attempts[:6] %}
-                        <tr onclick="showOnMap(this, '{{ attempt.ip }}', '{{ attempt.time }}', '{{ attempt.user }}')">
-                            <td style="padding-left: 20px;">
-                                <div class="td-title text-white">Avtorizatsiya xatosi</div>
-                                <div class="td-sub">{{ attempt.time }}</div>
-                            </td>
-                            <td class="font-mono text-white">{{ attempt.ip }}</td>
-                            <td class="font-mono text-white">Server</td>
+                    <tbody id="logsTbody">
+                        {% for attempt in data.failed_attempts %}
+                        <tr>
                             <td>
-                                <span class="db-badge {{ 'critical' if attempt.user == 'root' else 'medium' }}">
+                                <span class="sf-badge {{ 'sf-danger' if attempt.user == 'root' else 'sf-warning' }}">
                                     {{ 'Kritik' if attempt.user == 'root' else 'O\'rta' }}
                                 </span>
                             </td>
+                            <td class="text-white">Avtorizatsiyadan ruxsatsiz o'tish</td>
+                            <td><span class="sf-mono">{{ attempt.ip }}</span></td>
+                            <td class="text-muted">{{ attempt.time }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="4" class="text-center text-muted py-4">Hozircha hujumlar yo'q</td></tr>
+                        <tr><td colspan="4" class="text-center text-muted pd-4">Yangi hodisalar mavjud emas</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- COLUMN 2: CENTER -->
-        <div class="col-center">
-            <!-- Stats Row -->
-            <div class="center-stats-row">
-                <div class="db-card">
-                    <div class="card-head">
-                        <span class="card-title">Bloklangan Tarmoqlar</span>
-                    </div>
-                    <div class="card-stat-row">
-                        <span class="stat-big" id="valBanned">{{ data.banned_ips|length }}</span>
-                        <span class="db-badge red-solid">+12%</span>
-                    </div>
+        <!-- Banned Targets (Right, smaller flex) -->
+        <div class="sf-side-grid">
+            <div class="sf-card">
+                <div class="card-header-clean mb-3">
+                    <h2 class="card-title-clean m-0">Qora Ro'yxat</h2>
+                    <span class="sf-badge sf-danger-solid">Aktiv tarmoqlar</span>
                 </div>
-                <div class="db-card">
-                    <div class="card-head">
-                        <span class="card-title">Firewall Holati</span>
-                    </div>
-                    <div class="card-stat-row">
-                        <span class="stat-big {{ 'text-red' if data.firewall_status != 'Faol' }}" id="valFw">{{ data.firewall_status }}</span>
-                        <span class="db-badge red-outline">{{ 'Faol' if data.firewall_status == 'Faol' else 'Xavf' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- INTERACTIVE MAP AREA -->
-            <div class="cyber-map mt-3 flex-fill">
-                <!-- SVG World Map Background (Minimal borders) -->
-                <svg viewBox="0 0 1000 500" class="world-svg-bg">
-                    <!-- A beautifully simplified representation of world continents -->
-                    <path d="M 100 100 C 150 50, 250 80, 200 150 C 150 200, 120 180, 100 100 Z" opacity="0.1" fill="#a1a1aa"/>
-                    <path d="M 300 80 C 400 40, 450 150, 350 200 C 300 180, 280 120, 300 80 Z" opacity="0.1" fill="#a1a1aa"/>
-                    <path d="M 460 120 C 550 100, 600 200, 520 280 C 470 250, 440 180, 460 120 Z" opacity="0.1" fill="#a1a1aa"/>
-                    <path d="M 600 80 C 800 60, 850 220, 750 300 C 650 250, 580 150, 600 80 Z" opacity="0.1" fill="#a1a1aa"/>
-                    <path d="M 650 320 C 700 300, 750 400, 680 450 C 600 400, 620 350, 650 320 Z" opacity="0.1" fill="#a1a1aa"/>
-                    <path d="M 220 250 C 300 220, 350 350, 280 450 C 200 400, 180 300, 220 250 Z" opacity="0.1" fill="#a1a1aa"/>
-                </svg>
-
-                <!-- Container for dynamic dots and tooltips -->
-                <div id="mapOverlay" class="map-overlay-layer">
-                    <!-- This gets populated by JS when clicking rows -->
-                    <div class="text-center text-muted" style="margin-top: 15rem; opacity: 0.5; font-size: 13px;">
-                        Hujum manbasini ko'rish uchun chapdagi ro'yxatdan birini tanlang.
-                    </div>
-                </div>
-
-                <div class="map-legend">
-                    <span class="legend-item"><span class="dot d-crit"></span> Kritik</span>
-                    <span class="legend-item"><span class="dot d-high"></span> Yuqori</span>
-                    <span class="legend-item"><span class="dot d-med"></span> O'rta</span>
-                    <span class="legend-item"><span class="dot d-low"></span> Past</span>
-                    <button class="btn-blue-small ml-2">Xaritani Yangilash</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- COLUMN 3: RIGHT -->
-        <div class="col-right">
-            <div class="card-head-flex mb-3">
-                <span class="card-title-lg text-white">Xavfni Aniqlash</span>
-                <button class="btn-blue-outline" onclick="fetchSecurityData()"><i class='bx bx-refresh'></i> Hozir</button>
-            </div>
-
-            <div class="threat-list mb-3">
-                <div class="db-card threat-item active">
-                    <div class="ti-header">
-                        <span class="ti-title">SQL so'rov anomaliyasi <i class='bx bx-error-triangle text-red'></i></span>
-                        <i class='bx bx-chevron-down text-muted'></i>
-                    </div>
-                    <div class="ti-time">12 daqiqa oldin</div>
-                    <div class="ti-body">
-                        <p class="ti-desc">Noma'lum manbadan tizimga zararli ma'lumotlar yuborishga takroriy urinish aniqlandi.</p>
-                        <div class="ti-meta">
-                            <span>Ta'sir tizimi</span> <span class="text-white">Web Server</span>
-                        </div>
-                        <div class="ti-meta">
-                            <span>Daraja</span> <span class="text-red font-weight-bold">Kritik</span>
-                        </div>
-                        <button class="btn-dark-full mt-2">Batafsil ma'lumot</button>
-                    </div>
-                </div>
-                
-                <div class="db-card threat-item">
-                    <div class="ti-header">
-                        <span class="ti-title">Brute-force SSH</span>
-                        <i class='bx bx-chevron-right text-muted'></i>
-                    </div>
-                    <div class="ti-time">22 daqiqa oldin</div>
-                </div>
-            </div>
-
-            <div class="db-card card-pad-small mt-auto">
-                <div class="card-head-flex mb-3">
-                    <span class="card-title text-white">Asosiy Manbalar</span>
-                    <button class="btn-dark">Barchasi</button>
-                </div>
-                <div class="sources-list" id="bannedListBody">
-                    {% for ip in data.banned_ips[:5] %}
-                    <div class="source-row">
-                        <span class="font-mono text-white">{{ ip }}</span>
-                        <span class="source-count">Blok</span>
+                <div class="sf-list" id="bansContainer">
+                    {% for ip in data.banned_ips[:8] %}
+                    <div class="sf-list-item">
+                        <span class="sf-mono text-white">{{ ip }}</span>
+                        <i class='bx bx-lock-alt text-red'></i>
                     </div>
                     {% else %}
-                    <div class="text-center text-muted py-3">Ma'lumot yo'q</div>
+                    <div class="text-center text-muted pd-4">Ro'yxat bo'sh</div>
                     {% endfor %}
                 </div>
             </div>
-        </div>
 
-        <!-- BOTTOM ROW -->
-        <div class="col-bottom mt-3">
-            <div class="db-card">
-                <div class="card-head-flex mb-3">
-                    <span class="card-title-lg text-white">Xavfsizlik Hodisalari Jurnali</span>
-                    <button class="btn-dark">Tarixni yuklash</button>
+            <div class="sf-card">
+                <div class="card-header-clean mb-3">
+                    <h2 class="card-title-clean m-0">Skanner Tizimi</h2>
                 </div>
-                <table class="db-table">
-                    <thead>
-                        <tr>
-                            <th style="padding-left:20px;">ID <i class='bx bx-sort-alt-2'></i></th>
-                            <th>Hodisa Turi <i class='bx bx-sort-alt-2'></i></th>
-                            <th>Sana <i class='bx bx-sort-alt-2'></i></th>
-                            <th>Manba IP <i class='bx bx-sort-alt-2'></i></th>
-                            <th>Daraja <i class='bx bx-sort-alt-2'></i></th>
-                            <th>Status <i class='bx bx-sort-alt-2'></i></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="eventsTableBody">
-                        {% for attempt in data.failed_attempts %}
-                        <tr>
-                            <td class="text-white" style="padding-left:20px;">{{ loop.index }}</td>
-                            <td class="text-white">Ruxsatsiz kirish urinishi</td>
-                            <td class="text-muted">{{ attempt.time }}</td>
-                            <td class="font-mono text-white">{{ attempt.ip }}</td>
-                            <td>
-                                <span class="db-badge {{ 'critical' if attempt.user == 'root' else 'high' }}">
-                                    {{ 'Kritik' if attempt.user == 'root' else 'Yuqori' }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status-cell">
-                                    <span class="s-dot s-open"></span> Ochiq
-                                </span>
-                            </td>
-                            <td class="text-muted text-right pr-4"><i class='bx bx-dots-vertical-rounded'></i></td>
-                        </tr>
-                        {% else %}
-                        <tr><td colspan="7" class="text-center text-muted py-4">Hodisalar ro'yxati bo'sh</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="sf-list">
+                    <div class="sf-list-item">
+                        <span class="text-white">Asosiy Tarmoq Tahlili</span>
+                        <i class='bx bx-check-circle text-green'></i>
+                    </div>
+                    <div class="sf-list-item">
+                        <span class="text-white">SSHD Kuzatuvi</span>
+                        <i class='bx bx-check-circle text-green'></i>
+                    </div>
+                    <div class="sf-list-item">
+                        <span class="text-white">Fail2Ban Jurnali</span>
+                        <i class='bx bx-check-circle text-green'></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
+    /*
+        PREMIUM MINIMAL DESIGN (Vercel / Stripe Aesthetic)
+        Built exactly from scratch. Perfect reading focus.
+    */
+    
     :root {
-        --bg-main: #0a0a0a;
-        --card-bg: #121214;
-        --card-border: #27272a;
+        --sf-bg: #000000;
+        --sf-card: #0A0A0A;
+        --sf-border: #222222;
+        --sf-border-hover: #333333;
         
-        --text-white: #fafafa;
-        --text-mut: #a1a1aa;
-        --text-dark: #52525b;
+        --text-pure: #ffffff;
+        --text-secondary: #a1a1aa;
+        --text-tertiary: #52525b;
         
-        --c-red: #ef4444;
-        --c-red-bg: rgba(239, 68, 68, 0.15);
-        --c-orange: #f97316;
-        --c-orange-bg: rgba(249, 115, 22, 0.15);
-        --c-yellow: #eab308;
-        --c-yellow-bg: rgba(234, 179, 8, 0.15);
-        --c-gray: #a1a1aa;
-        --c-gray-bg: rgba(82, 82, 91, 0.2);
-        --c-blue: #3b82f6;
+        --sf-green: #34d399;
+        --sf-red: #f87171;
+        --sf-yellow: #fbbf24;
     }
 
-    .dashboard-wrapper {
-        font-family: 'Inter', -apple-system, sans-serif;
-        background-color: var(--bg-main); min-height: 100vh; padding: 20px; color: var(--text-white); box-sizing: border-box;
+    /* Core Container */
+    .sf-wrapper {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        background-color: var(--sf-bg);
+        min-height: 100vh;
+        padding: 40px;
+        color: var(--text-pure);
+        box-sizing: border-box;
     }
 
-    .dash-grid { display: grid; grid-template-columns: 320px 1fr 340px; grid-template-rows: auto auto; gap: 20px; }
-    .col-left { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; }
-    .col-center { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; }
-    .col-right { grid-column: 3; grid-row: 1 / span 2; display: flex; flex-direction: column; }
-    .col-bottom { grid-column: 1 / span 2; grid-row: 2; }
-
-    @media (max-width: 1200px) {
-        .dash-grid { grid-template-columns: 1fr; }
-        .col-left, .col-center, .col-right, .col-bottom { grid-column: 1; grid-row: auto; }
+    @media (max-width: 768px) {
+        .sf-wrapper { padding: 20px; }
     }
 
-    .db-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; position: relative; }
-    .card-pad-small { padding: 16px; }
-    .flex-fill { flex: 1; display: flex; flex-direction: column; }
-    .mt-3 { margin-top: 20px; } .mb-3 { margin-bottom: 20px; } .p-0 { padding: 0 !important; } .p-4 { padding: 20px; } .pb-0 { padding-bottom: 0 !important; }
+    /* Header */
+    .sf-header {
+        display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;
+    }
+    .sf-title { font-size: 24px; font-weight: 600; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+    .sf-subtitle { font-size: 14px; color: var(--text-secondary); margin: 0; }
+
+    .sf-live-badge {
+        display: flex; align-items: center; gap: 8px;
+        background: var(--sf-card); padding: 6px 14px; border-radius: 40px;
+        border: 1px solid var(--sf-border); font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    }
+    .sf-dot { width: 8px; height: 8px; background: var(--sf-green); border-radius: 50%; box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+
+    /* Grids */
+    .sf-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px; }
+    .sf-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    .sf-side-grid { display: flex; flex-direction: column; gap: 24px; }
+
+    @media (max-width: 1024px) {
+        .sf-main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .sf-card {
+        background-color: var(--sf-card);
+        border: 1px solid var(--sf-border);
+        border-radius: 12px;
+        padding: 24px;
+        transition: border-color 0.2s ease;
+    }
+    .sf-card:hover { border-color: var(--sf-border-hover); }
+
+    /* Stats Content */
+    .stat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .stat-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    .stat-icon { font-size: 18px; }
+    .stat-value { font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -1px; }
+    .stat-unit { font-size: 14px; color: var(--text-tertiary); font-weight: 400; letter-spacing: 0;}
+
+    /* Content Cards */
+    .card-header-clean { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .card-title-clean { font-size: 16px; font-weight: 500; margin: 0; color: var(--text-pure); }
+
+    /* Tables */
+    .sf-table-wrapper { overflow-x: auto; }
+    .sf-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .sf-table th { font-size: 12px; font-weight: 500; color: var(--text-tertiary); padding-bottom: 16px; border-bottom: 1px solid var(--sf-border); }
+    .sf-table td { padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 14px; }
     
-    .card-glow { overflow: hidden; }
-    .card-glow::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #3b82f6, transparent); box-shadow: 0 0 15px #3b82f6; }
+    /* Lists */
+    .sf-list { display: flex; flex-direction: column; gap: 12px; }
+    .sf-list-item { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid transparent; transition: 0.2s;}
+    .sf-list-item:hover { border-color: var(--sf-border); background: rgba(255,255,255,0.04);}
 
-    .card-head { margin-bottom: 16px; }
-    .card-head-flex { display: flex; justify-content: space-between; align-items: center; }
-    .card-title { font-size: 13px; font-weight: 500; color: var(--text-mut); margin: 0; }
-    .card-title-lg { font-size: 15px; font-weight: 600; color: var(--text-white); margin: 0; }
-    
-    .card-stat-row { display: flex; justify-content: space-between; align-items: center; }
-    .stat-big { font-size: 28px; font-weight: 600; color: var(--text-white); }
-    .text-red { color: var(--c-red) !important; }
-    .center-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    /* Badges & Buttons */
+    .sf-badge { display: inline-flex; align-items: center; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; }
+    .sf-danger { background: rgba(248, 113, 113, 0.1); color: var(--sf-red); }
+    .sf-warning { background: rgba(251, 191, 36, 0.1); color: var(--sf-yellow); }
+    .sf-danger-solid { background: rgba(248, 113, 113, 0.1); color: var(--sf-red); border: 1px solid rgba(248,113,113,0.2) }
 
-    .db-badge { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; border: 1px solid transparent; display: inline-block; text-align: center; }
-    .db-badge.critical { background-color: var(--c-red-bg); color: var(--c-red); border-color: rgba(239, 68, 68, 0.3); }
-    .db-badge.high { background-color: var(--c-orange-bg); color: var(--c-orange); border-color: rgba(249, 115, 22, 0.3); }
-    .db-badge.medium { background-color: var(--c-yellow-bg); color: var(--c-yellow); border-color: rgba(234, 179, 8, 0.3); }
-    .green-solid { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-    .red-solid { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-    .red-outline { background: rgba(239, 68, 68, 0.1); color: var(--text-white); border-color: var(--c-red); }
+    .sf-btn { background: var(--sf-bg); border: 1px solid var(--sf-border); color: var(--text-pure); font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px;}
+    .sf-btn:hover { background: #111; border-color: #444; }
 
-    .db-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .db-table th { font-size: 11px; font-weight: 500; color: var(--text-dark); padding: 12px; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
-    .db-table td { font-size: 12px; color: var(--text-white); padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); }
-    
-    /* Interactive Row Hover and Select */
-    .selectable-table tbody tr { cursor: pointer; transition: background-color 0.2s, border-left 0.2s; border-left: 2px solid transparent;}
-    .selectable-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
-    .active-row { background-color: rgba(59, 130, 246, 0.15) !important; border-left: 2px solid var(--c-blue) !important; }
-
-    .td-title { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
-    .td-sub { font-size: 10px; color: var(--text-mut); }
-    .font-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
-    .text-white { color: var(--text-white) !important; }
-    .text-muted { color: var(--text-mut) !important; }
-
-    .btn-dark { background: #27272a; border: 1px solid #3f3f46; color: var(--text-white); font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-    .btn-dark:hover { background: #3f3f46; }
-    .btn-dark-full { width: 100%; background: #27272a; border: 1px solid #3f3f46; color: var(--text-mut); font-size: 12px; padding: 6px; border-radius: 4px; cursor: pointer; transition: 0.2s; margin-top: 12px; }
-    .btn-blue-outline { background: transparent; border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-    .btn-blue-small { background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #3b82f6; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; cursor: pointer; }
-
-    /* --- CYBER MAP & INTERACTIVITY --- */
-    .cyber-map {
-        background-color: #0d0d0f;
-        background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-        background-size: 20px 20px;
-        border-radius: 8px;
-        border: 1px solid var(--card-border);
-        position: relative;
-        min-height: 380px;
-        overflow: hidden;
-    }
-    
-    .world-svg-bg {
-        position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; pointer-events: none;
-    }
-
-    .map-overlay-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
-
-    .map-node { position: absolute; width: 8px; height: 8px; border-radius: 50%; transform: translate(-50%, -50%); }
-    .node-crit { background: var(--c-red); }
-    .node-med { background: var(--c-yellow); }
-
-    .pulse-ring {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 24px; height: 24px; border-radius: 50%;
-        animation: pulseMap 1.5s infinite;
-    }
-    .crit-ring { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
-    .med-ring { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.8); }
-    
-    @keyframes pulseMap {
-        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-    }
-
-    .map-tooltip {
-        position: absolute; background: #18181b; border: 1px solid var(--card-border);
-        padding: 16px; border-radius: 8px; width: 220px; z-index: 10;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes slideUpFade {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Draw vector line from tooltip to dot using CSS pseudoelement */
-    .map-tooltip::before {
-        content: ''; position: absolute; left: 50%; top: 100%;
-        width: 1px; height: 30px; 
-        background: repeating-linear-gradient(to bottom, var(--c-red) 0, var(--c-red) 3px, transparent 3px, transparent 6px);
-        transform: rotate(20deg); transform-origin: top;
-    }
-    .map-tooltip.tt-med::before {
-        background: repeating-linear-gradient(to bottom, var(--c-yellow) 0, var(--c-yellow) 3px, transparent 3px, transparent 6px);
-    }
-
-    .tt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .tt-title { font-size: 13px; font-weight: 600; color: var(--text-white); }
-    .tt-sub { font-size: 11px; color: var(--text-mut); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--card-border);}
-    .tt-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
-    .tt-label { color: var(--text-mut); }
-    .tt-val { color: var(--text-white); font-weight: 500; font-family: 'JetBrains Mono', monospace;}
-
-    .map-legend { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 20px; padding: 6px 16px; display: flex; gap: 12px; align-items: center; z-index: 10;}
-    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-mut); font-weight: 500; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .d-crit { background: var(--c-red); } .d-high { background: var(--c-orange); } .d-med { background: var(--c-yellow); } .d-low { background: var(--c-gray); }
-
-    /* Threat List */
-    .threat-item { margin-bottom: 8px; padding: 14px; width: 100%; transition: 0.2s;}
-    .threat-item.active { background: #1f1f22; border-color: #3f3f46; border-left: 3px solid var(--c-red);}
-    .ti-header { display: flex; justify-content: space-between; align-items: center; }
-    .ti-title { font-size: 13px; font-weight: 500; color: var(--text-white); display: flex; align-items: center; gap: 6px;}
-    .ti-time { font-size: 11px; color: var(--text-dark); margin-top: 4px; }
-    .ti-body { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-border); }
-    .ti-desc { font-size: 12px; color: var(--text-mut); line-height: 1.5; margin-bottom: 14px; }
-    .ti-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-mut); margin-bottom: 6px; }
-
-    /* Top Sources */
-    .source-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; }
-    .source-count { background: #27272a; color: var(--text-mut); font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 1px solid #3f3f46; }
-
-    /* Status cell bottom */
-    .status-cell { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-white); }
-    .s-dot { width: 6px; height: 6px; border-radius: 50%; }
-    .s-open { background: var(--c-yellow); }
+    /* Utilities */
+    .sf-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; letter-spacing: -0.2px; font-size: 13px;}
+    .text-green { color: var(--sf-green) !important; }
+    .text-red { color: var(--sf-red) !important; }
+    .text-white { color: var(--text-pure) !important; }
+    .text-muted { color: var(--text-secondary) !important; }
+    .pd-4 { padding: 32px; }
+    .m-0 { margin: 0 !important; }
+    .mb-3 { margin-bottom: 16px !important; }
+    .flex-2 { flex: 2; } .flex-1 { flex: 1; }
+    .gap-2 { gap: 8px; }
 </style>
 
 <script>
-    // Funtion generating pseudo-random coordinates from an IP string so it always plots on the same consistent spot
-    function getMapCoordsFromIP(ip) {
-        let hash = 0;
-        for (let i = 0; i < ip.length; i++) hash = ip.charCodeAt(i) + ((hash << 5) - hash);
-        
-        // Map pseudo-random number to percentages avoiding the absolute edges
-        const x = 15 + Math.abs(hash % 70); 
-        const y = 20 + Math.abs((hash * 31) % 50); 
-        return { x, y };
-    }
-
-    // MAIN INTERACTIVITY FUNCTION
-    function showOnMap(rowElement, ip, time, user) {
-        // Style Active Row Reset
-        const rows = document.querySelectorAll('#intrusionBody tr');
-        rows.forEach(r => r.classList.remove('active-row'));
-        if (rowElement) rowElement.classList.add('active-row');
-
-        const severityText = user === 'root' ? 'Kritik' : 'O\'rta';
-        const colorClass = user === 'root' ? 'text-red' : 'text-yellow';
-        const nodeClass = user === 'root' ? 'node-crit' : 'node-med';
-        const ringClass = user === 'root' ? 'crit-ring' : 'med-ring';
-        const ttClass = user === 'root' ? '' : 'tt-med';
-
-        const coords = getMapCoordsFromIP(ip);
-
-        // Calculate Tooltip position to pop up ABOVE the point
-        const ttY = coords.y - 45; 
-        const ttX = coords.x - 5;
-
-        const html = `
-            <!-- The glowing attack node -->
-            <div class="map-node ${nodeClass}" style="top: ${coords.y}%; left: ${coords.x}%;">
-                <div class="pulse-ring ${ringClass}"></div>
-            </div>
-            
-            <!-- The interactive telemetry tooltip pointing at the node -->
-            <div class="map-tooltip ${ttClass}" style="top: ${ttY}%; left: ${ttX}%;">
-                <div class="tt-header">
-                    <span class="tt-title">Tarmoq Intruziyasi</span>
-                    <i class='bx bx-screenshot text-muted'></i>
-                </div>
-                <div class="tt-sub">Sana: ${time}</div>
-                <div class="tt-row">
-                    <span class="tt-label">Hujum Manbasi</span>
-                    <span class="tt-val">${ip}</span>
-                </div>
-                <div class="tt-row">
-                    <span class="tt-label">Nishon</span>
-                    <span class="tt-val">VPS (Server)</span>
-                </div>
-                <div class="tt-row mt-2" style="border-top:1px solid #27272a; padding-top:8px;">
-                    <span class="tt-label">Qator Darajasi</span>
-                    <span class="tt-val ${colorClass} font-weight-bold">${severityText}</span>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('mapOverlay').innerHTML = html;
-    }
-
-    // Initialize first row mapping on window load if data exists
-    window.addEventListener('DOMContentLoaded', () => {
-        const firstRow = document.querySelector('#intrusionBody tr');
-        if(firstRow && firstRow.hasAttribute('onclick')) {
-            firstRow.click();
-        }
-    });
-
-    // Real-Time Polling background function
-    async function fetchSecurityData() {
+    async function fetchLiveStats() {
         try {
             const resp = await fetch('/admin/security/stats');
             const data = await resp.json();
             if(data.error) return;
 
-            // Simple numbers update...
-            document.getElementById('valFailed').innerText = data.failed_attempts.length;
-            document.getElementById('valBanned').innerText = data.banned_ips.length;
+            /* Values update */
+            document.getElementById('valAttacks').innerText = data.failed_attempts.length;
+            document.getElementById('valBans').innerText = data.banned_ips.length;
             
-            const fw = document.getElementById('valFw');
-            fw.innerText = data.firewall_status;
-            fw.className = data.firewall_status === 'Faol' ? 'stat-big' : 'stat-big text-red';
+            const fwEl = document.getElementById('valFw');
+            fwEl.innerText = data.firewall_status;
+            fwEl.className = data.firewall_status === 'Faol' ? 'stat-value text-green' : 'stat-value text-red';
 
-            const ib = document.getElementById('intrusionBody');
-            
+            /* Tbody update */
+            const tb = document.getElementById('logsTbody');
             if(data.failed_attempts.length > 0) {
-                let iH = '';
-                data.failed_attempts.slice(0,6).forEach(a => {
-                    const sev = a.user === 'root' ? 'critical' : 'medium';
-                    const sLbl = a.user === 'root' ? 'Kritik' : 'O\'rta';
+                let h = '';
+                data.failed_attempts.forEach(a => {
+                    const sevClass = a.user === 'root' ? 'sf-danger' : 'sf-warning';
+                    const sevLbl = a.user === 'root' ? 'Kritik' : 'O\'rta';
                     
-                    iH += `<tr onclick="showOnMap(this, '${a.ip}', '${a.time}', '${a.user}')">
-                        <td style="padding-left: 20px;"><div class="td-title text-white">Avtorizatsiya xatosi</div><div class="td-sub">${a.time}</div></td>
-                        <td class="font-mono text-white">${a.ip}</td>
-                        <td class="font-mono text-white">Server</td>
-                        <td><span class="db-badge ${sev}">${sLbl}</span></td>
+                    h += `<tr>
+                        <td><span class="sf-badge ${sevClass}">${sevLbl}</span></td>
+                        <td class="text-white">Avtorizatsiyadan ruxsatsiz o'tish</td>
+                        <td><span class="sf-mono">${a.ip}</span></td>
+                        <td class="text-muted">${a.time}</td>
                     </tr>`;
                 });
-                
-                // Only replace HTML if we need to, avoiding destroying the clicked active state constantly if data hasn't changed.
-                // In production we'd do a smart diff, but this is fine for the demo impact.
-                // ib.innerHTML = iH; 
+                tb.innerHTML = h;
             }
-        } catch(e) {}
-    }
-    // Set polling (optional for demo)
-    setInterval(fetchSecurityData, 15000);
-</script>
 
+            /* Bans update */
+            const bl = document.getElementById('bansContainer');
+            if(data.banned_ips.length > 0) {
+                let h = '';
+                data.banned_ips.slice(0, 8).forEach(ip => {
+                    h += `<div class="sf-list-item">
+                        <span class="sf-mono text-white">${ip}</span>
+                        <i class='bx bx-lock-alt text-red'></i>
+                    </div>`;
+                });
+                bl.innerHTML = h;
+            }
+
+        } catch(e) { console.error('Silent failure acceptable'); }
+    }
+
+    // Ping silently every 10 seconds without breaking layout
+    setInterval(fetchLiveStats, 10000);
+</script>
 {% endblock %}
