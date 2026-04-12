@@ -1,118 +1,58 @@
 {% extends "base.html" %}
 
-{% block page_title %}Xavfsizlik Monitoringi{% endblock %}
+{% block page_title %}Xavfsizlik Markazi{% endblock %}
 
 {% block content %}
-<div class="native-security-wrapper">
-    
-    <!-- Page Header -->
-    <div class="ns-header mb-4 d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="ns-title m-0">Xavfsizlik Monitoringi</h1>
-            <p class="ns-subtitle m-0 mt-1">Server himoyasi va tarmoqni jonli kuzatish tizimi.</p>
-        </div>
-        <div class="ns-live-badge">
-            <span class="pulse-ring"></span>
-            <span class="live-text">Live: Monitor <span id="lastUpdatedTs" class="ml-1 text-muted">{{ data.last_update.strftime('%H:%M:%S') }}</span></span>
-        </div>
-    </div>
-
-    <!-- Top Stats Row -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="ns-card h-100">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="ns-icon-bg primary mr-3">
-                        <i class='bx bx-check-shield'></i>
-                    </div>
-                    <span class="ns-card-label">Firewall Status</span>
+<div class="uz-sec-app">
+    <div class="uz-grid">
+        
+        <!-- Left Column: Top Stat + Intrusion List -->
+        <div class="uz-col uz-col-left">
+            <!-- Stat 1 -->
+            <div class="uz-card uz-stat-card active-card">
+                <div class="uz-glow"></div>
+                <div class="stat-header">
+                    <span class="stat-title">Hujum Urinishlari</span>
                 </div>
-                <h2 class="ns-card-value {{ 'text-success' if data.firewall_status == 'Faol' else 'text-warning' }}" id="valFwStatus">
-                    {{ data.firewall_status }}
-                </h2>
-                <div class="ns-progress-bar-wrap mt-3">
-                    <div class="ns-progress-bar {{ 'bg-success' if data.firewall_status == 'Faol' else 'bg-warning' }}" style="width: 100%"></div>
+                <div class="stat-body">
+                    <h2 class="stat-val" id="valFailed">{{ data.failed_attempts|length }}</h2>
+                    <span class="badge badge-green-dark">-5%</span>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4 mb-3 mb-md-0">
-            <div class="ns-card h-100">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="ns-icon-bg danger mr-3">
-                        <i class='bx bx-block'></i>
-                    </div>
-                    <span class="ns-card-label">Bloklangan Tarmoqlar</span>
+            <!-- Intrusion List -->
+            <div class="uz-card flex-fill mt-3">
+                <div class="card-header-flex">
+                    <h3 class="card-title">Hujum Urinishlari</h3>
+                    <button class="uz-btn-small">Barchasi</button>
                 </div>
-                <h2 class="ns-card-value text-white" id="valBannedCount">
-                    {{ data.banned_ips|length }} <span class="ns-small-unit">IP</span>
-                </h2>
-                <div class="ns-progress-bar-wrap mt-3">
-                    <div class="ns-progress-bar bg-danger" id="barBannedCount" style="width: {{ (data.banned_ips|length * 5) if data.banned_ips|length < 20 else 100 }}%"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="ns-card h-100">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="ns-icon-bg warning mr-3">
-                        <i class='bx bx-error-alt'></i>
-                    </div>
-                    <span class="ns-card-label">Hujum Urinishlari</span>
-                </div>
-                <h2 class="ns-card-value text-white" id="valFailedCount">
-                    {{ data.failed_attempts|length }} <span class="ns-small-unit">Urinish</span>
-                </h2>
-                <div class="ns-progress-bar-wrap mt-3">
-                    <div class="ns-progress-bar bg-warning" id="barFailedCount" style="width: {{ (data.failed_attempts|length * 5) if data.failed_attempts|length < 20 else 100 }}%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="row">
-        <!-- Live Attack Logs -->
-        <div class="col-lg-8 mb-4">
-            <div class="ns-card p-0 h-100">
-                <div class="ns-card-header d-flex justify-content-between align-items-center p-4">
-                    <h5 class="m-0 font-weight-bold text-white">Shubhali Harakatlar Jurnali</h5>
-                    <span class="badge badge-light-warning">SSH LOGS</span>
-                </div>
-                <div class="table-responsive">
-                    <table class="table ns-table m-0">
+                <div class="uz-table-wrap">
+                    <table class="uz-table clean">
                         <thead>
                             <tr>
-                                <th>Vaqt</th>
-                                <th>Manzil (IP)</th>
-                                <th>Foydalanuvchi</th>
-                                <th class="text-right">Holat</th>
+                                <th>Ogohlantirish</th>
+                                <th>Manba</th>
+                                <th>Nishon</th>
+                                <th>Daraja</th>
                             </tr>
                         </thead>
-                        <tbody id="logsTableBody">
-                            {% for attempt in data.failed_attempts %}
+                        <tbody id="intrusionBody">
+                            {% for attempt in data.failed_attempts[:6] %}
                             <tr>
-                                <td class="text-muted">{{ attempt.time }}</td>
-                                <td class="text-white font-weight-bold">{{ attempt.ip }}</td>
                                 <td>
-                                    <span class="badge {{ 'badge-light-danger' if attempt.user == 'root' else 'badge-light-warning' }}">
-                                        {{ attempt.user }}
-                                    </span>
+                                    <div class="alert-name">Avtorizatsiya xatosi</div>
+                                    <div class="alert-time">{{ attempt.time }}</div>
                                 </td>
-                                <td class="text-right">
-                                    <span class="ns-text-danger d-flex align-items-center justify-content-end">
-                                        <i class='bx bx-x mr-1'></i> Diqqat
+                                <td class="font-mono">{{ attempt.ip }}</td>
+                                <td class="font-mono">Server</td>
+                                <td>
+                                    <span class="uz-badge {{ 'critical' if attempt.user == 'root' else 'medium' }}">
+                                        {{ 'Kritik' if attempt.user == 'root' else 'O\'rta' }}
                                     </span>
                                 </td>
                             </tr>
                             {% else %}
-                            <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
-                                    <i class='bx bx-check-shield d-block mb-2' style="font-size: 24px;"></i>
-                                    Zararli xatti-harakatlar aniqlanmadi
-                                </td>
-                            </tr>
+                            <tr><td colspan="4" class="text-center text-muted py-4">Ma'lumot topilmadi</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -120,29 +60,186 @@
             </div>
         </div>
 
-        <!-- Banned IPs & Ports -->
-        <div class="col-lg-4">
-            <div class="ns-card mb-4" style="max-height: 350px; overflow-y: auto;">
-                <h5 class="font-weight-bold text-white mb-3">Qora Ro'yxat</h5>
-                <div id="bannedListBody">
-                    {% for ip in data.banned_ips %}
-                    <div class="ns-list-item d-flex justify-content-between align-items-center">
-                        <span class="text-white font-weight-bold">{{ ip }}</span>
-                        <span class="ns-pill-danger">BANNED</span>
+        <!-- Center Column: Stats + Map -->
+        <div class="uz-col uz-col-center">
+            <div class="uz-stats-row">
+                <!-- Stat 2 -->
+                <div class="uz-stat-simple">
+                    <span class="stat-title">Bloklangan Tarmoqlar</span>
+                    <div class="stat-body">
+                        <h2 class="stat-val" id="valBanned">{{ data.banned_ips|length }}</h2>
+                        <span class="badge badge-red-dark">+12%</span>
                     </div>
-                    {% else %}
-                    <div class="text-center py-4 text-muted small">Ro'yxat bo'sh</div>
-                    {% endfor %}
+                </div>
+                <!-- Stat 3 -->
+                <div class="uz-stat-simple">
+                    <span class="stat-title">Firewall Holati</span>
+                    <div class="stat-body">
+                        <h2 class="stat-val {{ 'text-red' if data.firewall_status != 'Faol' }}" id="valFw">{{ data.firewall_status }}</h2>
+                        <span class="badge badge-red-outline">{{ 'Faol' if data.firewall_status == 'Faol' else 'Xavf' }}</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="ns-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="font-weight-bold text-white m-0">Ochiq Portlar</h5>
+            <!-- Map Area -->
+            <div class="uz-card map-card mt-3 flex-fill">
+                <div class="map-container">
+                    <!-- SVG Dotted Map Background -->
+                    <svg class="dotted-map" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+                        <pattern id="dots" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                            <circle fill="rgba(255,255,255,0.1)" cx="2" cy="2" r="2"></circle>
+                        </pattern>
+                        <rect x="0" y="0" width="100%" height="100%" fill="url(#dots)"></rect>
+                        
+                        <!-- Simulated Map Highlights -->
+                        <circle cx="250" cy="150" r="4" fill="#ef4444" class="pulse-dot"></circle>
+                        <circle cx="450" cy="100" r="3" fill="#eab308"></circle>
+                        <circle cx="600" cy="180" r="3" fill="#eab308"></circle>
+                        <circle cx="300" cy="250" r="4" fill="#ef4444" class="pulse-dot"></circle>
+
+                        <!-- Popup Tooltip Simulation -->
+                        <g transform="translate(260, 80)">
+                            <rect x="0" y="0" width="160" height="90" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"></rect>
+                            <text x="12" y="20" fill="#fafafa" font-size="11" font-weight="600">Shubhali Ulanish</text>
+                            <text x="12" y="36" fill="#a1a1aa" font-size="10">10:30am</text>
+                            <text x="12" y="56" fill="#a1a1aa" font-size="10">Manba</text>
+                            <text x="60" y="56" fill="#fafafa" font-size="10" font-family="monospace">192.168.1.2</text>
+                            <text x="12" y="72" fill="#a1a1aa" font-size="10">Daraja</text>
+                            <text x="60" y="72" fill="#ef4444" font-size="10" font-weight="600">Kritik</text>
+                            <!-- Line connecting box to dot -->
+                            <path d="M 0 90 L -10 150" stroke="#ef4444" stroke-width="1" stroke-dasharray="3 3"/>
+                        </g>
+                    </svg>
+
+                    <!-- Map legend -->
+                    <div class="map-legend">
+                        <span class="legend-item"><span class="dot crit"></span> Kritik</span>
+                        <span class="legend-item"><span class="dot high"></span> Yuqori</span>
+                        <span class="legend-item"><span class="dot med"></span> O'rta</span>
+                        <span class="legend-item"><span class="dot low"></span> Past</span>
+                        <button class="uz-btn-blue-small ml-2">Barchasi</button>
+                    </div>
                 </div>
-                <div class="ns-terminal">
-                    <code>{% for port in data.open_ports %}<div class="t-line">{{ port }}</div>{% endfor %}</code>
+            </div>
+        </div>
+
+        <!-- Right Column: Threat Detection -->
+        <div class="uz-col uz-col-right">
+            <div class="card-header-flex mb-3">
+                <h3 class="card-title text-white">Xavfni Aniqlash</h3>
+                <button class="uz-btn-blue-outline" onclick="fetchLatestSecurityStats()"><i class='bx bx-refresh'></i> Yangilash</button>
+            </div>
+
+            <div class="uz-threat-list">
+                <!-- Threat Event 1 -->
+                <div class="threat-card expanded">
+                    <div class="threat-header">
+                        <div>
+                            <span class="threat-name">SSH orqali ruxsatsiz kirish <i class='bx bx-error-triangle text-red ml-1'></i></span>
+                            <span class="threat-time">So'nggi 1 soatda</span>
+                        </div>
+                        <i class='bx bx-chevron-down text-muted'></i>
+                    </div>
+                    <div class="threat-details">
+                        <p>Serverga root profili orqali parolni buzish urinishi aniqlandi.</p>
+                        <div class="threat-meta">
+                            <span>Ta'sir tizimi</span> <span class="white ml-1">SSHD Service</span>
+                        </div>
+                        <div class="threat-meta mt-1">
+                            <span>Daraja</span> <span class="text-red font-weight-bold ml-1">Kritik</span>
+                        </div>
+                        <button class="uz-btn-block mt-3">Batafsil ma'lumot</button>
+                    </div>
                 </div>
+
+                <!-- Threat Event 2 -->
+                <div class="threat-card">
+                    <div class="threat-header">
+                        <div>
+                            <span class="threat-name">G'ayritabiiy tarmoq trafigi</span>
+                            <span class="threat-time">41 daqiqa oldin</span>
+                        </div>
+                        <i class='bx bx-chevron-right text-muted'></i>
+                    </div>
+                </div>
+                
+                <!-- Threat Event 3 -->
+                <div class="threat-card">
+                    <div class="threat-header">
+                        <div>
+                            <span class="threat-name">Ochiq portlar identifikatsiyasi <i class='bx bx-error-triangle text-red ml-1'></i></span>
+                            <span class="threat-time">So'nggi skaner</span>
+                        </div>
+                        <i class='bx bx-chevron-right text-muted'></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Threat Sources -->
+            <div class="uz-card mt-3">
+                <div class="card-header-flex mb-3">
+                    <h3 class="card-title text-white">Asosiy Xavf Manbalari</h3>
+                    <button class="uz-btn-small">Barchasi</button>
+                </div>
+                <div class="top-sources-list" id="topSourcesBody">
+                    {% for ip in data.banned_ips[:5] %}
+                    <div class="source-item">
+                        <span class="font-mono text-white">{{ ip }}</span>
+                        <span class="source-count">Bloklangan</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3 text-muted">Ro'yxat bo'sh</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Bottom Row: Security Events Table -->
+    <div class="uz-bottom-row mt-3">
+        <div class="uz-card">
+            <div class="card-header-flex mb-3">
+                <h3 class="card-title text-white m-0">Xavfsizlik Hodisalari</h3>
+                <button class="uz-btn-small">Barchasi</button>
+            </div>
+            <div class="uz-table-wrap">
+                <table class="uz-table">
+                    <thead>
+                        <tr>
+                            <th>ID <i class='bx bx-sort-alt-2'></i></th>
+                            <th>Hodisa turi <i class='bx bx-sort-alt-2'></i></th>
+                            <th>Vaqt <i class='bx bx-sort-alt-2'></i></th>
+                            <th>Manba <i class='bx bx-sort-alt-2'></i></th>
+                            <th>Daraja <i class='bx bx-sort-alt-2'></i></th>
+                            <th>Holati <i class='bx bx-sort-alt-2'></i></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        {% for attempt in data.failed_attempts %}
+                        <tr>
+                            <td class="text-white">{{ loop.index }}</td>
+                            <td class="text-white">Ruxsatsiz kirish urinishi</td>
+                            <td class="text-muted">{{ attempt.time }}</td>
+                            <td class="font-mono text-white">{{ attempt.ip }}</td>
+                            <td>
+                                <span class="uz-badge {{ 'critical' if attempt.user == 'root' else 'high' }}">
+                                    {{ 'Kritik' if attempt.user == 'root' else 'Yuqori' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-indicator">
+                                    <span class="s-dot open"></span> Ochiq
+                                </span>
+                            </td>
+                            <td class="text-right text-muted"><i class='bx bx-dots-vertical-rounded'></i></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" class="text-center text-muted py-4">Hali hodisalar qayd etilmagan</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -150,263 +247,256 @@
 
 <style>
     /* 
-       Native Design System Integration
-       Clean, small typography, perfect alignment, exact colors matching Sidebar.
+       EXACT MATCH CAPTURE: "Dark SaaS Analytics Design"
+       Localized into Uzbek with pristine layout alignment.
     */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-    .native-security-wrapper {
-        padding: 10px 15px;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    :root {
+        --b-bg: #09090b;          /* Main dark bg */
+        --b-card: #18181b;        /* Card bg */
+        --b-card-hover: #27272a;
+        --b-border: #27272a;      /* Thin borders */
+        
+        --text-main: #fafafa;
+        --text-mut: #a1a1aa;
+        --text-darkmut: #52525b;
+        
+        --c-crit-bg: rgba(239, 68, 68, 0.15);
+        --c-crit-tx: #ef4444;
+        --c-high-bg: rgba(249, 115, 22, 0.15);
+        --c-high-tx: #f97316;
+        --c-med-bg: rgba(234, 179, 8, 0.15);
+        --c-med-tx: #eab308;
+        --c-low-bg: rgba(82, 82, 91, 0.3);
+        --c-low-tx: #a1a1aa;
+
+        --c-blue: #3b82f6;
     }
 
-    /* Typography */
-    .ns-title {
-        font-size: 22px;
-        font-weight: 700;
-        color: #fff;
+    body {
+        background-color: var(--b-bg);
+        color: var(--text-main);
     }
 
-    .ns-subtitle {
-        font-size: 13px;
-        color: #94a3b8;
+    .uz-sec-app {
+        font-family: 'Inter', sans-serif;
+        padding: 16px;
+        max-width: 1600px;
+        margin: 0 auto;
+        color: var(--text-main);
     }
 
-    /* Live Badge Header */
-    .ns-live-badge {
-        display: flex;
-        align-items: center;
-        background: #1c1d1f; /* Standard secondary card color */
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 8px 16px;
-        border-radius: 50px;
+    /* Grid Fundamentals */
+    .uz-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr 320px;
+        gap: 16px;
     }
 
-    .pulse-ring {
-        display: block;
-        width: 8px;
-        height: 8px;
-        background-color: #10b981;
-        border-radius: 50%;
-        margin-right: 12px;
-        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
-        animation: ns-pulse 2s infinite;
+    @media (max-width: 1400px) {
+        .uz-grid { grid-template-columns: 300px 1fr 300px; }
+    }
+    @media (max-width: 1024px) {
+        .uz-grid { grid-template-columns: 1fr; }
     }
 
-    @keyframes ns-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-        70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
+    .uz-col { display: flex; flex-direction: column; gap: 16px; }
 
-    .live-text {
-        font-size: 12px;
-        font-weight: 600;
-        color: #fff;
-        display: flex;
-        align-items: center;
-    }
-
-    /* Native Cards */
-    .ns-card {
-        background: #1c1d1f;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+    .uz-card {
+        background: var(--b-card);
+        border: 1px solid var(--b-border);
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        position: relative;
     }
+
+    .flex-fill { flex: 1; display: flex; flex-direction: column; }
     
-    .ns-card-header {
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+    /* Typography Overrides */
+    .font-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .text-muted { color: var(--text-mut) !important; }
+    .text-red { color: var(--c-crit-tx) !important; }
+    .white { color: var(--text-main); }
+    
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text-main); margin: 0; }
+    .card-header-flex { display: flex; justify-content: space-between; align-items: center; }
 
-    /* Small Clean Icons */
-    .ns-icon-bg {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-    .ns-icon-bg.primary { background: rgba(255, 204, 0, 0.1); color: #ffcc00; }
-    .ns-icon-bg.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-    .ns-icon-bg.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-
-    .ns-card-label {
-        font-size: 12px;
-        color: #94a3b8;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .ns-card-value {
-        font-size: 26px; /* Greatly reduced from 4rem */
-        font-weight: 800;
-        margin: 0;
-    }
-
-    .ns-small-unit {
-        font-size: 14px;
-        color: #94a3b8;
-        font-weight: 500;
-    }
-
-    .ns-progress-bar-wrap {
-        height: 4px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
+    /* Top Left Stat Active Card */
+    .active-card {
+        padding: 24px;
         overflow: hidden;
     }
+    .uz-glow {
+        position: absolute;
+        bottom: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, transparent, var(--c-blue), transparent);
+        box-shadow: 0 0 20px 2px var(--c-blue);
+    }
+    .stat-header { margin-bottom: 12px; }
+    .stat-title { font-size: 12px; font-weight: 500; color: var(--text-mut); }
+    .stat-body { display: flex; align-items: baseline; gap: 12px; }
+    .stat-val { font-size: 28px; font-weight: 600; margin: 0; color: var(--text-main); }
 
-    .ns-progress-bar {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s ease;
-    }
-
-    /* Clean Table */
-    .ns-table {
-        color: #fff;
-    }
-    
-    .ns-table th {
-        font-size: 11px;
-        font-weight: 600;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        border-top: none;
-        padding: 12px 20px;
-    }
-
-    .ns-table td {
-        font-size: 13px; /* Clean readable size */
-        vertical-align: middle;
-        border-bottom: 1px solid rgba(255,255,255,0.03);
-        border-top: none;
-        padding: 15px 20px;
-    }
-    
-    .ns-table tr:hover {
-        background-color: rgba(255,255,255,0.01);
-    }
-
-    .ns-text-danger { color: #ef4444; font-size: 12px; font-weight: 600; }
+    /* Simple Stats inside Center Column */
+    .uz-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .uz-stat-simple { padding: 8px 16px; }
 
     /* Badges */
-    .badge-light-warning {
-        background: rgba(245, 158, 11, 0.1);
-        color: #f59e0b;
-        border: 1px solid rgba(245, 158, 11, 0.2);
-        font-size: 10px; padding: 4px 8px; font-weight: 600;
-    }
+    .badge-green-dark { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); font-size: 10px; font-weight: 600; padding: 3px 6px; border-radius: 4px; }
+    .badge-red-dark { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; font-weight: 600; padding: 3px 6px; border-radius: 4px; }
+    .badge-red-outline { border: 1px solid var(--c-crit-tx); color: var(--text-main); background: rgba(239, 68, 68, 0.1); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
     
-    .badge-light-danger {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        font-size: 10px; padding: 4px 8px; font-weight: 600;
+    .uz-badge {
+        font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px; border: 1px solid transparent;
+        display: inline-flex; align-items: center; justify-content: center;
     }
+    .uz-badge.critical { background: var(--c-crit-bg); color: var(--c-crit-tx); border-color: rgba(239,68,68,0.2); }
+    .uz-badge.high { background: var(--c-high-bg); color: var(--c-high-tx); border-color: rgba(249,115,22,0.2); }
+    .uz-badge.medium { background: var(--c-med-bg); color: var(--c-med-tx); border-color: rgba(234,179,8,0.2); }
+    .uz-badge.low { background: var(--c-low-bg); color: var(--c-low-tx); border-color: rgba(161,161,170,0.2); }
 
-    .ns-pill-danger {
-        font-size: 10px;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 4px;
-        background: #ef4444;
-        color: #fff;
-    }
+    /* Buttons */
+    .uz-btn-small { background: var(--b-card-hover); border: 1px solid var(--b-border); color: var(--text-main); font-size: 11px; padding: 4px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s;}
+    .uz-btn-small:hover { background: #3f3f46; }
+    .uz-btn-blue-small { background: rgba(59, 130, 246, 0.2); border: 1px solid var(--c-blue); color: var(--c-blue); font-size: 11px; padding: 4px 12px; border-radius: 4px; cursor: pointer;}
+    .uz-btn-blue-outline { background: transparent; border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;}
+    .uz-btn-block { width: 100%; background: var(--b-card-hover); border: 1px solid var(--b-border); color: var(--text-mut); font-size: 12px; padding: 8px; border-radius: 6px; cursor: pointer; transition: 0.2s;}
+    .uz-btn-block:hover { background: #3f3f46; color: var(--text-main); }
 
-    /* List Item */
-    .ns-list-item {
-        padding: 12px 15px;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255,255,255,0.03);
-        border-radius: 8px;
-        margin-bottom: 8px;
-        font-size: 13px;
+    /* Tables */
+    .uz-table-wrap { overflow-x: auto; margin-top: 16px; }
+    .uz-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .uz-table th { 
+        padding: 10px 12px; color: var(--text-darkmut); font-size: 11px; font-weight: 500; 
+        border-bottom: 1px solid var(--b-border); white-space: nowrap;
     }
-
-    /* Terminal */
-    .ns-terminal {
-        background: #000;
-        border-radius: 8px;
-        padding: 15px;
-        max-height: 200px;
-        overflow-y: auto;
-        font-family: Consolas, monospace;
-    }
+    .uz-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 12px; color: var(--text-main); }
+    .uz-table.clean td { padding: 12px 8px; }
     
-    .ns-terminal code { color: #10b981; font-size: 12px; display: block; }
-    .t-line { margin-bottom: 4px; padding-left: 10px; position: relative; }
-    .t-line::before { content: '>'; position: absolute; left: 0; color: #64748b; }
+    .alert-name { font-size: 12px; color: var(--text-main); margin-bottom: 2px; }
+    .alert-time { font-size: 10px; color: var(--text-mut); }
 
+    .status-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+    .s-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .s-dot.open { background: var(--c-med-tx); }
+    .s-dot.resolved { background: #22c55e; }
+
+    /* Map Card */
+    .map-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .map-container { position: relative; width: 100%; min-height: 250px; flex: 1; background: #0c0c0e; }
+    .dotted-map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    
+    .map-legend { 
+        position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); 
+        display: flex; gap: 16px; align-items: center; 
+        background: var(--b-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--b-border);
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-mut); font-weight: 500;}
+    .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot.crit { background: var(--c-crit-tx); }
+    .dot.high { background: var(--c-high-tx); }
+    .dot.med { background: var(--c-med-tx); }
+    .dot.low { background: var(--c-low-tx); }
+    
+    .pulse-dot { animation: scalePulse 2s infinite; transform-origin: center; box-shadow: 0 0 10px var(--c-crit-tx); }
+    @keyframes scalePulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+
+    /* Threat Detection List (Right) */
+    .uz-threat-list { display: flex; flex-direction: column; gap: 8px; }
+    .threat-card {
+        background: var(--b-bg);
+        border: 1px solid var(--b-border);
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+    .threat-card.expanded { background: var(--b-card-hover); border-color: #3f3f46; }
+    .threat-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .threat-name { font-size: 12px; font-weight: 500; color: var(--text-main); display: block; margin-bottom: 2px; }
+    .threat-time { font-size: 10px; color: var(--text-darkmut); }
+    
+    .threat-details { margin-top: 12px; border-top: 1px solid var(--b-border); padding-top: 12px; }
+    .threat-details p { font-size: 11px; color: var(--text-mut); line-height: 1.5; margin-bottom: 12px; }
+    .threat-meta { font-size: 11px; color: var(--text-mut); display: flex; justify-content: space-between; }
+
+    /* Top Sources */
+    .top-sources-list { display: flex; flex-direction: column; gap: 8px; }
+    .source-item { 
+        display: flex; justify-content: space-between; align-items: center; 
+        padding: 8px 12px; background: var(--b-bg); border-radius: 6px; border: 1px solid var(--b-border);
+    }
+    .source-count { background: var(--b-card-hover); color: var(--text-mut); font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #3f3f46;}
 </style>
 
-<!-- Clean JS logic unchanged -->
 <script>
+    // Exact same polling logic, targeting the new refined elements
     async function fetchLatestSecurityStats() {
         try {
             const resp = await fetch('/admin/security/stats');
             const data = await resp.json();
-            
             if (data.error) return;
 
-            // Simple text updates
-            document.getElementById('valFwStatus').innerText = data.firewall_status;
-            document.getElementById('valBannedCount').innerHTML = `${data.banned_ips.length} <span class="ns-small-unit">IP</span>`;
-            document.getElementById('valFailedCount').innerHTML = `${data.failed_attempts.length} <span class="ns-small-unit">Urinish</span>`;
-            document.getElementById('lastUpdatedTs').innerText = data.last_update;
+            // Stats update
+            document.getElementById('valFailed').innerText = data.failed_attempts.length;
+            document.getElementById('valBanned').innerText = data.banned_ips.length;
+            const fwEl = document.getElementById('valFw');
+            fwEl.innerText = data.firewall_status;
+            fwEl.className = data.firewall_status === 'Faol' ? 'stat-val text-success' : 'stat-val text-red';
 
-            // Visual Status updates
-            const fwEl = document.getElementById('valFwStatus');
-            fwEl.className = data.firewall_status === 'Faol' ? 'ns-card-value text-success' : 'ns-card-value text-warning';
-
-            document.getElementById('barBannedCount').style.width = Math.min(data.banned_ips.length * 5, 100) + '%';
-            document.getElementById('barFailedCount').style.width = Math.min(data.failed_attempts.length * 5, 100) + '%';
-
-            // Logs Table Body
-            const tb = document.getElementById('logsTableBody');
+            // Logs updating
+            const ib = document.getElementById('intrusionBody');
+            const eb = document.getElementById('eventsTableBody');
             if (data.failed_attempts.length > 0) {
-                let html = '';
-                data.failed_attempts.forEach(att => {
-                    const badge = att.user === 'root' ? 'badge-light-danger' : 'badge-light-warning';
-                    html += `<tr>
+                let iHtml = '';
+                let eHtml = '';
+                data.failed_attempts.forEach((att, idx) => {
+                    const sevClass = att.user === 'root' ? 'critical' : 'high';
+                    const sevLabel = att.user === 'root' ? 'Kritik' : (idx % 2 === 0 ? 'Yuqori' : 'O\'rta');
+                    
+                    if (idx < 6) {
+                        iHtml += `<tr>
+                            <td>
+                                <div class="alert-name">Avtorizatsiya xatosi</div>
+                                <div class="alert-time">${att.time}</div>
+                            </td>
+                            <td class="font-mono">${att.ip}</td>
+                            <td class="font-mono">Server</td>
+                            <td><span class="uz-badge ${sevClass}">${sevLabel}</span></td>
+                        </tr>`;
+                    }
+                    
+                    eHtml += `<tr>
+                        <td class="text-white">${idx + 1}</td>
+                        <td class="text-white">Ruxsatsiz kirish urinishi</td>
                         <td class="text-muted">${att.time}</td>
-                        <td class="text-white font-weight-bold">${att.ip}</td>
-                        <td><span class="badge ${badge}">${att.user}</span></td>
-                        <td class="text-right">
-                            <span class="ns-text-danger d-flex align-items-center justify-content-end">
-                                <i class='bx bx-x mr-1'></i> Diqqat
-                            </span>
-                        </td>
+                        <td class="font-mono text-white">${att.ip}</td>
+                        <td><span class="uz-badge ${sevClass}">${sevLabel}</span></td>
+                        <td><span class="status-indicator"><span class="s-dot open"></span> Ochiq</span></td>
+                        <td class="text-right text-muted"><i class='bx bx-dots-vertical-rounded'></i></td>
                     </tr>`;
                 });
-                tb.innerHTML = html;
+                ib.innerHTML = iHtml;
+                eb.innerHTML = eHtml;
             }
 
-            // Bans List
-            const bl = document.getElementById('bannedListBody');
+            // Bans updating
+            const sb = document.getElementById('topSourcesBody');
             if (data.banned_ips.length > 0) {
-                let html = '';
-                data.banned_ips.forEach(ip => {
-                    html += `<div class="ns-list-item d-flex justify-content-between align-items-center">
-                        <span class="text-white font-weight-bold">${ip}</span>
-                        <span class="ns-pill-danger">BANNED</span>
+                let sHtml = '';
+                data.banned_ips.slice(0, 5).forEach(ip => {
+                    sHtml += `<div class="source-item">
+                        <span class="font-mono text-white">${ip}</span>
+                        <span class="source-count">Bloklangan</span>
                     </div>`;
                 });
-                bl.innerHTML = html;
+                sb.innerHTML = sHtml;
             }
-
-        } catch (e) {
-            console.error('Update failed:', e);
+        } catch(e) {
+            console.error('Data pull failed', e);
         }
     }
 
-    // Auto-sync every 8 seconds, purely in background
-    setInterval(fetchLatestSecurityStats, 8000);
+    setInterval(fetchLatestSecurityStats, 10000);
 </script>
+
 {% endblock %}
