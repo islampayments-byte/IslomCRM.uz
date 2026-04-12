@@ -29,6 +29,12 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('admin.security_center') }}" class="{{ 'active' if request.endpoint == 'admin.security_center' }}">
+                    <i class='bx bx-shield-quarter'></i>
+                    <span class="link_name">Xavfsizlik</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ url_for('admin.sms_requests') }}" class="{{ 'active' if request.endpoint == 'admin.sms_requests' }}">
                     <i class='bx bx-message-square-dots'></i>
                     <span class="link_name">SMS Tasdiqlash</span>

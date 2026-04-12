@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container animate__animated animate__fadeIn">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-white font-weight-bold">Xavfsizlik Markazi</h1>
+            <p class="text-muted small mb-0">VPS himoyasi va xakerlik hujumlari monitoringi</p>
+        </div>
+        <div class="glass p-2 px-3">
+            <span class="text-dim small">So'nggi yangilanish:</span>
+            <span class="text-white font-weight-bold ml-2">{{ data.last_update.strftime('%H:%M:%S') }}</span>
+        </div>
+    </header>
+
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="glass p-4 h-100 d-flex align-items-center">
+                <div class="icon-box bg-primary-light mr-4">
+                    <i class='bx bx-shield-quarter text-white h2 mb-0'></i>
+                </div>
+                <div>
+                    <h5 class="text-dim small mb-1 uppercase">Firewall</h5>
+                    <h3 class="{{ 'text-accent' if data.firewall_status == 'Faol' else 'text-danger' }} font-weight-bold mb-0">
+                        {{ data.firewall_status }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="glass p-4 h-100 d-flex align-items-center">
+                <div class="icon-box bg-danger mr-4">
+                    <i class='bx bx-block text-white h2 mb-0'></i>
+                </div>
+                <div>
+                    <h5 class="text-dim small mb-1 uppercase">Bloklangan IPlar</h5>
+                    <h3 class="text-white font-weight-bold mb-0">{{ data.banned_ips|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="glass p-4 h-100 d-flex align-items-center">
+                <div class="icon-box bg-warning mr-4">
+                    <i class='bx bx-error text-white h2 mb-0'></i>
+                </div>
+                <div>
+                    <h5 class="text-dim small mb-1 uppercase">So'nggi Hujumlar</h5>
+                    <h3 class="text-white font-weight-bold mb-0">{{ data.failed_attempts|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row">
+        <!-- Recent Failed Attempts -->
+        <div class="col-lg-8 mb-4">
+            <div class="glass p-4 h-100">
+                <h4 class="h5 mb-4 text-white font-weight-bold d-flex align-items-center">
+                    <i class='bx bx-history mr-2 text-warning'></i> So'nggi xavfsizlik hodisalari (SSH)
+                </h4>
+                <div class="table-responsive">
+                    <table class="table table-borderless text-white">
+                        <thead>
+                            <tr class="text-dim small uppercase">
+                                <th>Vaqt</th>
+                                <th>IP Manzil</th>
+                                <th>User</th>
+                                <th>Holat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in data.failed_attempts %}
+                            <tr class="glass-hover">
+                                <td class="text-dim small">{{ attempt.time }}</td>
+                                <td class="font-weight-bold">{{ attempt.ip }}</td>
+                                <td>
+                                    <span class="badge {{ 'badge-danger' if attempt.user == 'root' else 'badge-warning' }} px-2 py-1">
+                                        {{ attempt.user }}
+                                    </span>
+                                </td>
+                                <td><span class="text-danger small">Failed Password</span></td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-dim py-4">Hech qanday shubhali hodisa aniqlanmadi.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banned IPs List -->
+        <div class="col-lg-4 mb-4">
+            <div class="glass p-4 h-100">
+                <h4 class="h5 mb-4 text-white font-weight-bold d-flex align-items-center">
+                    <i class='bx bx-list-check mr-2 text-danger'></i> Bloklangan IPlar
+                </h4>
+                <div class="ban-list" style="max-height: 400px; overflow-y: auto;">
+                    {% for ip in data.banned_ips %}
+                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 glass-border rounded">
+                        <span class="font-weight-bold text-white">{{ ip }}</span>
+                        <span class="badge badge-outline-danger">BANNED</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-dim py-4">Bloklangan manzillar yo'q.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Ports -->
+        <div class="col-12">
+            <div class="glass p-4">
+                <h4 class="h5 mb-4 text-white font-weight-bold d-flex align-items-center">
+                    <i class='bx bx-wifi mr-2 text-primary-light'></i> Ochiq Portlar Monitoringi
+                </h4>
+                <div class="p-3 bg-dark text-success font-family-monospace rounded" style="font-size: 0.9rem; overflow-x: auto;">
+                    <pre class="mb-0 text-success">{% for port in data.open_ports %}{{ port }}
+{% endfor %}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .badge-outline-danger {
+        border: 1px solid #ef4444;
+        color: #ef4444;
+        background: transparent;
+    }
+    .glass-hover:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .font-family-monospace {
+        font-family: 'Courier New', Courier, monospace;
+    }
+</style>
+{% endblock %}
