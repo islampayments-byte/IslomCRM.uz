@@ -35,7 +35,7 @@ def process_bot_update(token, update_json, org, app_context):
                 reg_url = f"https://islomcrm.uz/m/{org.org_link_code}/{org.org_slug}"
                 
                 markup = types.InlineKeyboardMarkup()
-                markup.add(types.InlineKeyboardButton("🚀 Ro'yxatdan o'tish", url=reg_url))
+                markup.add(types.InlineKeyboardButton("🚀 Ro'yxatdan o'tish", web_app=types.WebAppInfo(url=reg_url)))
                 
                 text = (
                     f"Assalomu alaykum! <b>{org.yandex_park_name or org.org_name}</b> botiga xush kelibsiz.\n\n"
