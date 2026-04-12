@@ -222,12 +222,7 @@ def vps_management():
         flash(f"VPS ma'lumotlarini olishda xatolik: {str(e)}", "danger")
         return redirect(url_for('admin.dashboard'))
 
-@admin_bp.route('/security')
-@login_required
-def security_center():
-    if current_user.role != 'admin':
-        abort(403)
-    
+def _get_security_data():
     security_data = {
         'firewall_status': "Noma'lum",
         'banned_ips': [],
@@ -240,7 +235,6 @@ def security_center():
         # 1. Firewall Status
         try:
             fw = subprocess.check_output(['/usr/sbin/ufw', 'status'], stderr=subprocess.STDOUT).decode()
-            # More robust check
             status_line = [l for l in fw.split('\n') if 'Status:' in l]
             security_data['firewall_status'] = 'Faol' if status_line and 'active' in status_line[0] else 'Faol emas'
         except Exception:
@@ -280,16 +274,33 @@ def security_center():
         # 4. Open Ports
         try:
             ports_out = subprocess.check_output(['/usr/bin/ss', '-tuln'], stderr=subprocess.STDOUT).decode()
-            # Clean header and empty lines
             filtered_ports = [l.strip() for l in ports_out.split('\n') if l.strip() and 'Netid' not in l]
             security_data['open_ports'] = filtered_ports
         except Exception:
             pass
             
-    except Exception as e:
-        flash(f"Tizim xavfsizligi ma'lumotlarini o'qishda kutilmagan xato: {str(e)}", "warning")
-        
-    return render_template('admin/security.html', data=security_data)
+    except Exception:
+        pass
+    
+    return security_data
+
+@admin_bp.route('/security')
+@login_required
+def security_center():
+    if current_user.role != 'admin':
+        abort(403)
+    data = _get_security_data()
+    return render_template('admin/security.html', data=data)
+
+@admin_bp.route('/security/stats')
+@login_required
+def security_stats():
+    if current_user.role != 'admin':
+        return {"error": "Unauthorized"}, 403
+    data = _get_security_data()
+    # Serialize datetime
+    data['last_update'] = data['last_update'].strftime('%H:%M:%S')
+    return jsonify(data)
 
 @admin_bp.route('/vps/action/<action>')
 @login_required
