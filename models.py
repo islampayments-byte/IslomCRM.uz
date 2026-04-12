@@ -122,6 +122,7 @@ class Driver(db.Model):
     status = db.Column(db.String(50), default='working')
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     last_sync = db.Column(db.DateTime, default=datetime.datetime.now)
+    telegram_id = db.Column(db.String(50), unique=True, index=True)
     
     # We will need the backref on User but for simplicity keeping it as a forward relationship 
     # to fetch drivers by user_id

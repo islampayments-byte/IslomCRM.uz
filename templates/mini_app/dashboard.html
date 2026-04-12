@@ -652,6 +652,19 @@
         const webApp = window.Telegram.WebApp;
         webApp.ready();
 
+        // Link Telegram ID
+        document.addEventListener('DOMContentLoaded', () => {
+            const tgUser = webApp.initDataUnsafe?.user;
+            if (tgUser && tgUser.id) {
+                fetch('/m/link-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegram_id: tgUser.id })
+                })
+                .catch(err => console.error("Linkage error:", err));
+            }
+        });
+
         function showMessage(msg) {
             document.getElementById('alertModalMessage').innerText = msg;
             document.getElementById('alertModal').classList.add('active');

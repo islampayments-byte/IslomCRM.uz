@@ -575,8 +575,14 @@ def telegram_bot():
                 bot_info = data.get('result', {})
                 current_user.tg_bot_token = token
                 current_user.tg_bot_username = bot_info.get('username')
+                
+                # Automatically set webhook
+                webhook_url = f"https://islomcrm.uz/bot/webhook/{token}"
+                set_webhook_url = f"https://api.telegram.org/bot{token}/setWebhook?url={webhook_url}"
+                requests.get(set_webhook_url, timeout=10)
+                
                 db.session.commit()
-                flash(f"Bot muvaffaqiyatli bog'landi: @{current_user.tg_bot_username}", "success")
+                flash(f"Bot muvaffaqiyatli bog'landi: @{current_user.tg_bot_username}. Webhook sozlindi.", "success")
             else:
                 flash("Xato: Telegram Bot tokeni noto'g'ri yoki bot o'chirilgan.", "danger")
         except Exception as e:

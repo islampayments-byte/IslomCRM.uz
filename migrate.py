@@ -143,6 +143,7 @@ CREATE TABLE IF NOT EXISTS drivers (
     FOREIGN KEY(user_id) REFERENCES users(id)
 )
 """)
+add_column('drivers', 'telegram_id', 'VARCHAR(50)')
 print("  [=] drivers jadvali mavjud yoki yaratildi")
 
 

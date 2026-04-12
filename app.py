@@ -415,5 +415,51 @@ def index():
     # Redirect to user portal by default or show a landing page
     return redirect(url_for('user.dashboard'))
 
+
+# --- Telegram Bot Webhook ---
+@app.route('/bot/webhook/<token>', methods=['POST'])
+def bot_webhook(token):
+    from bot_handlers import process_bot_update
+    org = User.query.filter_by(tg_bot_token=token).first()
+    if not org:
+        return "Invalid token", 404
+        
+    try:
+        update_json = request.get_json()
+        process_bot_update(token, update_json, org, app.app_context())
+        return "OK", 200
+    except Exception as e:
+        print(f"Bot Webhook Error: {e}")
+        return str(e), 500
+
+# --- Mini App Telegram Linkage ---
+@app.route('/m/link-telegram', methods=['POST'])
+def m_link_telegram():
+    phone = session.get('m_driver_phone')
+    code = session.get('m_org_id')
+    if not phone or not code:
+        return jsonify({'status': 'error', 'message': 'Session expired'}), 401
+        
+    data = request.get_json()
+    tg_id = data.get('telegram_id')
+    if not tg_id:
+        return jsonify({'status': 'error', 'message': 'No telegram_id provided'}), 400
+        
+    org = User.query.filter_by(org_link_code=code).first()
+    if not org:
+        return jsonify({'status': 'error', 'message': 'Org not found'}), 404
+        
+    from services import _find_driver_by_phone
+    driver = _find_driver_by_phone(phone, org.id)
+    if driver:
+        # Check if this telegram_id is already used by ANOTHER driver (to prevent hijacking)
+        existing = Driver.query.filter_by(telegram_id=str(tg_id)).first()
+        if not existing or existing.id == driver.id:
+            driver.telegram_id = str(tg_id)
+            db.session.commit()
+            return jsonify({'status': 'success'})
+    
+    return jsonify({'status': 'error', 'message': 'Driver not found or ID conflict'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
