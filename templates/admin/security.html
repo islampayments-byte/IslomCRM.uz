@@ -1,350 +1,356 @@
 {% extends "base.html" %}
 
-{% block page_title %}Security Center{% endblock %}
+{% block page_title %}Security Identity{% endblock %}
 
 {% block content %}
-<div class="security-center-v3">
-    <!-- Sophisticated Header -->
-    <div class="sc-header mb-5">
-        <div class="sc-title-area">
-            <nav class="sc-breadcrumbs mb-2">
-                <span class="text-muted">Admin</span>
-                <span class="text-muted mx-2">/</span>
-                <span class="text-primary font-weight-bold">Security Center</span>
-            </nav>
-            <h1 class="h3 text-white font-weight-bold mb-1">Xavfsizlik Monitoringi</h1>
-            <p class="text-muted small">Server himoyasi va tarmoq xavfsizligi tahlili</p>
-        </div>
-        <div class="sc-pulse-box glass p-3 px-4">
-            <div class="pulse-dot mr-3"></div>
-            <div class="pulse-info">
-                <span class="text-muted d-block small uppercase tracking-1">Tizim holati</span>
-                <span class="text-white font-weight-bold">LIVE: SECURED</span>
-            </div>
-        </div>
-    </div>
+<div class="luxury-security-wrap animate__animated animate__fadeIn">
+    <!-- Mesh Background Layer -->
+    <div class="mesh-bg"></div>
 
-    <!-- Professional Status Cards -->
-    <div class="sc-grid-status mb-5">
-        <!-- Firewall -->
-        <div class="sc-stat-card glass p-4">
-            <div class="sc-card-inner">
-                <div class="sc-icon-circle bg-soft-primary">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+    <div class="luxury-container">
+        <!-- Identity Header -->
+        <header class="luxury-header mb-5">
+            <div class="header-left">
+                <div class="breadcrumb-luxury">
+                    <span>ADMIN</span>
+                    <i class='bx bx-chevron-right'></i>
+                    <span class="active">IDENTITY SECURITY</span>
                 </div>
-                <div class="sc-data">
-                    <span class="sc-label">Firewall Status</span>
-                    <h3 class="sc-value {{ 'text-success' if data.firewall_status == 'Faol' else 'text-warning' }}">
+                <h1 class="luxury-title text-white">System Threat Intelligence</h1>
+            </div>
+            <div class="header-right">
+                <div class="system-pulse-glass">
+                    <div class="pulse-node"></div>
+                    <div class="pulse-text">
+                        <span class="dim uppercase x-small tracking-3">Pulse Status</span>
+                        <span class="white font-800">CONNECTED & SECURE</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Intelligence Hub (Cards) -->
+        <div class="luxury-grid-top mb-5">
+            <!-- Firewall Status -->
+            <div class="l-card glassmorphism p-5">
+                <div class="l-card-glow cyan"></div>
+                <div class="l-card-header mb-4">
+                    <div class="l-icon-box cyan">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="l-label">Firewall State</span>
+                </div>
+                <div class="l-card-body">
+                    <h2 class="l-value {{ 'cyan-text' if data.firewall_status == 'Faol' else 'gold-text' }}">
                         {{ data.firewall_status }}
-                    </h3>
+                    </h2>
+                    <p class="l-sub-text dim small">Active network filtration enabled</p>
                 </div>
             </div>
-            <div class="sc-indicator bg-soft-primary mt-3">
-                <div class="sc-progress {{ 'bg-success' if data.firewall_status == 'Faol' else 'bg-warning' }}" style="width: 100%"></div>
-            </div>
-        </div>
 
-        <!-- Bips -->
-        <div class="sc-stat-card glass p-4">
-            <div class="sc-card-inner">
-                <div class="sc-icon-circle bg-soft-danger">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18.36 6.64L5.64 19.36M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="sc-data">
-                    <span class="sc-label">Bloklangan IPlar</span>
-                    <h3 class="sc-value text-white">{{ data.banned_ips|length }}</h3>
-                </div>
-            </div>
-            <div class="sc-indicator bg-soft-danger mt-3">
-                <div class="sc-progress bg-danger" style="width: {{ (data.banned_ips|length * 5) if data.banned_ips|length < 20 else 100 }}%"></div>
-            </div>
-        </div>
-
-        <!-- Threats -->
-        <div class="sc-stat-card glass p-4">
-            <div class="sc-card-inner">
-                <div class="sc-icon-circle bg-soft-gold">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 9V14M12 17.01L12.01 16.9989M10.29 3.86L1.82 18C1.64531 18.3024 1.55299 18.6452 1.55197 18.9939C1.55095 19.3427 1.6413 19.6844 1.81355 19.9839C1.9858 20.2834 2.2333 20.5293 2.53005 20.6961C2.8268 20.8629 3.16102 20.944 3.5 20.93H20.5C20.839 20.944 21.1732 20.8629 21.47 20.6961C21.7667 20.5293 22.0142 20.2834 22.1864 19.9839C22.3587 19.6844 22.4491 19.3427 22.448 18.9939C22.447 18.6452 22.3547 18.3024 22.18 18L13.71 3.86C13.5401 3.56447 13.2952 3.32204 13.0016 3.1587C12.7079 2.99535 12.3755 2.91039 12.04 2.91039C11.7045 2.91039 11.3721 2.99535 11.0784 3.1587C10.7848 3.32204 10.5399 3.56447 10.37 3.86H10.29Z" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="sc-data">
-                    <span class="sc-label">Hujum Urinishlari</span>
-                    <h3 class="sc-value text-white">{{ data.failed_attempts|length }}</h3>
-                </div>
-            </div>
-            <div class="sc-indicator bg-soft-gold mt-3">
-                <div class="sc-progress bg-warning" style="width: {{ (data.failed_attempts|length * 5) if data.failed_attempts|length < 20 else 100 }}%"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Dynamic Area -->
-    <div class="sc-main-layout">
-        <div class="sc-main-col">
-            <div class="card glass border-0 overflow-hidden">
-                <div class="card-header bg-transparent border-0 p-4 d-flex justify-content-between align-items-center">
-                    <h4 class="h5 text-white font-weight-bold m-0">Xavfsizlik Loglari</h4>
-                    <span class="badge badge-pill badge-outline-warning p-2 px-3 small">SSHD REAL-TIME</span>
-                </div>
-                <div class="table-responsive">
-                    <table class="sc-table">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>Source IP</th>
-                                <th>Attempted Profile</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for attempt in data.failed_attempts %}
-                            <tr class="sc-row">
-                                <td class="text-muted small">{{ attempt.time }}</td>
-                                <td class="font-weight-bold text-white">{{ attempt.ip }}</td>
-                                <td>
-                                    <span class="badge {{ 'badge-danger-soft' if attempt.user == 'root' else 'badge-warning-soft' }}">
-                                        {{ attempt.user }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="text-danger small font-weight-bold">
-                                        <i class='bx bx-minus-circle mr-1'></i> FAILED
-                                    </span>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
-                                    <div class="py-4">
-                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" class="mb-3 opacity-2" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
-                                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <p class="m-0 uppercase tracking-1 small">Hozirda hech qanday hujum qayd etilmadi</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="sc-side-col">
-            <div class="card glass border-0 p-4">
-                <h4 class="h5 text-white font-weight-bold mb-4">Bloklanganlar</h4>
-                <div class="sc-ban-list">
-                    {% for ip in data.banned_ips %}
-                    <div class="sc-ban-item glass-border p-3 mb-2 d-flex justify-content-between align-items-center">
-                        <span class="text-white small font-weight-bold">{{ ip }}</span>
-                        <div class="sc-status-pill danger">RESTRICTED</div>
+            <!-- Banned Count -->
+            <div class="l-card glassmorphism p-5">
+                <div class="l-card-glow red"></div>
+                <div class="l-card-header mb-4">
+                    <div class="l-icon-box red">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 14L12 12M12 12L14 10M12 12L10 10M12 12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
-                    {% else %}
-                    <div class="text-center py-5 text-muted small uppercase tracking-1">
-                        Barcha IPlar toza
+                    <span class="l-label">Identified Threads</span>
+                </div>
+                <div class="l-card-body">
+                    <h2 class="l-value text-white">{{ data.banned_ips|length }}</h2>
+                    <p class="l-sub-text dim small">Total entities currently blocked</p>
+                </div>
+            </div>
+
+            <!-- Intrusion History -->
+            <div class="l-card glassmorphism p-5">
+                <div class="l-card-glow gold"></div>
+                <div class="l-card-header mb-4">
+                    <div class="l-icon-box gold">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
-                    {% endfor %}
+                    <span class="l-label">Intrusion Attempts</span>
+                </div>
+                <div class="l-card-body">
+                    <h2 class="l-value text-white">{{ data.failed_attempts|length }}</h2>
+                    <p class="l-sub-text dim small">Recent authentication failures</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Network Footprint -->
-    <div class="card glass border-0 p-4 mt-5">
-        <h4 class="h6 text-white font-weight-bold mb-3 uppercase tracking-2">Tarmoq portlari monitoringi</h4>
-        <div class="sc-terminal p-4 rounded">
-            <div class="sc-terminal-header mb-3">
-                <div class="sc-terminal-dots">
-                    <span class="dot-red"></span>
-                    <span class="dot-yellow"></span>
-                    <span class="dot-green"></span>
+        <!-- Intelligence Logs Section -->
+        <div class="luxury-split-layout mb-5">
+            <div class="luxury-main">
+                <div class="l-panel glassmorphism p-0">
+                    <div class="l-panel-header p-5">
+                        <h4 class="m-0 text-white font-700 tracking-2 small uppercase">Live Intelligence Log</h4>
+                        <div class="l-badge gold-dim">SSHD_MONITOR</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="luxury-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Source Identity</th>
+                                    <th>Target Profile</th>
+                                    <th>Resolution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in data.failed_attempts %}
+                                <tr class="l-row">
+                                    <td class="dim x-small">{{ attempt.time }}</td>
+                                    <td class="white font-700">{{ attempt.ip }}</td>
+                                    <td>
+                                        <span class="l-badge-soft {{ 'red' if attempt.user == 'root' else 'gold' }}">
+                                            {{ attempt.user }}
+                                        </span>
+                                    </td>
+                                    <td><span class="red-text x-small font-800 uppercase tracking-1">Denied</span></td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-dim">No recent intelligence captured</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <span class="text-muted ml-3 x-small">root@islomcrm# ss -tuln</span>
             </div>
-            <pre class="sc-terminal-code">{% for port in data.open_ports %}{{ port }}\n{% endfor %}</pre>
+
+            <div class="luxury-side">
+                <div class="l-panel glassmorphism p-5">
+                    <h4 class="m-0 text-white font-700 tracking-2 small uppercase mb-5">Restricted Registry</h4>
+                    <div class="l-registry-list">
+                        {% for ip in data.banned_ips %}
+                        <div class="l-registry-item p-4 mb-3">
+                            <span class="white font-700">{{ ip }}</span>
+                            <div class="l-status-tag red-soft">BANNED</div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5 text-dim x-small">No bans recorded</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="l-panel glassmorphism p-5">
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="m-0 text-white font-700 tracking-2 small uppercase">Network Geometry Port Scan</h4>
+                <span class="dim x-small">Last scanned: {{ data.last_update.strftime('%H:%M:%S') }}</span>
+            </header>
+            <div class="luxury-terminal p-4">
+                <code class="terminal-lines">{% for port in data.open_ports %}<div class="line"><span class="prompt">></span> {{ port }}</div>{% endfor %}</code>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .security-center-v3 {
-        padding: 10px;
-        color: var(--text-color);
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+    :root {
+        --lux-bg: #0c0d0e;
+        --lux-card: rgba(255, 255, 255, 0.03);
+        --lux-border: rgba(255, 255, 255, 0.08);
+        --lux-cyan: #00f2ff;
+        --lux-red: #ff3b30;
+        --lux-gold: #ffcc00;
+        --lux-dim: #94a3b8;
     }
 
-    .glass {
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
+    .luxury-security-wrap {
+        background-color: var(--lux-bg);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        color: #fff;
     }
 
-    .glass-border {
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+    .mesh-bg {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(at 0% 0%, rgba(0, 242, 255, 0.05) 0%, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(255, 204, 0, 0.05) 0%, transparent 50%);
+        z-index: 0;
+        pointer-events: none;
     }
 
-    /* Header Styles */
-    .sc-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .luxury-container {
+        position: relative;
+        z-index: 1;
+        padding-bottom: 50px;
     }
 
-    .sc-pulse-box {
-        display: flex;
-        align-items: center;
-        border-radius: 50px;
-    }
-
-    .pulse-dot {
-        width: 12px;
-        height: 12px;
-        background: var(--success);
-        border-radius: 50%;
-        box-shadow: 0 0 15px var(--success);
-        animation: scPulse 2.5s infinite;
-    }
-
-    @keyframes scPulse {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.4); opacity: 0.5; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* Grid Layout */
-    .sc-grid-status {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 24px;
-    }
-
-    .sc-stat-card {
-        transition: transform 0.3s ease;
-    }
-
-    .sc-stat-card:hover { transform: translateY(-5px); }
-
-    .sc-card-inner {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .sc-icon-circle {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .bg-soft-primary { background: rgba(255, 204, 0, 0.08); }
-    .bg-soft-danger { background: rgba(239, 68, 68, 0.08); }
-    .bg-soft-gold { background: rgba(245, 158, 11, 0.08); }
-
-    .sc-label {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .sc-value {
-        font-size: 1.85rem;
-        font-weight: 800;
-        margin: 0;
-    }
-
-    .sc-indicator {
-        height: 4px;
-        border-radius: 10px;
+    .glassmorphism {
+        background: var(--lux-card);
+        backdrop-filter: blur(25px) saturate(180%);
+        border: 1px solid var(--lux-border);
+        border-radius: 32px;
+        position: relative;
         overflow: hidden;
     }
 
-    .sc-progress { height: 100%; border-radius: 10px; }
-
-    /* Main Content */
-    .sc-main-layout {
-        display: grid;
-        grid-template-columns: 2.5fr 1fr;
-        gap: 24px;
+    /* Header */
+    .luxury-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
     }
 
-    @media (max-width: 1200px) {
-        .sc-main-layout { grid-template-columns: 1fr; }
-        .sc-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-        .sc-pulse-box { width: 100%; }
-    }
-
-    .sc-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .sc-table th {
-        padding: 18px 20px;
-        text-align: left;
-        color: var(--text-muted);
+    .breadcrumb-luxury {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--lux-dim);
         font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
     }
 
-    .sc-table td {
-        padding: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .badge-danger-soft { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
-    .badge-warning-soft { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
-    .badge-outline-warning { border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; }
-
-    .sc-ban-item:hover { background: rgba(255, 255, 255, 0.02); }
-
-    .sc-status-pill {
-        font-size: 0.65rem;
+    .luxury-title {
+        font-size: 2.25rem;
         font-weight: 800;
-        padding: 4px 10px;
-        border-radius: 6px;
-        letter-spacing: 0.5px;
+        letter-spacing: -1px;
     }
 
-    .sc-status-pill.danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
+    .system-pulse-glass {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 12px 24px;
+        border-radius: 60px;
+        border: 1px solid var(--lux-border);
+    }
+
+    .pulse-node {
+        width: 10px; height: 10px;
+        background: var(--lux-cyan);
+        border-radius: 50%;
+        box-shadow: 0 0 15px var(--lux-cyan);
+        animation: pulseAnimation 2s infinite;
+    }
+
+    @keyframes pulseAnimation {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.6); opacity: 0.4; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Top Grid */
+    .luxury-grid-top {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+    }
+
+    .l-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .l-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.05); }
+
+    .l-card-glow {
+        position: absolute;
+        bottom: 0; left: 0; right: 0; height: 100px;
+        background: radial-gradient(circle at center, transparent, transparent);
+        opacity: 0.1;
+        transition: 0.4s;
+    }
+    .l-card:hover .l-card-glow.cyan { background: radial-gradient(60% 120% at 50% 100%, var(--lux-cyan), transparent); }
+    .l-card:hover .l-card-glow.red { background: radial-gradient(60% 120% at 50% 100%, var(--lux-red), transparent); }
+    .l-card:hover .l-card-glow.gold { background: radial-gradient(60% 120% at 50% 100%, var(--lux-gold), transparent); }
+
+    .l-card-header { display: flex; align-items: center; gap: 15px; }
+
+    .l-icon-box {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 14px;
+    }
+    .l-icon-box.cyan { background: rgba(0, 242, 255, 0.1); color: var(--lux-cyan); }
+    .l-icon-box.red { background: rgba(255, 59, 48, 0.1); color: var(--lux-red); }
+    .l-icon-box.gold { background: rgba(255, 204, 0, 0.1); color: var(--lux-gold); }
+
+    .l-icon-box svg { width: 24px; height: 24px; }
+
+    .l-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--lux-dim); text-transform: uppercase; }
+
+    .l-value { font-size: 2.75rem; font-weight: 800; margin: 0; margin-bottom: 5px; }
+
+    /* Layout Split */
+    .luxury-split-layout { display: grid; grid-template-columns: 2.2fr 1fr; gap: 30px; }
+
+    @media (max-width: 1100px) { .luxury-split-layout { grid-template-columns: 1fr; } }
+
+    .luxury-table { width: 100%; border-collapse: collapse; }
+    .luxury-table th {
+        padding: 24px;
+        text-align: left;
+        font-size: 0.65rem; font-weight: 800; color: var(--lux-dim);
+        text-transform: uppercase; letter-spacing: 1.5px;
+        border-bottom: 1px solid var(--lux-border);
+    }
+    .luxury-table td { padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); }
+
+    .l-row { transition: 0.2s; }
+    .l-row:hover { background: rgba(255, 255, 255, 0.01); }
+
+    .l-badge {
+        padding: 6px 14px; border-radius: 50px;
+        font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+    }
+    .gold-dim { background: rgba(255, 204, 0, 0.1); color: var(--lux-gold); border: 1px solid rgba(255, 204, 0, 0.2); }
+
+    .l-badge-soft {
+        padding: 4px 10px; border-radius: 6px;
+        font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    }
+    .l-badge-soft.red { background: rgba(255, 59, 48, 0.08); color: var(--lux-red); }
+    .l-badge-soft.gold { background: rgba(255, 204, 0, 0.08); color: var(--lux-gold); }
+
+    .l-registry-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--lux-border);
+        border-radius: 16px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .l-status-tag { font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
+    .red-soft { color: var(--lux-red); border: 1px solid var(--lux-red); }
 
     /* Terminal */
-    .sc-terminal {
-        background: #000;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    .luxury-terminal {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--lux-border);
+        border-radius: 20px;
+        height: 250px;
+        overflow-y: auto;
     }
+    .terminal-lines { color: #10b981; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; }
+    .line { margin-bottom: 8px; font-weight: 500; }
+    .prompt { color: var(--lux-dim); margin-right: 12px; }
 
-    .sc-terminal-dots { display: flex; gap: 6px; }
-    .sc-terminal-dots span { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-red { background: #ff5f56; }
-    .dot-yellow { background: #ffbd2e; }
-    .dot-green { background: #27c93f; }
-
-    .sc-terminal-code {
-        color: #10b981;
-        font-family: 'Consolas', 'Monaco', monospace;
-        font-size: 0.85rem;
-        line-height: 1.6;
-        margin: 0;
-    }
-
-    /* Utils */
+    /* Helper Classes */
+    .dim { color: var(--lux-dim); }
+    .white { color: #fff; }
+    .cyan-text { color: var(--lux-cyan); }
+    .gold-text { color: var(--lux-gold); }
+    .red-text { color: var(--lux-red); }
+    .font-700 { font-weight: 700; }
+    .font-800 { font-weight: 800; }
+    .x-small { font-size: 0.65rem; }
+    .tracking-3 { letter-spacing: 3px; }
     .uppercase { text-transform: uppercase; }
-    .tracking-1 { letter-spacing: 1px; }
-    .tracking-2 { letter-spacing: 2px; }
-    .x-small { font-size: 0.7rem; }
-    .opacity-2 { opacity: 0.2; }
 </style>
 {% endblock %}
