@@ -238,49 +238,61 @@ def security_center():
     
     try:
         # 1. Firewall Status
-        fw = subprocess.check_output(['ufw', 'status'], stderr=subprocess.STDOUT).decode()
-        security_data['firewall_status'] = 'Faol' if 'active' in fw.lower() else 'Faol emas'
+        try:
+            # Use full path and sudo if needed
+            fw = subprocess.check_output(['sudo', 'ufw', 'status'], stderr=subprocess.STDOUT).decode()
+            security_data['firewall_status'] = 'Faol' if 'Status: active' in fw else 'Faol emas'
+        except Exception as fe:
+            with open('error.log', 'a') as f:
+                f.write(f"{datetime.datetime.now()} - Firewall Check Error: {str(fe)}\n")
         
         # 2. Banned IPs (Fail2Ban)
         try:
-            f2b = subprocess.check_output(['fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
+            f2b = subprocess.check_output(['sudo', 'fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
             for line in f2b.split('\n'):
                 if 'Banned IP list:' in line:
-                    ips = line.split('Banned IP list:')[1].strip().split()
-                    security_data['banned_ips'] = ips
-        except Exception:
-            pass
+                    ips_str = line.split('Banned IP list:')[1].strip()
+                    if ips_str:
+                        security_data['banned_ips'] = ips_str.split()
+        except Exception as f2e:
+           with open('error.log', 'a') as f:
+                f.write(f"{datetime.datetime.now()} - Fail2Ban Check Error: {str(f2e)}\n")
             
-        # 3. Failed Login Attempts (Last 20)
+        # 3. Failed Login Attempts (Last 50 logs, filtered)
         try:
-            log_out = subprocess.check_output(['journalctl', '_SYSTEMD_UNIT=ssh.service', '--no-pager', '-n', '50'], stderr=subprocess.STDOUT).decode()
-            for line in log_out.split('\n'):
+            log_out = subprocess.check_output(['sudo', 'journalctl', '_SYSTEMD_UNIT=ssh.service', '--no-pager', '-n', '100'], stderr=subprocess.STDOUT).decode()
+            seen_ips = set()
+            attempts = []
+            for line in reversed(log_out.split('\n')):
                 if 'Failed password' in line:
-                    # Parse line: Apr 12 11:52:04 vps06538.eskiz.uz sshd[348374]: Failed password for root from 66.175.212.186 port 49030 ssh2
                     parts = line.split('from ')
                     if len(parts) > 1:
                         ip = parts[1].split()[0]
                         time_part = " ".join(line.split()[:3])
-                        user_part = "root" if 'for root' in line else "invalid user"
-                        security_data['failed_attempts'].append({
+                        user_type = "root" if 'for root' in line else "invalid user"
+                        attempts.append({
                             'time': time_part,
                             'ip': ip,
-                            'user': user_part,
-                            'full': line
+                            'user': user_type
                         })
-            security_data['failed_attempts'].reverse() # Newest first
-        except Exception:
-            pass
+            security_data['failed_attempts'] = attempts[:20] # Return last 20 unique-ish
+        except Exception as le:
+            with open('error.log', 'a') as f:
+                f.write(f"{datetime.datetime.now()} - Log Check Error: {str(le)}\n")
             
         # 4. Open Ports
         try:
-            ports_out = subprocess.check_output(['ss', '-tunlp'], stderr=subprocess.STDOUT).decode()
-            security_data['open_ports'] = [line for line in ports_out.split('\n') if 'LISTEN' in line]
-        except Exception:
+            ports_out = subprocess.check_output(['sudo', 'ss', '-tuln'], stderr=subprocess.STDOUT).decode()
+            # Clean up the output to be more readable
+            lines = [l for l in ports_out.split('\n') if l.strip()]
+            security_data['open_ports'] = lines
+        except Exception as pe:
             pass
             
     except Exception as e:
-        flash(f"Xavfsizlik ma'lumotlarini olishda xatolik: {str(e)}", "warning")
+        with open('error.log', 'a') as f:
+            f.write(f"{datetime.datetime.now()} - Security Center Global Error: {str(e)}\n")
+        flash(f"Xavfsizlik ma'lumotlarini olishda kutilmagan xatolik: {str(e)}", "warning")
         
     return render_template('admin/security.html', data=security_data)
 
