@@ -5,59 +5,68 @@
 {% block content %}
 <div class="sf-wrapper">
     <!-- Header -->
-    <header class="sf-header">
+    <header class="sf-header reveal-1">
         <div class="sf-header-text">
             <h1 class="sf-title">Xavfsizlik Jurnali</h1>
             <p class="sf-subtitle">Tizim holati va tarmoqni avtomatlashtirilgan tekshirish paneli.</p>
         </div>
-        <div class="sf-live-badge">
+        <div class="sf-live-badge pulse-container">
             <div class="sf-dot"></div>
-            <span>Jonli ulanish</span>
+            <span>Jonli efirda</span>
         </div>
     </header>
 
     <!-- Top Stats -->
-    <div class="sf-stats-grid">
-        <div class="sf-card stat-card">
+    <div class="sf-stats-grid reveal-2">
+        <div class="sf-card stat-card hover-lift">
             <div class="stat-top">
-                <span class="stat-label">Firewall Holati</span>
-                <i class='bx bx-shield-quarter stat-icon text-green'></i>
+                <span class="stat-label">Firewall Himoyasi</span>
+                <div class="icon-glass bg-green-glass">
+                    <i class='bx bx-shield-quarter text-green'></i>
+                </div>
             </div>
             <div class="stat-value {{ 'text-green' if data.firewall_status == 'Faol' else 'text-red' }}" id="valFw">
                 {{ data.firewall_status }}
             </div>
+            <div class="stat-footer text-muted">Joriy qoidalar faol</div>
         </div>
 
-        <div class="sf-card stat-card">
+        <div class="sf-card stat-card hover-lift">
             <div class="stat-top">
-                <span class="stat-label">Hujum Urinishlari</span>
-                <i class='bx bx-crosshair stat-icon text-muted'></i>
+                <span class="stat-label">Tasdiqlanmagan Urinishlar</span>
+                <div class="icon-glass bg-gray-glass">
+                    <i class='bx bx-crosshair text-muted'></i>
+                </div>
             </div>
             <div class="stat-value text-white d-flex align-items-baseline gap-2">
-                <span id="valAttacks">{{ data.failed_attempts|length }}</span>
-                <span class="stat-unit">ta</span>
+                <span id="valAttacks" class="stat-num">{{ data.failed_attempts|length }}</span>
+                <span class="stat-unit">urinish</span>
             </div>
+            <div class="stat-footer text-muted">So'nggi bir necha soatda</div>
         </div>
 
-        <div class="sf-card stat-card">
+        <div class="sf-card stat-card hover-lift">
             <div class="stat-top">
-                <span class="stat-label">Bloklangan Tarmoqlar</span>
-                <i class='bx bx-block stat-icon text-red'></i>
+                <span class="stat-label">Avto-blokka tushganlar</span>
+                <div class="icon-glass bg-red-glass">
+                    <i class='bx bx-block text-red'></i>
+                </div>
             </div>
             <div class="stat-value text-white d-flex align-items-baseline gap-2">
-                <span id="valBans">{{ data.banned_ips|length }}</span>
-                <span class="stat-unit">ta</span>
+                <span id="valBans" class="stat-num">{{ data.banned_ips|length }}</span>
+                <span class="stat-unit">ta tarmoq</span>
             </div>
+            <div class="stat-footer text-red">Xavf batamom bartaraf etilgan</div>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="sf-main-grid">
+    <div class="sf-main-grid reveal-3">
         <!-- Event Logs (Left, larger flex) -->
-        <div class="sf-card flex-2">
+        <div class="sf-card flex-2 seamless-card">
             <div class="card-header-clean">
-                <h2 class="card-title-clean">So'nggi Hodisalar</h2>
-                <button class="sf-btn" onclick="fetchLiveStats()"><i class='bx bx-refresh'></i> Yangilash</button>
+                <h2 class="card-title-clean">So'nggi Xavfsizlik Hodisalari</h2>
+                <button class="sf-btn-glass" onclick="fetchLiveStats()"><i class='bx bx-refresh'></i> Hozir</button>
             </div>
             <div class="sf-table-wrapper">
                 <table class="sf-table">
@@ -71,13 +80,14 @@
                     </thead>
                     <tbody id="logsTbody">
                         {% for attempt in data.failed_attempts %}
-                        <tr>
+                        <tr class="table-row-hover">
                             <td>
                                 <span class="sf-badge {{ 'sf-danger' if attempt.user == 'root' else 'sf-warning' }}">
+                                    <span class="badge-dot {{ 'bg-red' if attempt.user == 'root' else 'bg-yellow' }}"></span>
                                     {{ 'Kritik' if attempt.user == 'root' else 'O\'rta' }}
                                 </span>
                             </td>
-                            <td class="text-white">Avtorizatsiyadan ruxsatsiz o'tish</td>
+                            <td class="text-white font-weight-medium">Ruxsatsiz avtorizatsiya urinishi</td>
                             <td><span class="sf-mono">{{ attempt.ip }}</span></td>
                             <td class="text-muted">{{ attempt.time }}</td>
                         </tr>
@@ -91,16 +101,18 @@
 
         <!-- Banned Targets (Right, smaller flex) -->
         <div class="sf-side-grid">
-            <div class="sf-card">
+            <div class="sf-card seamless-card">
                 <div class="card-header-clean mb-3">
                     <h2 class="card-title-clean m-0">Qora Ro'yxat</h2>
-                    <span class="sf-badge sf-danger-solid">Aktiv tarmoqlar</span>
+                    <span class="sf-badge sf-danger-solid">Aktiv cheklovlar</span>
                 </div>
                 <div class="sf-list" id="bansContainer">
                     {% for ip in data.banned_ips[:8] %}
                     <div class="sf-list-item">
-                        <span class="sf-mono text-white">{{ ip }}</span>
-                        <i class='bx bx-lock-alt text-red'></i>
+                        <div class="d-flex align-items-center gap-3">
+                            <i class='bx bx-lock-alt text-red list-icon'></i>
+                            <span class="sf-mono text-white">{{ ip }}</span>
+                        </div>
                     </div>
                     {% else %}
                     <div class="text-center text-muted pd-4">Ro'yxat bo'sh</div>
@@ -108,22 +120,22 @@
                 </div>
             </div>
 
-            <div class="sf-card">
+            <div class="sf-card seamless-card indicator-card">
                 <div class="card-header-clean mb-3">
                     <h2 class="card-title-clean m-0">Skanner Tizimi</h2>
                 </div>
                 <div class="sf-list">
-                    <div class="sf-list-item">
+                    <div class="sf-list-item-clean">
                         <span class="text-white">Asosiy Tarmoq Tahlili</span>
-                        <i class='bx bx-check-circle text-green'></i>
+                        <div class="status-circle active"></div>
                     </div>
-                    <div class="sf-list-item">
+                    <div class="sf-list-item-clean">
                         <span class="text-white">SSHD Kuzatuvi</span>
-                        <i class='bx bx-check-circle text-green'></i>
+                        <div class="status-circle active"></div>
                     </div>
-                    <div class="sf-list-item">
+                    <div class="sf-list-item-clean">
                         <span class="text-white">Fail2Ban Jurnali</span>
-                        <i class='bx bx-check-circle text-green'></i>
+                        <div class="status-circle active"></div>
                     </div>
                 </div>
             </div>
@@ -133,114 +145,157 @@
 
 <style>
     /*
-        PREMIUM MINIMAL DESIGN (Vercel / Stripe Aesthetic)
-        Built exactly from scratch. Perfect reading focus.
+        ULTRAMODERN ENTERPRISE SAAS POLISH
+        Apple/Stripe Inspired. Silky smooth interactions.
     */
     
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
     :root {
-        --sf-bg: #000000;
-        --sf-card: #0A0A0A;
-        --sf-border: #222222;
-        --sf-border-hover: #333333;
+        --sf-bg: #050505;
+        --sf-card: #0e0e10;
+        --sf-card-gradient: linear-gradient(180deg, rgba(20,20,22,1) 0%, rgba(10,10,12,1) 100%);
+        --sf-border: #222224;
+        --sf-border-hover: rgba(255,255,255,0.2);
         
         --text-pure: #ffffff;
         --text-secondary: #a1a1aa;
-        --text-tertiary: #52525b;
+        --text-tertiary: #6b7280;
         
-        --sf-green: #34d399;
-        --sf-red: #f87171;
-        --sf-yellow: #fbbf24;
+        --sf-green: #10b981;
+        --sf-red: #ef4444;
+        --sf-yellow: #f59e0b;
     }
 
-    /* Core Container */
+    body { background-color: var(--sf-bg); }
+
     .sf-wrapper {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-family: 'Inter', -apple-system, sans-serif;
         background-color: var(--sf-bg);
         min-height: 100vh;
         padding: 40px;
         color: var(--text-pure);
         box-sizing: border-box;
+        overflow-x: hidden;
     }
 
-    @media (max-width: 768px) {
-        .sf-wrapper { padding: 20px; }
+    /* Entrance Animations */
+    .reveal-1 { animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .reveal-2 { animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; opacity: 0; }
+    .reveal-3 { animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; opacity: 0; }
+    
+    @keyframes fadeInDown {
+        0% { opacity: 0; transform: translateY(15px); }
+        100% { opacity: 1; transform: translateY(0); }
     }
 
     /* Header */
-    .sf-header {
-        display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;
-    }
-    .sf-title { font-size: 24px; font-weight: 600; margin: 0 0 8px 0; letter-spacing: -0.5px; }
-    .sf-subtitle { font-size: 14px; color: var(--text-secondary); margin: 0; }
+    .sf-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+    .sf-title { font-size: 26px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.8px; color: #fff;}
+    .sf-subtitle { font-size: 14px; color: var(--text-secondary); margin: 0; font-weight: 400;}
 
     .sf-live-badge {
         display: flex; align-items: center; gap: 8px;
-        background: var(--sf-card); padding: 6px 14px; border-radius: 40px;
-        border: 1px solid var(--sf-border); font-size: 12px; font-weight: 500; color: var(--text-secondary);
+        background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 40px;
+        border: 1px solid var(--sf-border); font-size: 13px; font-weight: 500; color: var(--text-secondary);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
-    .sf-dot { width: 8px; height: 8px; background: var(--sf-green); border-radius: 50%; box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+    .pulse-container { position: relative; }
+    .sf-dot { width: 8px; height: 8px; background: var(--sf-green); border-radius: 50%; box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); animation: softPulse 2s infinite;}
+    
+    @keyframes softPulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.4); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
+    }
 
     /* Grids */
-    .sf-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px; }
+    .sf-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px; }
     .sf-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
     .sf-side-grid { display: flex; flex-direction: column; gap: 24px; }
+    @media (max-width: 1024px) { .sf-main-grid { grid-template-columns: 1fr; } }
 
-    @media (max-width: 1024px) {
-        .sf-main-grid { grid-template-columns: 1fr; }
-    }
-
-    /* Cards */
+    /* Premium Glass Cards */
     .sf-card {
-        background-color: var(--sf-card);
+        background: var(--sf-card-gradient);
         border: 1px solid var(--sf-border);
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 24px;
-        transition: border-color 0.2s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-    .sf-card:hover { border-color: var(--sf-border-hover); }
+    .hover-lift { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+    .seamless-card { background: #0A0A0C; padding: 28px; }
 
-    /* Stats Content */
-    .stat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .stat-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-    .stat-icon { font-size: 18px; }
-    .stat-value { font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -1px; }
-    .stat-unit { font-size: 14px; color: var(--text-tertiary); font-weight: 400; letter-spacing: 0;}
+    /* Stats Formats */
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .stat-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;}
+    
+    .icon-glass { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 10px; font-size: 20px;}
+    .bg-green-glass { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .bg-red-glass { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .bg-gray-glass { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); }
+
+    .stat-value { font-size: 42px; font-weight: 700; line-height: 1; letter-spacing: -1.5px; margin-bottom: 8px;}
+    .stat-unit { font-size: 16px; color: var(--text-secondary); font-weight: 500; letter-spacing: 0;}
+    .stat-footer { font-size: 12px; margin-top: 8px;}
 
     /* Content Cards */
-    .card-header-clean { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .card-title-clean { font-size: 16px; font-weight: 500; margin: 0; color: var(--text-pure); }
+    .card-header-clean { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 16px;}
+    .card-title-clean { font-size: 15px; font-weight: 600; margin: 0; color: var(--text-pure); }
 
     /* Tables */
     .sf-table-wrapper { overflow-x: auto; }
     .sf-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .sf-table th { font-size: 12px; font-weight: 500; color: var(--text-tertiary); padding-bottom: 16px; border-bottom: 1px solid var(--sf-border); }
-    .sf-table td { padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 14px; }
+    .sf-table th { font-size: 11px; font-weight: 500; color: var(--text-tertiary); padding: 0 16px 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); text-transform: uppercase; letter-spacing: 0.5px;}
+    .sf-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; transition: background-color 0.2s;}
     
+    .table-row-hover:hover td { background-color: rgba(255,255,255,0.02); cursor: default; }
+    .font-weight-medium { font-weight: 500; }
+
     /* Lists */
-    .sf-list { display: flex; flex-direction: column; gap: 12px; }
-    .sf-list-item { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid transparent; transition: 0.2s;}
-    .sf-list-item:hover { border-color: var(--sf-border); background: rgba(255,255,255,0.04);}
+    .sf-list { display: flex; flex-direction: column; gap: 8px; }
+    .sf-list-item { 
+        display: flex; justify-content: space-between; align-items: center; 
+        font-size: 13px; padding: 12px 16px; background: rgba(255,255,255,0.02); 
+        border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); transition: 0.2s;
+    }
+    .sf-list-item:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);}
+    .list-icon { font-size: 16px; opacity: 0.8;}
+
+    .sf-list-item-clean { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 12px; }
+    .status-circle { width: 10px; height: 10px; border-radius: 50%; }
+    .status-circle.active { background: var(--sf-green); box-shadow: 0 0 8px rgba(16,185,129,0.5);}
 
     /* Badges & Buttons */
-    .sf-badge { display: inline-flex; align-items: center; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; }
-    .sf-danger { background: rgba(248, 113, 113, 0.1); color: var(--sf-red); }
-    .sf-warning { background: rgba(251, 191, 36, 0.1); color: var(--sf-yellow); }
-    .sf-danger-solid { background: rgba(248, 113, 113, 0.1); color: var(--sf-red); border: 1px solid rgba(248,113,113,0.2) }
+    .sf-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+    
+    .sf-danger { background: rgba(239, 68, 68, 0.1); color: var(--sf-red); border: 1px solid rgba(239, 68, 68, 0.2);}
+    .sf-warning { background: rgba(245, 158, 11, 0.1); color: var(--sf-yellow); border: 1px solid rgba(245, 158, 11, 0.2);}
+    .sf-danger-solid { background: transparent; color: var(--sf-red); border: 1px solid rgba(239, 68, 68, 0.4); }
 
-    .sf-btn { background: var(--sf-bg); border: 1px solid var(--sf-border); color: var(--text-pure); font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px;}
-    .sf-btn:hover { background: #111; border-color: #444; }
+    .sf-btn-glass { 
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); 
+        color: var(--text-pure); font-size: 12px; font-weight: 500; 
+        padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; 
+        display: flex; align-items: center; gap: 6px;
+    }
+    .sf-btn-glass:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
 
     /* Utilities */
-    .sf-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; letter-spacing: -0.2px; font-size: 13px;}
+    .sf-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px;}
     .text-green { color: var(--sf-green) !important; }
     .text-red { color: var(--sf-red) !important; }
+    .bg-red { background-color: var(--sf-red) !important; }
+    .bg-yellow { background-color: var(--sf-yellow) !important; }
     .text-white { color: var(--text-pure) !important; }
     .text-muted { color: var(--text-secondary) !important; }
     .pd-4 { padding: 32px; }
     .m-0 { margin: 0 !important; }
-    .mb-3 { margin-bottom: 16px !important; }
+    .mb-3 { margin-bottom: 24px !important; }
     .flex-2 { flex: 2; } .flex-1 { flex: 1; }
-    .gap-2 { gap: 8px; }
+    .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
 </style>
 
 <script>
@@ -264,11 +319,16 @@
                 let h = '';
                 data.failed_attempts.forEach(a => {
                     const sevClass = a.user === 'root' ? 'sf-danger' : 'sf-warning';
+                    const dotClass = a.user === 'root' ? 'bg-red' : 'bg-yellow';
                     const sevLbl = a.user === 'root' ? 'Kritik' : 'O\'rta';
                     
-                    h += `<tr>
-                        <td><span class="sf-badge ${sevClass}">${sevLbl}</span></td>
-                        <td class="text-white">Avtorizatsiyadan ruxsatsiz o'tish</td>
+                    h += `<tr class="table-row-hover">
+                        <td>
+                            <span class="sf-badge ${sevClass}">
+                                <span class="badge-dot ${dotClass}"></span> ${sevLbl}
+                            </span>
+                        </td>
+                        <td class="text-white font-weight-medium">Ruxsatsiz avtorizatsiya urinishi</td>
                         <td><span class="sf-mono">${a.ip}</span></td>
                         <td class="text-muted">${a.time}</td>
                     </tr>`;
@@ -282,14 +342,16 @@
                 let h = '';
                 data.banned_ips.slice(0, 8).forEach(ip => {
                     h += `<div class="sf-list-item">
-                        <span class="sf-mono text-white">${ip}</span>
-                        <i class='bx bx-lock-alt text-red'></i>
+                        <div class="d-flex align-items-center gap-3">
+                            <i class='bx bx-lock-alt text-red list-icon'></i>
+                            <span class="sf-mono text-white">${ip}</span>
+                        </div>
                     </div>`;
                 });
                 bl.innerHTML = h;
             }
 
-        } catch(e) { console.error('Silent failure acceptable'); }
+        } catch(e) { console.error('Silent pull'); }
     }
 
     // Ping silently every 10 seconds without breaking layout
