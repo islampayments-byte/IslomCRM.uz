@@ -229,7 +229,7 @@ def security_center():
         abort(403)
     
     security_data = {
-        'firewall_status': 'Noma'lum',
+        'firewall_status': "Noma'lum",
         'banned_ips': [],
         'failed_attempts': [],
         'open_ports': [],
