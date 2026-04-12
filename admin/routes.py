@@ -239,14 +239,14 @@ def security_center():
     try:
         # 1. Firewall Status
         try:
-            fw = subprocess.check_output(['ufw', 'status'], stderr=subprocess.STDOUT).decode()
+            fw = subprocess.check_output(['/usr/sbin/ufw', 'status'], stderr=subprocess.STDOUT).decode()
             security_data['firewall_status'] = 'Faol' if 'Status: active' in fw else 'Faol emas'
         except Exception as fe:
             security_data['firewall_status'] = 'Xatolik'
         
         # 2. Banned IPs (Fail2Ban)
         try:
-            f2b = subprocess.check_output(['fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
+            f2b = subprocess.check_output(['/usr/bin/fail2ban-client', 'status', 'sshd'], stderr=subprocess.STDOUT).decode()
             if 'Banned IP list:' in f2b:
                 ips_str = f2b.split('Banned IP list:')[1].strip()
                 if ips_str:
@@ -256,8 +256,7 @@ def security_center():
             
         # 3. Failed Login Attempts
         try:
-            # Get last 100 lines and find 'Failed password'
-            log_out = subprocess.check_output(['journalctl', '_SYSTEMD_UNIT=ssh.service', '-n', '200', '--no-pager'], stderr=subprocess.STDOUT).decode()
+            log_out = subprocess.check_output(['/usr/bin/journalctl', '_SYSTEMD_UNIT=ssh.service', '-n', '200', '--no-pager'], stderr=subprocess.STDOUT).decode()
             attempts = []
             for line in reversed(log_out.split('\n')):
                 if 'Failed password' in line:
@@ -277,7 +276,7 @@ def security_center():
             
         # 4. Open Ports
         try:
-            ports_out = subprocess.check_output(['ss', '-tuln'], stderr=subprocess.STDOUT).decode()
+            ports_out = subprocess.check_output(['/usr/bin/ss', '-tuln'], stderr=subprocess.STDOUT).decode()
             security_data['open_ports'] = [l.strip() for l in ports_out.split('\n') if l.strip()]
         except Exception:
             pass
