@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session
+from flask import Flask, redirect, url_for, session, render_template, request, jsonify
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
@@ -180,7 +180,7 @@ def mini_app_landing(code, slug):
         abort(404) # Show generic 404 for security
 
 # --- Mini App API Endpoints ---
-from flask import request, jsonify
+
 
 def get_eskiz_token():
     email = os.getenv('ESKIZ_EMAIL', 'info@islomcrm.uz')
